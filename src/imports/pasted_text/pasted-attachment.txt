@@ -1,0 +1,160 @@
+> **Add a custom tag input mini-overlay to every `+` button in `JournalContextOverlay.tsx`.**
+>
+> **Step 1 — Add state for the mini overlay:**
+> ```tsx
+> const [customTagOverlay, setCustomTagOverlay] = useState<{
+>   open: boolean;
+>   section: 'substances' | 'locations' | 'reasons' | null;
+> }>({ open: false, section: null });
+> const [customTagInput, setCustomTagInput] = useState('');
+> const customTagRef = useRef<HTMLInputElement>(null);
+> ```
+>
+> **Step 2 — Wire each `+` button to open the mini overlay for its section:**
+> ```tsx
+> // Substances + button:
+> <button onClick={() => {
+>   setCustomTagInput('');
+>   setCustomTagOverlay({ open: true, section: 'substances' });
+> }}>+</button>
+>
+> // Locations + button:
+> <button onClick={() => {
+>   setCustomTagInput('');
+>   setCustomTagOverlay({ open: true, section: 'locations' });
+> }}>+</button>
+>
+> // Reasons + button:
+> <button onClick={() => {
+>   setCustomTagInput('');
+>   setCustomTagOverlay({ open: true, section: 'reasons' });
+> }}>+</button>
+> ```
+>
+> **Step 3 — Add the `handleAddCustomTag` function:**
+> ```tsx
+> const handleAddCustomTag = () => {
+>   const value = customTagInput.trim();
+>   if (!value || !customTagOverlay.section) return;
+>
+>   if (customTagOverlay.section === 'substances') {
+>     setSelectedSubstances(prev => [...prev, value]);
+>   } else if (customTagOverlay.section === 'locations') {
+>     setSelectedLocations(prev => [...prev, value]);
+>   } else if (customTagOverlay.section === 'reasons') {
+>     setSelectedReasons(prev => [...prev, value]);
+>   }
+>
+>   setCustomTagInput('');
+>   setCustomTagOverlay({ open: false, section: null });
+> };
+> ```
+>
+> **Step 4 — Render the mini overlay:**
+>
+> Place this at the very bottom of the component JSX, above the closing `</div>`:
+> ```tsx
+> {customTagOverlay.open && (
+>   <>
+>     {/* Dim backdrop — tapping it closes the mini overlay */}
+>     <div
+>       onClick={() => setCustomTagOverlay({ open: false, section: null })}
+>       style={{
+>         position: 'fixed',
+>         inset: 0,
+>         background: 'rgba(0,0,0,0.6)',
+>         zIndex: 90,
+>       }}
+>     />
+>
+>     {/* Mini overlay panel — slides up from bottom */}
+>     <div style={{
+>       position: 'fixed',
+>       bottom: 0,
+>       left: 0,
+>       right: 0,
+>       zIndex: 91,
+>       background: '#171717',
+>       borderRadius: '20px 20px 0 0',
+>       padding: '24px 16px 40px',
+>       display: 'flex',
+>       flexDirection: 'column',
+>       gap: '16px',
+>     }}>
+>       {/* Handle bar */}
+>       <div style={{
+>         width: '40px',
+>         height: '4px',
+>         background: 'rgba(241,241,241,0.3)',
+>         borderRadius: '100px',
+>         margin: '0 auto 8px',
+>       }} />
+>
+>       {/* Label */}
+>       <p style={{
+>         fontFamily: 'Roboto, sans-serif',
+>         fontWeight: 700,
+>         fontSize: '18px',
+>         color: '#F1F1F1',
+>         margin: 0,
+>         letterSpacing: '0.36px',
+>       }}>
+>         Add custom tag
+>       </p>
+>
+>       {/* Text input */}
+>       <input
+>         ref={customTagRef}
+>         type="text"
+>         value={customTagInput}
+>         onChange={e => setCustomTagInput(e.target.value)}
+>         onKeyDown={e => e.key === 'Enter' && handleAddCustomTag()}
+>         placeholder="Type your tag..."
+>         autoFocus
+>         style={{
+>           background: 'transparent',
+>           border: '1px solid rgba(241,241,241,0.3)',
+>           borderRadius: '12px',
+>           padding: '14px 16px',
+>           fontFamily: 'Roboto, sans-serif',
+>           fontSize: '16px',
+>           color: '#F1F1F1',
+>           outline: 'none',
+>           letterSpacing: '0.32px',
+>           caretColor: '#8C5CFE',
+>         }}
+>       />
+>
+>       {/* Add button */}
+>       <button
+>         onClick={handleAddCustomTag}
+>         style={{
+>           background: customTagInput.trim() ? '#8C5CFE' : 'rgba(140,92,254,0.3)',
+>           border: 'none',
+>           borderRadius: '8px',
+>           height: '56px',
+>           width: '100%',
+>           fontFamily: 'Roboto, sans-serif',
+>           fontWeight: 700,
+>           fontSize: '18px',
+>           color: '#F1F1F1',
+>           cursor: customTagInput.trim() ? 'pointer' : 'default',
+>           letterSpacing: '0.36px',
+>           transition: 'background 0.15s ease',
+>         }}
+>       >
+>         Add tag
+>       </button>
+>     </div>
+>   </>
+> )}
+> ```
+>
+> **Behaviour:**
+> - Tapping `+` on any section opens the mini overlay for that specific section
+> - Typing and pressing Enter or tapping "Add tag" adds the new tag to that section's selected list and immediately shows it as a selected (purple) tag
+> - Tapping the dim backdrop dismisses without adding
+> - "Add tag" button is fully purple when input has text, dimmed when empty
+> - `autoFocus` ensures the keyboard opens immediately
+>
+> **Do not change any other logic, layout, or existing tag behaviour.**

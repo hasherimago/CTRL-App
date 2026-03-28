@@ -189,8 +189,8 @@ export default function App() {
           </div>
 
           {/* ── SCROLLABLE CONTENT ── */}
-          <div className="absolute top-0 bottom-[100px] left-0 right-0 overflow-y-auto overflow-x-hidden">
-            <div className="pb-6 space-y-4">
+          <div className="absolute top-0 bottom-0 left-0 right-0 overflow-y-auto overflow-x-hidden">
+            <div className="pb-[124px] space-y-4">
 
               <div className="w-full h-[416px]">
                 <MainNewsBlock onReadArticle={() => setCurrentPage('article')} />

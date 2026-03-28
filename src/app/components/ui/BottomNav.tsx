@@ -163,19 +163,6 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           );
         })}
 
-        {/* Home indicator bar */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '8.05px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '134.801px',
-            height: '5.03px',
-            background: '#F1F1F1',
-            borderRadius: '100px',
-          }}
-        />
       </div>
     </div>
   );

@@ -156,11 +156,18 @@ export default function App() {
         <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
           {/* ── FIXED HEADER ── */}
-          <div
-            className="fixed top-0 left-0 right-0 z-50 h-[56px] backdrop-blur-[0.5px]"
-            style={{ background: 'linear-gradient(to bottom, #0d0d0d 0%, rgba(13,13,13,0) 95.985%)' }}
-          >
-            <div className="h-full flex items-center justify-between px-4">
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50 }}>
+            {/* Layer 1: blur with gradient mask */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+            }} />
+            {/* Layer 2: solid → transparent gradient */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
+            {/* Layer 3: content */}
+            <div className="h-full flex items-center justify-between px-4" style={{ position: 'relative', zIndex: 10 }}>
               <button onClick={() => setProfileOpen(true)} className="overflow-clip relative shrink-0 size-[32px] bg-transparent border-0 cursor-pointer p-0" aria-label="Open profile">
                 <div className="absolute left-[2px] size-[28px] top-[2px]">
                   <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 28 28">

@@ -95,13 +95,13 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
     <div style={{ position: 'relative', width: '100%', height: '100%', background: '#0D0D0D', overflow: 'hidden' }}>
 
       {/* ── HEADER ── */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '56px', zIndex: 20 }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50 }}>
         {/* blur layer */}
         <div style={{
           position: 'absolute', inset: 0,
-          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 100%)',
-          maskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 100%)',
+          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
         }} />
         {/* gradient layer */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />

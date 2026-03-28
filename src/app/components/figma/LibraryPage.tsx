@@ -515,14 +515,14 @@ export function LibraryPage({ onTabChange, onDrugClick, onSearchOpen, onProfileO
                     key={label}
                     onClick={() => setActiveCategory(label)}
                     style={{
-                      background: isActive ? '#8C5CFE' : 'transparent',
+                      background: isActive ? color : 'transparent',
                       border: isActive ? 'none' : `1px solid ${color}`,
                       borderRadius: '44px',
                       padding: '8px 12px',
                       fontFamily: 'Roboto, sans-serif',
                       fontWeight: 400,
                       fontSize: '16px',
-                      color: isActive ? '#F1F1F1' : color,
+                      color: isActive ? '#0D0D0D' : color,
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       lineHeight: 1.3,

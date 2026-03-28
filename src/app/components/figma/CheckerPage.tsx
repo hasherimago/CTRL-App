@@ -262,7 +262,7 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
                 borderRadius: '16px',
                 border: '1px solid #1E1E1E',
                 background: '#111111',
-                minHeight: '220px',
+                minHeight: '240px',
                 padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -374,14 +374,14 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
                     key={label}
                     onClick={() => setActiveCategory(label)}
                     style={{
-                      background: isActive ? '#8C5CFE' : 'transparent',
+                      background: isActive ? color : 'transparent',
                       border: isActive ? 'none' : `1px solid ${color}`,
                       borderRadius: '44px',
                       padding: '8px 12px',
                       fontFamily: 'Roboto, sans-serif',
                       fontWeight: 400,
                       fontSize: '16px',
-                      color: isActive ? '#F1F1F1' : color,
+                      color: isActive ? '#0D0D0D' : color,
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       lineHeight: 1.3,

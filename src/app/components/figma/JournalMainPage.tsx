@@ -166,7 +166,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
             onClick={onLogTrip}
             style={{
               position: 'absolute',
-              bottom: '136px',
+              bottom: '156px',
               left: '50%',
               transform: 'translateX(-50%)',
               width: '244px',

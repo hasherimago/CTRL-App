@@ -108,31 +108,36 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
         {/* content */}
         <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
           {/* Profile icon */}
-          <button onClick={onProfileOpen} style={{ width: '32px', height: '32px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, position: 'relative', flexShrink: 0 }}>
-            <div style={{ position: 'absolute', left: '2px', top: '2px', width: '28px', height: '28px' }}>
-              <svg style={{ position: 'absolute', width: '100%', height: '100%' }} fill="none" viewBox="0 0 28 28">
-                <path d={svgPaths.p279b18f0} fill="#F1F1F1" />
-                <path clipRule="evenodd" d={svgPaths.p1b2ab480} fill="#F1F1F1" fillRule="evenodd" />
-              </svg>
-            </div>
+          <button
+            onClick={onProfileOpen}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            aria-label="Open profile"
+          >
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d={svgPaths.p279b18f0} fill="#F1F1F1" />
+              <path clipRule="evenodd" d={svgPaths.p1b2ab480} fill="#F1F1F1" fillRule="evenodd" />
+            </svg>
           </button>
 
           {/* Title */}
-          <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5 }}>Today - {dateStr}</span>
+          <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', margin: 0, lineHeight: 1.5 }}>
+            Today - {dateStr}
+          </p>
 
           {/* Calendar icon */}
-          <button style={{ width: '32px', height: '32px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, position: 'relative', flexShrink: 0 }}>
-            <div style={{ position: 'absolute', left: '2px', top: '2px', width: '28px', height: '25px' }}>
-              <svg style={{ position: 'absolute', width: '100%', height: '100%' }} fill="none" viewBox="0 0 28 25">
-                <path d="M9 20H5V18H9V20Z" fill="#F1F1F1" />
-                <path d="M16 20H12V18H16V20Z" fill="#F1F1F1" />
-                <path d="M23 20H19V18H23V20Z" fill="#F1F1F1" />
-                <path d="M9 15H5V13H9V15Z" fill="#F1F1F1" />
-                <path d="M16 15H12V13H16V15Z" fill="#F1F1F1" />
-                <path d="M23 15H19V13H23V15Z" fill="#F1F1F1" />
-                <path clipRule="evenodd" d={svgPaths.pf205780} fill="#F1F1F1" fillRule="evenodd" />
-              </svg>
-            </div>
+          <button
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            aria-label="Calendar"
+          >
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M9 20H5V18H9V20Z" fill="#F1F1F1" />
+              <path d="M16 20H12V18H16V20Z" fill="#F1F1F1" />
+              <path d="M23 20H19V18H23V20Z" fill="#F1F1F1" />
+              <path d="M9 15H5V13H9V15Z" fill="#F1F1F1" />
+              <path d="M16 15H12V13H16V15Z" fill="#F1F1F1" />
+              <path d="M23 15H19V13H23V15Z" fill="#F1F1F1" />
+              <path clipRule="evenodd" d={svgPaths.pf205780} fill="#F1F1F1" fillRule="evenodd" />
+            </svg>
           </button>
         </div>
       </div>

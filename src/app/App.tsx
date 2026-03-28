@@ -19,7 +19,6 @@ import { JournalReflectionOverlay } from './components/figma/JournalReflectionOv
 import { SuccessScreen } from './components/figma/SuccessScreen';
 import { BottomNav } from './components/ui/BottomNav';
 import { SearchOverlay } from './components/ui/SearchOverlay';
-import { CheckerPage } from './components/figma/CheckerPage';
 import type { TripLog, JournalStep } from './types/journal';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
@@ -30,7 +29,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
-  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal'>('home');
   const [selectedDrugId, setSelectedDrugId] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -41,7 +40,7 @@ export default function App() {
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
 
-  const previousPageRef = useRef<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const previousPageRef = useRef<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal'>('home');
   const skipTransitionRef = useRef(false);
 
   const openSearch = () => {
@@ -75,7 +74,6 @@ export default function App() {
     setSelectedDrugId(null);
     if (tab === 'Library') setCurrentPage('library');
     else if (tab === 'Home') setCurrentPage('home');
-    else if (tab === 'Checker') setCurrentPage('checker');
     else if (tab === 'Journal') { setCurrentPage('journal'); setJournalStep('main'); }
     else setCurrentPage('home');
   };
@@ -89,8 +87,6 @@ export default function App() {
       {/* ── BASE PAGE LAYER ── */}
       {currentPage === 'shop' ? (
         <ShopPage onBack={() => { setCurrentPage('home'); setActiveTab('Home'); }} onSearchOpen={openSearch} />
-      ) : currentPage === 'checker' ? (
-        <CheckerPage onTabChange={handleTabChange} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'library' ? (
         <LibraryPage onTabChange={handleTabChange} onDrugClick={handleDrugClick} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'article' ? (
@@ -171,30 +167,26 @@ export default function App() {
             {/* Layer 2: solid → transparent gradient */}
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
             {/* Layer 3: content */}
-            <div className="h-full flex items-center justify-between px-4" style={{ position: 'relative', zIndex: 10 }}>
-              <button onClick={() => setProfileOpen(true)} className="overflow-clip relative shrink-0 size-[32px] bg-transparent border-0 cursor-pointer p-0" aria-label="Open profile">
-                <div className="absolute left-[2px] size-[28px] top-[2px]">
-                  <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 28 28">
-                    <path d={svgPaths.p279b18f0} fill="#F1F1F1" />
-                    <path clipRule="evenodd" d={svgPaths.p1b2ab480} fill="#F1F1F1" fillRule="evenodd" />
-                  </svg>
-                </div>
+            <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
+              <button
+                onClick={() => setProfileOpen(true)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                aria-label="Open profile"
+              >
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <path d={svgPaths.p279b18f0} fill="#F1F1F1" />
+                  <path clipRule="evenodd" d={svgPaths.p1b2ab480} fill="#F1F1F1" fillRule="evenodd" />
+                </svg>
               </button>
-              <button onClick={openSearch} className="overflow-clip relative shrink-0 size-[32px] bg-transparent border-0 cursor-pointer p-0" aria-label="Open search">
-                <div className="absolute left-[5px] size-[18px] top-[5px]">
-                  <div className="absolute inset-[-5.56%]">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
-                      <circle cx="10" cy="10" r="9" stroke="#F1F1F1" strokeWidth="2" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="absolute left-[20px] size-[7px] top-[20px]">
-                  <div className="absolute inset-[-10.1%_-14.29%_-14.29%_-10.1%]">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 8.70711 8.70711">
-                      <path d={svgPaths.p1a067180} fill="#F1F1F1" />
-                    </svg>
-                  </div>
-                </div>
+              <button
+                onClick={openSearch}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                aria-label="Open search"
+              >
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <circle cx="13" cy="13" r="9" stroke="#F1F1F1" strokeWidth="2" />
+                  <path d="M19.5 19.5L25.5 25.5" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" />
+                </svg>
               </button>
             </div>
           </div>

@@ -203,7 +203,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
             style={{
               position: 'absolute',
               right: '16px',
-              bottom: '116px',
+              bottom: '156px',
               width: '59px',
               height: '59px',
               background: '#8C5CFE',

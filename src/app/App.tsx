@@ -19,6 +19,7 @@ import { JournalReflectionOverlay } from './components/figma/JournalReflectionOv
 import { SuccessScreen } from './components/figma/SuccessScreen';
 import { BottomNav } from './components/ui/BottomNav';
 import { SearchOverlay } from './components/ui/SearchOverlay';
+import { CheckerPage } from './components/figma/CheckerPage';
 import type { TripLog, JournalStep } from './types/journal';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
@@ -29,7 +30,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
-  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   const [selectedDrugId, setSelectedDrugId] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function App() {
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
 
-  const previousPageRef = useRef<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal'>('home');
+  const previousPageRef = useRef<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   const skipTransitionRef = useRef(false);
 
   const openSearch = () => {
@@ -74,6 +75,7 @@ export default function App() {
     setSelectedDrugId(null);
     if (tab === 'Library') setCurrentPage('library');
     else if (tab === 'Home') setCurrentPage('home');
+    else if (tab === 'Checker') setCurrentPage('checker');
     else if (tab === 'Journal') { setCurrentPage('journal'); setJournalStep('main'); }
     else setCurrentPage('home');
   };
@@ -87,6 +89,8 @@ export default function App() {
       {/* ── BASE PAGE LAYER ── */}
       {currentPage === 'shop' ? (
         <ShopPage onBack={() => { setCurrentPage('home'); setActiveTab('Home'); }} onSearchOpen={openSearch} />
+      ) : currentPage === 'checker' ? (
+        <CheckerPage onTabChange={handleTabChange} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'library' ? (
         <LibraryPage onTabChange={handleTabChange} onDrugClick={handleDrugClick} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'article' ? (

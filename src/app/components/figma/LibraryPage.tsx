@@ -31,6 +31,7 @@ export interface TripSitDrug {
 
 const CATEGORIES: { label: string; color: string }[] = [
   { label: 'All',          color: '#8C5CFE' },
+  { label: 'Saved',        color: '#FFD400' },
   { label: 'Stimulants',   color: '#FFADA5' },
   { label: 'Psychedelics', color: '#B2FFF1' },
   { label: 'Depressants',  color: '#B3C3D1' },
@@ -152,8 +153,7 @@ function DrugCardArt({ drug }: { drug: TripSitDrug }) {
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       aria-hidden
     >
-      {/* Background tint */}
-      <rect width="170" height="130" fill={`rgba(${r},${g},${b},0.06)`} />
+      {/* Background tint — removed, card bg shows through */}
 
       {/* Blob 1 */}
       <ellipse cx={bx1} cy={by1} rx={br1} ry={br1 * 0.85}
@@ -218,25 +218,24 @@ function DrugCard({ drug, onClick }: { drug: TripSitDrug; onClick?: () => void }
         border: '0.2px solid rgba(241,241,241,0.2)',
         borderRadius: '16px',
         width: '100%',
-        aspectRatio: '189 / 220',
         overflow: 'hidden',
         padding: '10px 8px',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        gap: '10px',
         cursor: onClick ? 'pointer' : 'default',
         boxSizing: 'border-box',
       }}
     >
-      {/* Art area — 130px tall in design */}
-      <div style={{ flex: '0 0 59%', width: '100%', position: 'relative', overflow: 'hidden' }}>
+      {/* Art area — fixed aspect ratio */}
+      <div style={{ width: '100%', aspectRatio: '4 / 3', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         <DrugCardArt drug={drug} />
       </div>
 
       {/* Info area */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflow: 'hidden' }}>
         {/* Name + aliases */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <p style={{
             fontFamily: 'Roboto, sans-serif',
             fontWeight: 700,
@@ -311,6 +310,7 @@ interface LibraryPageProps {
   onSearchOpen?: () => void;
   onProfileOpen?: () => void;
   drugs: TripSitDrug[];
+  savedKeys?: Set<string>;   // ← add
 }
 
 export function LibraryPage({
@@ -319,11 +319,14 @@ export function LibraryPage({
   onSearchOpen,
   onProfileOpen,
   drugs,
+  savedKeys = new Set(),   // ← add
 }: LibraryPageProps) {
   const [activeCategory, setActiveCategory] = useState<string>('All');
 
   const filtered = activeCategory === 'All'
     ? drugs
+    : activeCategory === 'Saved'
+    ? drugs.filter(d => savedKeys.has(d.key))
     : drugs.filter(d => d.categories.includes(activeCategory));
 
   return (

@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { BottomNav } from '../ui/BottomNav';
-import { LAYOUT } from '../../constants/layout';
 import type { TripSitDrug } from './LibraryPage';
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,6 +11,8 @@ export interface DrugDetailPageProps {
   onBack: () => void;
   onTabChange: (tab: NavTab) => void;
   onSearchOpen?: () => void;
+  isSaved?: boolean;
+  onSaveToggle?: (drugKey: string) => void;
 }
 
 // ─── Color helpers ────────────────────────────────────────────────────────────
@@ -43,60 +44,17 @@ const DOSE_DOT_COLORS: Record<string, string> = {
   Heavy:     '#FF6A00',
 };
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
+// ─── Icons — imported from shared icon system ─────────────────────────────────
 
-function BackIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <path d="M20 26L10 16L20 6" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <circle cx="13" cy="13" r="9" stroke="#F1F1F1" strokeWidth="2" />
-      <path d="M19.5 19.5L25.5 25.5" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" stroke="#F1F1F1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ShareIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke="#F1F1F1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function AlertIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M9 1.5L16.5 15H1.5L9 1.5z" stroke="#FF5545" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 7v3.5" stroke="#FF5545" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="9" cy="13" r="0.75" fill="#FF5545" />
-    </svg>
-  );
-}
-
-function InfoIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <circle cx="9" cy="9" r="7.5" stroke="#FFD400" strokeWidth="1.3" />
-      <path d="M9 8v5" stroke="#FFD400" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="9" cy="5.5" r="0.75" fill="#FFD400" />
-    </svg>
-  );
-}
+import {
+  IconBack,
+  IconSearch,
+  IconStar,
+  IconStarFilled,
+  IconShare,
+  IconAlert,
+  IconInfo,
+} from '../ui/icons/Icons';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -161,8 +119,9 @@ function Divider() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: DrugDetailPageProps) {
-  const [saved, setSaved] = useState(false);
+export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSaved = false, onSaveToggle }: DrugDetailPageProps) {
+
+
 
   const primaryCat = drug.categories[0];
   const primaryColor = CATEGORY_COLOR[primaryCat] ?? '#F1F1F1';
@@ -221,10 +180,18 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
 
       {/* ── FIXED TOP MENU ── */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>
+        {/* Layer 1: blur with gradient mask — fades out downward */}
         <div style={{
           position: 'absolute', inset: 0,
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
+        }} />
+        {/* Layer 2: solid background fading to transparent */}
+        <div style={{
+          position: 'absolute', inset: 0,
           background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)',
+          pointerEvents: 'none',
         }} />
         <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
           <button
@@ -232,14 +199,14 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-label="Go back"
           >
-            <BackIcon />
+            <IconBack />
           </button>
           <button
             onClick={onSearchOpen}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-label="Open search"
           >
-            <SearchIcon />
+            <IconSearch />
           </button>
         </div>
       </div>
@@ -247,7 +214,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
       {/* ── SCROLLABLE CONTENT ── */}
       <div
         className="hide-scrollbar"
-        style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden' }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: '83px', overflowY: 'auto', overflowX: 'hidden' }}
       >
         <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
 
@@ -267,20 +234,18 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
 
             {/* Save + Share */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '24px' }}>
-              <button
-                onClick={() => setSaved(s => !s)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, opacity: saved ? 1 : 0.6 }}
-                aria-label="Save"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill={saved ? '#FFD400' : 'none'}>
-                  <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" stroke={saved ? '#FFD400' : '#F1F1F1'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
+            <button
+            onClick={() => onSaveToggle?.(drug.key)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            aria-label={isSaved ? 'Unsave' : 'Save'}
+            >
+          {isSaved ? <IconStarFilled /> : <IconStar />}
+          </button>
               <button
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, opacity: 0.6 }}
                 aria-label="Share"
               >
-                <ShareIcon />
+                <IconShare />
               </button>
             </div>
 
@@ -360,7 +325,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
                   gap: '12px',
                   alignItems: 'flex-start',
                 }}>
-                  <div style={{ flexShrink: 0, marginTop: '2px' }}><AlertIcon /></div>
+                  <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
                     {avoidText}
                   </p>
@@ -378,7 +343,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
                   gap: '12px',
                   alignItems: 'flex-start',
                 }}>
-                  <div style={{ flexShrink: 0, marginTop: '2px' }}><AlertIcon /></div>
+                  <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
                     {warningText}
                   </p>
@@ -428,7 +393,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
                     gap: '12px',
                     alignItems: 'flex-start',
                   }}>
-                    <div style={{ flexShrink: 0, marginTop: '2px' }}><InfoIcon /></div>
+                    <div style={{ flexShrink: 0, marginTop: '2px' }}><IconInfo /></div>
                     <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FFD400', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
                       {drug.properties.dose}
                     </p>
@@ -480,7 +445,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen }: Drug
         </div>
 
         {/* Bottom spacing */}
-        <div style={{ height: `${LAYOUT.CONTENT_BOTTOM_PADDING}px` }} />
+        <div style={{ height: '32px' }} />
       </div>
 
       {/* ── BOTTOM NAV ── */}

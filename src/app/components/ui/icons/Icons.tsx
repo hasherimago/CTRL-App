@@ -100,7 +100,7 @@ export function IconStar({ size = 24, style, className, onClick }: IconProps) {
       height={size}
       alt=""
       draggable={false}
-      style={{ display: 'block', flexShrink: 0, cursor: onClick ? 'pointer' : undefined, ...style }}
+      style={{ display: 'block', flexShrink: 0, opacity: 0.6, cursor: onClick ? 'pointer' : undefined, ...style }}
       className={className}
       onClick={onClick}
     />

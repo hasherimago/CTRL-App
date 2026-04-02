@@ -1,45 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
-
-import imgFentanyl    from 'figma:asset/a8cd061b84cc94e31b4480a72459d9451d40e201.png';
-import imgTilidine    from 'figma:asset/265f35c7d228c312571fd9378e870d172ecf9ad7.png';
-import imgKetamine    from 'figma:asset/f5502ba7f5b6db5c7eaea8904cdc58247616ce67.png';
-import imgMephedrone  from 'figma:asset/37caa7cf43211d15ebdf3fdc7a002e0ae36c234b.png';
-import imgMDMA        from 'figma:asset/b7f282cb0401597a3df9104ae60428dd05e2180a.png';
-import imgCannabis    from 'figma:asset/5c43ab744872d94da08e20e185de8c7977fc9fdc.png';
-import imgCocaine     from 'figma:asset/5b99b9d16ca4c921e699048e6414fe7d22af6ed3.png';
-import imgPoppers     from 'figma:asset/bfc20b12edb8c711ad76ca54051c2443f5582e45.png';
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-
-const SEARCH_DATA = [
-  { id: 1, name: 'Fentanyl',   aliases: 'Drop Dead - China White - Synthetic heroin', image: imgFentanyl },
-  { id: 2, name: 'Tilidine',   aliases: 'Valoron - Valtran - Tilicer',                image: imgTilidine },
-  { id: 3, name: 'Ketamine',   aliases: 'Special K - Kit Kat - Cat Valium',           image: imgKetamine },
-  { id: 4, name: 'Mephedrone', aliases: '4MMC - Mephi - Meow',                        image: imgMephedrone },
-  { id: 5, name: 'MDMA',       aliases: 'Molly - XTC - Mandy',                        image: imgMDMA },
-  { id: 6, name: 'Cannabis',   aliases: 'Marijuana - Ganja - Weed',                   image: imgCannabis },
-  { id: 7, name: 'Cocaine',    aliases: 'Coke - Candy - Flake',                       image: imgCocaine },
-  { id: 8, name: 'Poppers',    aliases: 'Liquid Gold - Snappers - PP',                image: imgPoppers },
-];
+import { useEffect, useRef, useState, useMemo } from 'react';
+import type { TripSitDrug } from '../figma/LibraryPage';
+import { DrugCardArt } from './DrugCardArt';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectDrug: (drugId: number) => void;
+  onSelectDrug: (drugKey: string) => void;
+  drugs?: TripSitDrug[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayProps) {
+export function SearchOverlay({ isOpen, onClose, onSelectDrug, drugs }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
+
+  const results = useMemo(() => {
+    if (!query.trim() || !drugs?.length) return [];
+    const q = query.toLowerCase();
+    return drugs
+      .filter(d =>
+        d.pretty_name.toLowerCase().includes(q) ||
+        d.aliases.some(a => a.toLowerCase().includes(q))
+      )
+      .slice(0, 10);
+  }, [query, drugs]);
+
   const inputRef = useRef<HTMLInputElement>(null);
-  // When a drug is tapped we want the overlay to vanish with zero CSS transition
-  // so the drug page appears instantly with no slide effect.
   const [closingInstantly, setClosingInstantly] = useState(false);
 
-  // Reset instant-close flag whenever the overlay opens so the slide-in still works
   useEffect(() => {
     if (isOpen) setClosingInstantly(false);
   }, [isOpen]);
@@ -49,25 +39,13 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
     onClose();
   };
 
-  const handleSelect = (drugId: number) => {
+  // ── FIX: accept string key, not number ──
+  const handleSelect = (drugKey: string) => {
     setQuery('');
-    // Kill the CSS transition before isOpen flips to false
     setClosingInstantly(true);
-    onSelectDrug(drugId);
-    // Reset after one frame (overlay is already off-screen, so no visual change)
+    onSelectDrug(drugKey);
     requestAnimationFrame(() => setClosingInstantly(false));
   };
-
-  // Filter logic
-  const trimmed = query.toLowerCase().trim();
-  const results =
-    trimmed === ''
-      ? []
-      : SEARCH_DATA.filter(
-          (d) =>
-            d.name.toLowerCase().includes(trimmed) ||
-            d.aliases.toLowerCase().includes(trimmed),
-        );
 
   return (
     <div
@@ -77,7 +55,6 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
         zIndex: 100,
         background: '#0D0D0D',
         transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-        // No transition when instant-closing so the overlay snaps away immediately
         transition: closingInstantly ? 'none' : 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
@@ -85,7 +62,6 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
         pointerEvents: isOpen ? 'auto' : 'none',
       }}
     >
-      {/* Placeholder + cancel-button styles */}
       <style>{`
         [data-search-input]::placeholder {
           color: rgba(241, 241, 241, 0.4);
@@ -123,7 +99,6 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
             boxSizing: 'border-box',
           }}
         >
-          {/* Magnifying glass */}
           <svg
             width="20"
             height="20"
@@ -141,7 +116,6 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
             />
           </svg>
 
-          {/* Real controlled input — must be type="search" for mobile keyboards */}
           <input
             ref={inputRef}
             data-search-input="true"
@@ -164,7 +138,6 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
               letterSpacing: '0.32px',
               caretColor: '#F1F1F1',
               minWidth: 0,
-              // Prevent iOS zoom on focus (font-size must be ≥16px)
               WebkitAppearance: 'none',
             }}
           />
@@ -194,8 +167,7 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
 
       {/* ── Results list ── */}
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: '16px' }}>
-        {trimmed !== '' && results.length === 0 ? (
-          /* Empty state */
+        {query.trim() !== '' && results.length === 0 ? (
           <p
             style={{
               color: '#F1F1F1',
@@ -212,8 +184,9 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
         ) : (
           results.map((drug) => (
             <button
-              key={drug.id}
-              onClick={() => handleSelect(drug.id)}
+              key={drug.key}
+              // ── FIX: pass string key directly ──
+              onClick={() => handleSelect(drug.key)}
               style={{
                 width: '100%',
                 padding: '0 8px',
@@ -228,28 +201,21 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
                 flexShrink: 0,
               }}
             >
-              {/* Thumbnail */}
+              {/* ── Generative art thumbnail ── */}
               <div
                 style={{
                   width: '54px',
                   height: '54px',
                   borderRadius: '8px',
                   background: '#2D2D2D',
-                  overflow: 'hidden',
                   flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
-                <img
-                  src={drug.image}
-                  alt={drug.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                <DrugCardArt drug={drug} />
               </div>
 
-              {/* Text */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
                 <p
                   style={{
@@ -262,24 +228,24 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug }: SearchOverlayPr
                     lineHeight: 1.3,
                   }}
                 >
-                  {drug.name}
+                  {drug.pretty_name}
                 </p>
-                <p
-                  style={{
-                    fontFamily: 'Roboto, sans-serif',
-                    fontWeight: 400,
-                    fontSize: '14px',
-                    color: '#BBBBBB',
-                    letterSpacing: '0.28px',
-                    margin: 0,
-                    lineHeight: 1.3,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {drug.aliases}
-                </p>
+
+                {drug.aliases.length > 0 && (
+                  <p
+                    style={{
+                      fontFamily: 'Roboto, sans-serif',
+                      fontWeight: 400,
+                      fontSize: '14px',
+                      color: '#BBBBBB',
+                      letterSpacing: '0.28px',
+                      margin: 0,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {drug.aliases.slice(0, 4).join(' - ')}
+                  </p>
+                )}
               </div>
             </button>
           ))

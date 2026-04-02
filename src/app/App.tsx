@@ -442,6 +442,7 @@ export default function App() {
       <SearchOverlay
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
+        drugs={DRUGS} 
         onSelectDrug={(drugKey) => {
           setCurrentPage(previousPageRef.current);
           handleDrugClick(String(drugKey));

@@ -1,6 +1,8 @@
 import svgPaths from '../../../imports/svg-9phyw3y14s';
 import HomeActiveIcon from '../../../imports/Home_active.svg';
 import LibraryActiveIcon from '../../../imports/Library_active.svg';
+import JournalActiveIcon from '../../../imports/Journal-active.svg';
+import CheckerActiveIcon from '../../../imports/Checker-active.svg';
 
 /**
  * BottomNav is 100px tall.
@@ -47,6 +49,16 @@ function NavIcon({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
     );
   }
   if (tab === 'Checker') {
+    if (isActive) {
+      return (
+        <img
+          src={CheckerActiveIcon}
+          style={{ ...iconStyle, width: '24px', height: '24px', left: 0, top: 0 }}
+          alt=""
+        />
+      );
+    }
+
     return (
       <svg style={iconStyle} viewBox="0 0 20.0541 20.1196" fill="none">
         <path d={svgPaths.p2485af00} fill="#F1F1F1" />
@@ -76,13 +88,25 @@ function NavIcon({ tab, isActive }: { tab: NavTab; isActive: boolean }) {
       </svg>
     );
   }
-  // Journal
-  return (
-    <svg style={iconStyle} viewBox="0 0 20.1196 20.1196" fill="none">
-      <path d={svgPaths.p21779680} fill="#F1F1F1" />
-    </svg>
-  );
+  if (tab === 'Journal') {
+    if (isActive) {
+      return (
+        <img
+          src={JournalActiveIcon}
+          style={{ ...iconStyle, width: '24px', height: '24px', left: 0, top: 0 }}
+          alt=""
+        />
+      );
+    }
+
+    return (
+      <svg style={iconStyle} viewBox="0 0 20.1196 20.1196" fill="none">
+        <path d={svgPaths.p21779680} fill="#F1F1F1" />
+      </svg>
+    );
+  }
 }
+
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import svgPaths from '../../../imports/svg-x1dnee4l9r';
 import { BottomNav } from '../ui/BottomNav';
 import combosRaw from './data/combos.json';
@@ -211,30 +211,6 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
               )}
             </div>
           </div>
-
-          {/* ── SELECTED SUBSTANCE PILLS ── */}
-          {selected.length > 0 && (
-            <div className="hide-scrollbar" style={{ overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 8px 0' }}>
-              <div style={{ display: 'flex', gap: '8px', width: 'max-content' }}>
-                {selected.map(key => {
-                  const sub = SUBSTANCES.find(s => s.comboKey === key);
-                  if (!sub) return null;
-                  return (
-                    <button key={key} onClick={() => toggle(key)} style={{
-                      background: `${sub.color}1A`, border: `1.5px solid ${sub.color}`,
-                      borderRadius: '44px', padding: '6px 12px',
-                      fontFamily: 'Roboto, sans-serif', fontWeight: 600, fontSize: '14px',
-                      color: sub.color, cursor: 'pointer', whiteSpace: 'nowrap',
-                      display: 'flex', alignItems: 'center', gap: '6px',
-                    }}>
-                      {sub.name}
-                      <span style={{ opacity: 0.6, fontSize: '12px' }}>✕</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* ── CATEGORY FILTER STRIP ── */}
           <div className="hide-scrollbar" style={{ overflowX: 'auto', scrollbarWidth: 'none', padding: '16px 8px 0' }}>

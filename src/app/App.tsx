@@ -58,11 +58,6 @@ export default function App() {
   const openSearch = () => {
     previousPageRef.current = currentPage;
     setSearchOpen(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.querySelector<HTMLInputElement>('[data-search-input]')?.focus();
-      });
-    });
   };
 
   const toggleCheckbox = (index: number) => {

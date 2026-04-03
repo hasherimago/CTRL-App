@@ -31,7 +31,10 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug, drugs }: SearchOv
   const [closingInstantly, setClosingInstantly] = useState(false);
 
   useEffect(() => {
-    if (isOpen) setClosingInstantly(false);
+    if (isOpen) {
+      setClosingInstantly(false);
+      inputRef.current?.focus();
+    }
   }, [isOpen]);
 
   const handleClose = () => {

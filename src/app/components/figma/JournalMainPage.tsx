@@ -209,7 +209,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
               position: 'fixed',
               bottom: '40px',
               right: '24px',
-              zIndex: 81,
+              zIndex: 60,
               width: '56px',
               height: '56px',
               borderRadius: '50%',

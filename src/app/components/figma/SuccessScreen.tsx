@@ -74,7 +74,7 @@ export function SuccessScreen({ onComplete }: SuccessScreenProps) {
           lineHeight: 1.5,
           margin: 0,
         }}>
-          Logged
+          Your moment is safe
         </p>
       </div>
     </div>

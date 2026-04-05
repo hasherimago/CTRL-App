@@ -361,7 +361,7 @@ const SUBSTANCES: Substance[] = [
   // ── Stimulants ──────────────────────────────────────────────────────────────
   { name: 'Cocaine',         comboKey: 'cocaine',         category: 'Stimulants',   color: '#FFADA5' },
   { name: 'Amphetamines',    comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Methamphetamine', comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
+  { name: 'Meth', comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
   { name: 'Methylphenidate', comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
   { name: 'Modafinil',       comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
   { name: 'Caffeine',        comboKey: 'caffeine',        category: 'Stimulants',   color: '#FFADA5' },
@@ -480,22 +480,33 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
 
   const combo = (() => {
     if (selectedComboKeys.length < 2) return null;
-    // Same-class: all selected drugs share the same comboKey
+
+    // Deduplicate — multiple substances can share the same comboKey
     const uniqueKeys = [...new Set(selectedComboKeys)];
+
+    // Same-class: all selected drugs share one comboKey
     if (uniqueKeys.length === 1) {
       return CUSTOM_COMBOS[`same:${uniqueKeys[0]}`] ?? null;
     }
-    // Check custom cross-class pairs first (sorted, same format as adaptCombos)
-    const sortedPair = [...selectedComboKeys].sort().join('+');
+
+    // With 3+ unique keys there is no single combo entry covering all of them.
+    // Returning a partial pair match would be misleading, so return null and
+    // let the nodata state explain the situation to the user.
+    if (uniqueKeys.length > 2) return null;
+
+    // Exactly 2 unique keys — check custom pairs first, then TripSit
+    const sortedPair = [...uniqueKeys].sort().join('+');
     if (CUSTOM_COMBOS[sortedPair]) return CUSTOM_COMBOS[sortedPair];
-    // Fall through to TripSit data
-    return findCombo(selectedComboKeys, COMBINATIONS);
+    return findCombo(uniqueKeys, COMBINATIONS);
   })();
 
-  // Always show the actual selected drug names as the title, not the comboKey-derived title
+  // Always show the actual selected drug names as the title
   const displayTitle = selected.join(' + ');
 
-  const infoState = selected.length === 0 ? 'empty' : selected.length === 1 ? 'one' : 'result';
+  const infoState = selected.length === 0 ? 'empty'
+    : selected.length === 1 ? 'one'
+    : combo ? 'result'
+    : 'nodata';
   const riskConfig = combo?.risk ? RISK_CONFIG[combo.risk] : null;
 
   return (
@@ -564,10 +575,20 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
                 </>
               )}
 
-              {infoState === 'result' && !combo && (
-                <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.3, textAlign: 'center', margin: 0, letterSpacing: '0.32px', lineHeight: 1.5 }}>
-                  No interaction data available for this combination.
-                </p>
+              {infoState === 'nodata' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#F1F1F1" strokeOpacity="0.2" strokeWidth="1.5" />
+                    <path d="M12 8v5" stroke="#F1F1F1" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="12" cy="16" r="0.8" fill="#F1F1F1" fillOpacity="0.4" />
+                  </svg>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 600, fontSize: '15px', color: '#F1F1F1', opacity: 0.45, margin: 0, letterSpacing: '0.3px' }}>
+                    No interaction data available
+                  </p>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '13px', color: '#F1F1F1', opacity: 0.25, margin: 0, letterSpacing: '0.26px', lineHeight: 1.6 }}>
+                    We couldn't find data for this combination. That doesn't mean it's safe — research each substance individually before combining.
+                  </p>
+                </div>
               )}
             </div>
           </div>

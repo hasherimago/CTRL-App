@@ -66,7 +66,10 @@ Category colors:
 Opioids=#FFD0B4, Stimulants=#FFADA5, Psychedelics=#B2FFF1, Depressants=#B3C3D1,
 Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+const url = import.meta.env.DEV
+? '/api/anthropic/v1/messages'
+: 'https://api.anthropic.com/v1/messages';
+const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

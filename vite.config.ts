@@ -32,6 +32,13 @@ export default defineConfig({
     port: 5000,
     host: '0.0.0.0',
     allowedHosts: true,
+    proxy: {
+      '/api/anthropic': {
+        target: 'https://api.anthropic.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/anthropic/, ''),
+      },
+    },
   },
 
   assetsInclude: ['**/*.svg', '**/*.csv'],

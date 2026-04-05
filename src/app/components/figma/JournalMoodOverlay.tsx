@@ -139,14 +139,10 @@ export function JournalMoodOverlay({ isOpen, onNext, onBack, onClose }: JournalM
                   </button>
                 ))}
               </div>
-              {/* Mood label below selected */}
-              <p style={{ textAlign: 'center', fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#8C5CFE', margin: 0, letterSpacing: '0.32px' }}>
-                {MOODS[selectedMood].label}
-              </p>
             </div>
 
             {/* Section 2 — Body feelings */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>
                   What did your body feel like?

@@ -46,7 +46,7 @@ function LogCard({ log }: { log: TripLog }) {
   const hasReasonsOrBody = (log.reasons?.length ?? 0) > 0 || (log.bodyFeelings?.length ?? 0) > 0;
 
   return (
-    <div style={{ background: '#171717', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px', overflow: 'hidden' }}>
+    <div style={{ background: '#171717', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px', overflow: 'hidden' }}>
       {/* Row 1: emoji + mood + date */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -197,7 +197,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
         <>
           {/* Scrollable log list */}
           <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-            <div style={{ padding: '70px 8px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: '70px 8px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {tripLogs.map(log => <LogCard key={log.id} log={log} />)}
             </div>
           </div>
@@ -206,25 +206,25 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
           <button
             onClick={onLogTrip}
             style={{
-              position: 'absolute',
-              right: '16px',
-              bottom: '156px',
-              width: '59px',
-              height: '59px',
+              position: 'fixed',
+              bottom: '40px',
+              right: '24px',
+              zIndex: 81,
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
               background: '#8C5CFE',
-              borderRadius: '122px',
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backdropFilter: 'blur(5px)',
-              WebkitBackdropFilter: 'blur(5px)',
-              zIndex: 10,
+              boxShadow: '0px 4px 20px 0px rgba(140, 92, 254, 0.4)',
+              marginBottom: '60px',
             }}
           >
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-              <path d="M3 17H17M17 17H31M17 17V31M17 17V3" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.83333" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4V20M4 12H20" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
         </>

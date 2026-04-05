@@ -85,24 +85,24 @@ export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onC
 
         {/* ── SCROLLABLE CONTENT ── */}
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-          <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>What felt good?</p>
               <textarea className="ctrl-reflection-textarea" style={textareaStyle} value={feltGood} onChange={e => setFeltGood(e.target.value)} placeholder="Share your thoughts here..." />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '21px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>What was challenging?</p>
               <textarea className="ctrl-reflection-textarea" style={textareaStyle} value={challenging} onChange={e => setChallenging(e.target.value)} placeholder="Share your thoughts here..." />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '21px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>What did you learn or take away?</p>
               <textarea className="ctrl-reflection-textarea" style={textareaStyle} value={learned} onChange={e => setLearned(e.target.value)} placeholder="Share your thoughts here..." />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '21px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>Would you do anything differently?</p>
               <textarea className="ctrl-reflection-textarea" style={textareaStyle} value={different} onChange={e => setDifferent(e.target.value)} placeholder="Share your thoughts here..." />
             </div>

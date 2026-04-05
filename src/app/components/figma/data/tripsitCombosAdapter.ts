@@ -37,10 +37,11 @@ export type TripSitCombos = Record<string, Record<string, TripSitComboEntry>>;
 
 function mapRisk(status: string): RiskLevel {
   const s = status.toLowerCase();
-  if (s.includes('low risk')) return 'green';
-  if (s === 'caution')        return 'yellow';
-  if (s === 'unsafe')         return 'red';
-  if (s === 'dangerous')      return 'red';
+  if (s === 'low risk & caution') return 'yellow'; // custom: low risk but worth noting
+  if (s.includes('low risk'))     return 'green';
+  if (s === 'caution')            return 'yellow';
+  if (s === 'unsafe')             return 'red';
+  if (s === 'dangerous')          return 'red';
   return 'yellow'; // fallback for any unexpected value
 }
 
@@ -54,6 +55,9 @@ function buildBody(nameA: string, nameB: string, status: string, note?: string):
 
   if (s.includes('low risk') && s.includes('synergy')) {
     return `${pair} have a low-risk interaction with reported synergy. Effects may enhance each other — start with lower doses of both.`;
+  }
+  if (s.includes('low risk') && s.includes('caution')) {
+    return `${pair} have a generally low-risk interaction, but some caution is warranted. Monitor blood pressure and avoid high doses of both.`;
   }
   if (s.includes('low risk')) {
     return `${pair} are generally considered low risk to combine. No major interaction is expected, but individual responses vary.`;
@@ -101,6 +105,7 @@ function displayName(key: string): string {
     'nitrous':         'Nitrous Oxide',
     'caffeine':        'Caffeine',
     'lithium':         'Lithium',
+    'viagra':          'Viagra (Sildenafil)',
   };
   if (overrides[key]) return overrides[key];
   return key.charAt(0).toUpperCase() + key.slice(1);

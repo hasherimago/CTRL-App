@@ -113,9 +113,6 @@ function SubLabel({ children }: { children: string }) {
   );
 }
 
-function Divider() {
-  return <div style={{ height: '1px', background: 'rgba(241,241,241,0.08)', width: '100%' }} />;
-}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -140,29 +137,30 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
     return rows.length > 0 ? rows : null;
   })();
 
-  // Build duration/onset rows from formatted fields
-  const onsetRows = (() => {
-    if (drug.formatted_onset) {
-      const unit = drug.formatted_onset._unit === 'minutes' ? 'min' : drug.formatted_onset._unit;
-      return [{ label: 'Onset', value: `${drug.formatted_onset.value} ${unit}` }];
+  // Parse a formatted timing field into per-route rows.
+  // Handles both { _unit, value } (single, no route) and { _unit, Oral: "x", Insufflated: "y" } (per-route).
+  function parseTiming(field: Record<string, string> | undefined): { route: string | null; value: string }[] | null {
+    if (!field) return null;
+    const unit = field._unit === 'hours' ? 'h' : field._unit === 'minutes' ? 'min' : field._unit;
+    if (field.value) {
+      return [{ route: null, value: `${field.value} ${unit}` }];
     }
-    return null;
-  })();
+    const routes = Object.keys(field).filter(k => k !== '_unit');
+    if (routes.length === 0) return null;
+    return routes.map(r => ({ route: r, value: `${field[r]} ${unit}` }));
+  }
 
-  const durationRows = (() => {
-    if (drug.formatted_duration) {
-      const unit = drug.formatted_duration._unit === 'hours' ? 'h' : drug.formatted_duration._unit;
-      return [{ label: 'Duration', value: `${drug.formatted_duration.value} ${unit}` }];
-    }
-    return null;
-  })();
+  const onsetData    = parseTiming(drug.formatted_onset);
+  const durationData = parseTiming(drug.formatted_duration);
+  const afterData    = parseTiming(drug.formatted_aftereffects);
 
-  const afterRows = (() => {
-    if (drug.formatted_aftereffects) {
-      const unit = drug.formatted_aftereffects._unit === 'hours' ? 'h' : drug.formatted_aftereffects._unit;
-      return [{ label: 'After-effects', value: `${drug.formatted_aftereffects.value} ${unit}` }];
+  // Collect all unique routes across all three timing fields (null = no specific route)
+  const timingRoutes = (() => {
+    const routes = new Set<string | null>();
+    for (const data of [onsetData, durationData, afterData]) {
+      data?.forEach(r => routes.add(r.route));
     }
-    return null;
+    return [...routes];
   })();
 
   // Dose tiers in order
@@ -174,6 +172,9 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
   const avoidText = drug.properties.avoid ?? null;
   const warningText = drug.properties.warning ?? null;
+
+  // Use the dedicated dose_note field from TripSit data
+  const doseNote = drug.dose_note ?? null;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}>
@@ -327,7 +328,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                 }}>
                   <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
-                    {avoidText}
+                    <span style={{ fontWeight: 700 }}>Avoid: </span>{avoidText}
                   </p>
                 </div>
               )}
@@ -382,8 +383,8 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                   })}
                 </div>
 
-                {/* Yellow info note */}
-                {drug.properties.dose && (
+                {/* Yellow info note — only the NOTE portion, not the tier list */}
+                {doseNote && (
                   <div style={{
                     background: 'rgba(255,212,0,0.1)',
                     border: '1px solid #FFD400',
@@ -395,7 +396,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                   }}>
                     <div style={{ flexShrink: 0, marginTop: '2px' }}><IconInfo /></div>
                     <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FFD400', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
-                      {drug.properties.dose}
+                      {doseNote}
                     </p>
                   </div>
                 )}
@@ -403,30 +404,24 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
             )}
 
             {/* Durations */}
-            {(onsetRows || durationRows || afterRows) && (
+            {(onsetData || durationData || afterData) && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 <SectionTitle>Durations</SectionTitle>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                  {onsetRows && (
-                    <>
-                      <SubLabel>Onset</SubLabel>
-                      {onsetRows.map(r => <InfoRow key={r.label} label={r.label} value={r.value} />)}
-                    </>
-                  )}
-                  {durationRows && (
-                    <>
-                      <Divider />
-                      <SubLabel>Duration</SubLabel>
-                      {durationRows.map(r => <InfoRow key={r.label} label={r.label} value={r.value} />)}
-                    </>
-                  )}
-                  {afterRows && (
-                    <>
-                      <Divider />
-                      <SubLabel>After-effects</SubLabel>
-                      {afterRows.map(r => <InfoRow key={r.label} label={r.label} value={r.value} />)}
-                    </>
-                  )}
+                  {timingRoutes.map(route => (
+                    <div key={route ?? 'default'} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                      {route && <SubLabel>{route}</SubLabel>}
+                      {onsetData?.filter(r => r.route === route).map(r => (
+                        <InfoRow key="onset" label="Onset" value={r.value} />
+                      ))}
+                      {durationData?.filter(r => r.route === route).map(r => (
+                        <InfoRow key="duration" label="Duration" value={r.value} />
+                      ))}
+                      {afterData?.filter(r => r.route === route).map(r => (
+                        <InfoRow key="after" label="After-effects" value={r.value} />
+                      ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

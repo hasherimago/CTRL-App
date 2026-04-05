@@ -10,7 +10,7 @@ interface JournalContextOverlayProps {
 
 const SUBSTANCES = ['MDMA', 'GHB', 'Ecstasy', 'Cocaine', '2C-B', 'DMT', 'Ketamine', 'Caffeine'];
 const LOCATIONS = ['Club', 'Home', 'Nature', 'Solo', 'Date', 'Sex', 'Festival', 'Office'];
-const REASONS = ['Curiosity', 'Fun', 'Connection', 'Healing', 'Escape', 'Creativity', 'Self-reflection'];
+const REASONS = ['Curiosity', 'Fun', 'Connection', 'Healing', 'Escape', 'Creativity'];
 
 function TagButton({ label, selected, onToggle }: { label: string; selected: boolean; onToggle: () => void }) {
   return (
@@ -77,7 +77,7 @@ function TagSection({
   onPlusClick?: () => void;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>{title}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
         {tags.map(tag => (
@@ -162,7 +162,7 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
 
       {/* ── SCROLLABLE CONTENT ── */}
       <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '60px' }}>
+        <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
           <TagSection
             title="What substance(s) did you use?"
             tags={[...SUBSTANCES, ...extraSubstances]}

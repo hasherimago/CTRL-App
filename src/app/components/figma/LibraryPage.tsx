@@ -22,10 +22,12 @@ export interface TripSitDrug {
     warning?: string;
   };
   formatted_dose?: Record<string, Record<string, string>>;
-  formatted_duration?: { _unit: string; value: string };
-  formatted_onset?: { _unit: string; value: string };
-  formatted_aftereffects?: { _unit: string; value: string };
+  // formatted_duration/aftereffects are either { _unit, value } (single) or { _unit, RouteA: "x", RouteB: "y" } (per-route)
+  formatted_duration?: Record<string, string>;
+  formatted_onset?: Record<string, string>;
+  formatted_aftereffects?: Record<string, string>;
   formatted_effects?: string[];
+  dose_note?: string;
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────
@@ -85,6 +87,7 @@ export function adaptDrugs(raw: Record<string, unknown>): TripSitDrug[] {
       formatted_onset: d.formatted_onset as TripSitDrug['formatted_onset'],
       formatted_aftereffects: d.formatted_aftereffects as TripSitDrug['formatted_aftereffects'],
       formatted_effects: d.formatted_effects as string[] | undefined,
+      dose_note: d.dose_note as string | undefined,
     });
   }
   return drugs.sort((a, b) => a.pretty_name.localeCompare(b.pretty_name));

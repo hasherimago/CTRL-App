@@ -6,7 +6,7 @@ import imgBoxKit22 from 'figma:asset/427be1764d9d405c7a5e965a565203239a7abd9b.pn
 import imgBoxKit32 from 'figma:asset/fe666c239a772ba091da12ba0d15214623bc20e0.png';
 import imgTestingKit1 from 'figma:asset/3540376fb624c022b5c0acc0baca73f0f03c7230.png';
 import shopImage from 'figma:asset/158d2cf416b73440500600afc54970028192895b.png';
-import MainNewsBlock from '../imports/MainNewsBlock';
+import { LiveNewsBlock } from './components/figma/LiveNewsBlock';
 import { ShopPage } from './components/figma/ShopPage';
 // ── CHANGED: also import adaptDrugs + TripSitDrug type ──
 import { LibraryPage, adaptDrugs } from './components/figma/LibraryPage';
@@ -233,8 +233,7 @@ export default function App() {
             <div className="pb-[124px] space-y-4">
 
               <div className="px-2 h-[416px]">
-                <MainNewsBlock onReadArticle={() => setCurrentPage('article')} />
-              </div>
+              <LiveNewsBlock onReadArticle={() => setCurrentPage('article')} />              </div>
 
               <div className="px-2 space-y-4">
 

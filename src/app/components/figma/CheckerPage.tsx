@@ -480,20 +480,15 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
 
   const combo = (() => {
     if (selectedComboKeys.length < 2) return null;
-
     // Deduplicate — multiple substances can share the same comboKey
     const uniqueKeys = [...new Set(selectedComboKeys)];
-
     // Same-class: all selected drugs share one comboKey
     if (uniqueKeys.length === 1) {
       return CUSTOM_COMBOS[`same:${uniqueKeys[0]}`] ?? null;
     }
-
     // With 3+ unique keys there is no single combo entry covering all of them.
-    // Returning a partial pair match would be misleading, so return null and
-    // let the nodata state explain the situation to the user.
+    // Returning a partial pair match is misleading, so return null instead.
     if (uniqueKeys.length > 2) return null;
-
     // Exactly 2 unique keys — check custom pairs first, then TripSit
     const sortedPair = [...uniqueKeys].sort().join('+');
     if (CUSTOM_COMBOS[sortedPair]) return CUSTOM_COMBOS[sortedPair];
@@ -598,40 +593,36 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
             <div className="hide-scrollbar" style={{ overflowX: 'auto', scrollbarWidth: 'none', minHeight: '30px' }}>
               {selected.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '8px', width: 'max-content' }}>
-                  {selected.map(name => {
-                    const sub = SUBSTANCES.find(s => s.name === name)!;
-                    const tagColor = CATEGORY_COLOR[sub.category] ?? '#F1F1F1';
-                    return (
-                      <div key={name} style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        background: `${tagColor}18`,
-                        border: `1px solid ${tagColor}55`,
-                        borderRadius: '44px', padding: '6px 10px 6px 12px',
-                        flexShrink: 0,
+                  {selected.map(name => (
+                    <div key={name} style={{
+                      display: 'flex', alignItems: 'center', gap: '6px',
+                      background: 'rgba(241,241,241,0.08)',
+                      border: '1px solid rgba(241,241,241,0.18)',
+                      borderRadius: '44px', padding: '6px 10px 6px 12px',
+                      flexShrink: 0,
+                    }}>
+                      <span style={{
+                        fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '13px',
+                        color: '#F1F1F1', whiteSpace: 'nowrap', lineHeight: 1,
                       }}>
-                        <span style={{
-                          fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '13px',
-                          color: tagColor, whiteSpace: 'nowrap', lineHeight: 1,
-                        }}>
-                          {name}
-                        </span>
-                        <button
-                          onClick={() => remove(name)}
-                          aria-label={`Remove ${name}`}
-                          style={{
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            width: '16px', height: '16px', flexShrink: 0,
-                          }}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <circle cx="7" cy="7" r="6.5" fill={`${tagColor}30`} />
-                            <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke={tagColor} strokeWidth="1.3" strokeLinecap="round" />
-                          </svg>
-                        </button>
-                      </div>
-                    );
-                  })}
+                        {name}
+                      </span>
+                      <button
+                        onClick={() => remove(name)}
+                        aria-label={`Remove ${name}`}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          width: '16px', height: '16px', flexShrink: 0,
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <circle cx="7" cy="7" r="6.5" fill="rgba(241,241,241,0.15)" />
+                          <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#F1F1F1" strokeOpacity="0.6" strokeWidth="1.3" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

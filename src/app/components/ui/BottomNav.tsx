@@ -5,9 +5,9 @@ import JournalActiveIcon from '../../../imports/Journal-active.svg';
 import CheckerActiveIcon from '../../../imports/Checker-active.svg';
 
 /**
- * BottomNav is 100px tall.
+ * BottomNav height is fit-content (padding + tab row).
  * All pages using this component MUST set their scroll container to:
- *   bottom: LAYOUT.NAV_HEIGHT (100px)
+ *   bottom: LAYOUT.NAV_HEIGHT
  * And their inner content wrapper to:
  *   paddingBottom: LAYOUT.CONTENT_BOTTOM_PADDING (24px)
  *
@@ -117,24 +117,21 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
         left: 0,
         right: 0,
         zIndex: 50,
+        borderRadius: '16px 16px 0 0',
+        overflow: 'hidden',
         backdropFilter: 'blur(10.06px)',
         WebkitBackdropFilter: 'blur(10.06px)',
+        background: 'rgba(0,0,0,0.4)',
+        paddingTop: '14px',
+        paddingBottom: '20px',
+        paddingLeft: '8px',
+        paddingRight: '8px',
+        height: 'fit-content',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
       }}
     >
-      <div
-        style={{
-          background: 'rgba(0,0,0,0.4)',
-          borderRadius: '16px 16px 0 0',
-          paddingTop: '14px',
-          paddingLeft: '8px',
-          paddingRight: '8px',
-          height: '100px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          position: 'relative',
-        }}
-      >
         {tabs.map(({ id, label }) => {
           const isActive = activeTab === id;
           return (
@@ -187,7 +184,6 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           );
         })}
 
-      </div>
     </div>
   );
 }

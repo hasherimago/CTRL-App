@@ -22,6 +22,8 @@ import { SuccessScreen } from './components/figma/SuccessScreen';
 import { BottomNav } from './components/ui/BottomNav';
 import { SearchOverlay } from './components/ui/SearchOverlay';
 import { CheckerPage } from './components/figma/CheckerPage';
+import { ChecklistOverlay } from './components/figma/ChecklistOverlay';
+import type { ChecklistItem } from './components/figma/ChecklistOverlay';
 import type { TripLog, JournalStep } from './types/journal';
 // ── CHANGED: import the raw TripSit JSON ──
 import drugsRaw from './components/figma/data/drugs.json';
@@ -33,9 +35,9 @@ type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 const DRUGS: TripSitDrug[] = adaptDrugs(drugsRaw as Record<string, unknown>);
 
 export default function App() {
-  const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({
-    0: false, 1: false, 2: false, 3: false,
-  });
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const checklistNextId = useRef(1);
 
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
   const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
@@ -60,16 +62,15 @@ export default function App() {
     setSearchOpen(true);
   };
 
-  const toggleCheckbox = (index: number) => {
-    setCheckedItems(prev => ({ ...prev, [index]: !prev[index] }));
+  const addChecklistItem = (text: string) => {
+    setChecklistItems(prev => [...prev, { id: checklistNextId.current++, text, checked: false }]);
   };
-
-  const checklistItems = [
-    'I have enough water nearby',
-    'I packed snacks',
-    'I went to the bathroom',
-    'I packed gum / sniffer / tissues',
-  ];
+  const toggleChecklistItem = (id: number) => {
+    setChecklistItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
+  };
+  const deleteChecklistItem = (id: number) => {
+    setChecklistItems(prev => prev.filter(i => i.id !== id));
+  };
 
   const sessionDays = [
     false, false, false, false, true, false, false, false, false, false, false,
@@ -231,43 +232,56 @@ export default function App() {
           <div className="absolute top-0 bottom-0 left-0 right-0 overflow-y-auto overflow-x-hidden">
             <div className="pb-[124px] space-y-4">
 
-              <div className="w-full h-[416px]">
+              <div className="px-2 h-[416px]">
                 <MainNewsBlock onReadArticle={() => setCurrentPage('article')} />
               </div>
 
               <div className="px-2 space-y-4">
 
                 {/* Party Checklist Card */}
-                <div className="bg-[#171717] rounded-[16px] p-4 space-y-6">
+                <div className="bg-[#171717] rounded-[16px] p-4 space-y-6 cursor-pointer" onClick={() => setChecklistOpen(true)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-[10px]">
                       <p className="text-white text-[18px] font-bold tracking-[0.36px]">Party checklist</p>
-                      <p className="text-[#8C5CFE] text-[18px] font-bold tracking-[0.36px]">16 June</p>
+                      <p className="text-[#8C5CFE] text-[18px] font-bold tracking-[0.36px]">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}</p>
                     </div>
-                    <div className="w-6 h-6">
+                    <button
+                      onClick={e => { e.stopPropagation(); setChecklistOpen(true); }}
+                      className="w-6 h-6 bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center"
+                      aria-label="Add checklist item"
+                    >
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d={svgPaths.p3b3aa00} fill="#F1F1F1" />
                       </svg>
-                    </div>
+                    </button>
                   </div>
-                  <div className="space-y-4">
-                    {checklistItems.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <button
-                          onClick={() => toggleCheckbox(index)}
-                          className="relative w-6 h-6 rounded-[4px] border-2 border-[#F1F1F1] flex items-center justify-center transition-all duration-200 hover:bg-[#F1F1F1]/10 flex-shrink-0"
-                        >
-                          {checkedItems[index] && (
-                            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                              <path d="M3 8L6.5 11.5L13 5" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          )}
-                        </button>
-                        <p className="text-[#F1F1F1] text-[16px] font-normal leading-[1.3] tracking-[0.32px]">{item}</p>
+                  {checklistItems.length === 0 ? (
+                    <p className="text-[#F1F1F1] text-[16px] font-normal leading-[1.3] tracking-[0.32px] opacity-30">Nothing here yet</p>
+                  ) : (
+                    <>
+                      <div className="space-y-4">
+                        {checklistItems.slice(0, 4).map(item => (
+                          <div key={item.id} className="flex items-center gap-3">
+                            <button
+                              onClick={e => { e.stopPropagation(); toggleChecklistItem(item.id); }}
+                              className={`w-6 h-6 border-2 flex items-center justify-center flex-shrink-0 cursor-pointer p-0 ${item.checked ? 'border-[#8C5CFE]' : 'border-[#555]'}`}
+                              style={{ borderRadius: '4px', background: item.checked ? '#8C5CFE' : 'transparent' }}
+                            >
+                              {item.checked && (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                            </button>
+                            <p className={`text-[#F1F1F1] text-[16px] font-normal leading-[1.3] tracking-[0.32px] ${item.checked ? 'opacity-40 line-through' : ''}`}>{item.text}</p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-white text-[16px] font-normal leading-[1.3] tracking-[0.32px] opacity-50">+ 8 more tasks</p>
+                      {checklistItems.length > 4 && (
+                        <p className="text-white text-[16px] font-normal leading-[1.3] tracking-[0.32px] opacity-50">+ {checklistItems.length - 4} more tasks</p>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {/* Horizontal Scroll Shop Strip */}
@@ -307,16 +321,12 @@ export default function App() {
                   const sessionCount = tripLogs.length;
 
                   const label = isEmpty
-                    ? '3 sessions logged this month'
+                    ? '0 moments reflected this month'
                     : sessionCount === 1
-                    ? '1 session logged this month'
-                    : `${sessionCount} sessions logged this month`;
+                    ? '1 moment reflected this month'
+                    : `${sessionCount} moments reflected this month`;
 
                   const totalDots = 22;
-                  const PLACEHOLDER_DOTS = [
-                    false, false, false, false, true, false, false, false, false, false, false,
-                    false, true, false, false, false, false, false, false, false, true, false,
-                  ];
                   const activeDotIndices = tripLogs.map((_, i) =>
                     Math.floor((i / Math.max(tripLogs.length, 1)) * totalDots)
                   );
@@ -356,12 +366,12 @@ export default function App() {
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
-                        <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">{label}</p>
-                        <img src={ArrowUpIcon} alt="up" className="w-6 h-6" />
+                        <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px] opacity-30">{label}</p>
+                        {!isEmpty && <img src={ArrowUpIcon} alt="up" className="w-6 h-6" />}
                       </div>
                       <div className="grid grid-cols-11 gap-2">
                         {Array.from({ length: totalDots }).map((_, i) => {
-                          const isActive = isEmpty ? PLACEHOLDER_DOTS[i] : activeDotIndices.includes(i);
+                          const isActive = !isEmpty && activeDotIndices.includes(i);
                           return (
                             <div
                               key={i}
@@ -370,40 +380,32 @@ export default function App() {
                           );
                         })}
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">
-                          Last entry: {isEmpty ? '3 days ago' : lastEntry}
-                        </p>
-                        {isEmpty ? (
-                          <>
-                            <span className="border border-[#F1F1F1] text-[#F1F1F1] px-3 py-2 rounded-[18px] text-[14px]">LSD</span>
-                            <span className="border border-[#F1F1F1] text-[#F1F1F1] px-3 py-2 rounded-[18px] text-[14px]">Nature</span>
-                          </>
-                        ) : (
-                          lastSubstances.map(tag => (
-                            <span
-                              key={tag}
-                              style={{ borderColor: SUBSTANCE_COLORS[tag] || '#F1F1F1', color: SUBSTANCE_COLORS[tag] || '#F1F1F1' }}
-                              className="border px-3 py-2 rounded-[18px] text-[14px]"
-                            >{tag}</span>
-                          ))
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">You felt most:</p>
-                        {isEmpty ? (
-                          <>
-                            <span className="border border-[#FFBEEA] text-[#FFBEEA] px-3 py-2 rounded-[18px] text-[14px]">Connected</span>
-                            <span className="border border-[#FFADA5] text-[#FFADA5] px-3 py-2 rounded-[18px] text-[14px]">Overstimulated</span>
-                          </>
-                        ) : lastFeelings.length > 0 ? (
-                          lastFeelings.map(tag => (
-                            <span key={tag} className="border border-[#FFADA5] text-[#FFADA5] px-3 py-2 rounded-[18px] text-[14px]">{tag}</span>
-                          ))
-                        ) : (
-                          <span className="text-[#F1F1F1] text-[14px] opacity-50">—</span>
-                        )}
-                      </div>
+                      {!isEmpty && (
+                        <>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">
+                              Last entry: {lastEntry}
+                            </p>
+                            {lastSubstances.map(tag => (
+                              <span
+                                key={tag}
+                                style={{ borderColor: SUBSTANCE_COLORS[tag] || '#F1F1F1', color: SUBSTANCE_COLORS[tag] || '#F1F1F1' }}
+                                className="border px-3 py-2 rounded-[18px] text-[14px]"
+                              >{tag}</span>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">You felt most:</p>
+                            {lastFeelings.length > 0 ? (
+                              lastFeelings.map(tag => (
+                                <span key={tag} className="border border-[#FFADA5] text-[#FFADA5] px-3 py-2 rounded-[18px] text-[14px]">{tag}</span>
+                              ))
+                            ) : (
+                              <span className="text-[#F1F1F1] text-[14px] opacity-50">—</span>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   );
                 })()}
@@ -443,6 +445,16 @@ export default function App() {
           handleDrugClick(String(drugKey));
           setSearchOpen(false);
         }}
+      />
+
+      {/* ── CHECKLIST OVERLAY ── */}
+      <ChecklistOverlay
+        isOpen={checklistOpen}
+        items={checklistItems}
+        onAdd={addChecklistItem}
+        onToggle={toggleChecklistItem}
+        onDelete={deleteChecklistItem}
+        onClose={() => setChecklistOpen(false)}
       />
 
       {/* ── PROFILE OVERLAY ── */}

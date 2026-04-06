@@ -36,7 +36,7 @@ export const FALLBACK_NEWS: NewsItem = {
   categoryColor: CATEGORY_COLOR['Opioids'],
 };
 
-const CACHE_KEY = 'ctrl_live_news_v3';
+const CACHE_KEY = 'ctrl_live_news_v4';
 const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
 
 // ─── Fetch logic ──────────────────────────────────────────────────────────────
@@ -51,8 +51,9 @@ export async function fetchLiveNews(): Promise<NewsItem> {
     }
   } catch {}
 
+  const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
   const systemPrompt = `You are a harm reduction news editor for CTRL, a drug safety app used at clubs and parties.
-Generate a realistic and plausible harm reduction drug safety alert based on known drug safety trends in Europe.
+Today's date is ${today}. Generate a realistic and plausible harm reduction drug safety alert dated within the last 4 weeks.
 Focus on: adulterated drugs, dangerous batches, fentanyl contamination, overdose warnings, new psychoactive substances.
 Base it on patterns from DanceSafe, The Loop, EMCDDA, or drug checking services.
 
@@ -63,7 +64,7 @@ Respond ONLY with a valid JSON object — no markdown, no backticks, no explanat
   "title": "2-4 word headline (will be displayed uppercase)",
   "summary": "1 sentence plain text teaser shown on the home card",
   "body": "3-5 sentence plain text article body with full harm reduction advice. Use \\n\\n to separate paragraphs.",
-  "date": "the most plausible date for this alert in DD.MM.YYYY format",
+  "date": "the date of this alert in DD.MM.YYYY format — must be within the last 4 weeks from today (${today})",
   "category": one of: "Opioids" | "Stimulants" | "Psychedelics" | "Depressants" | "Dissociatives" | "Empathogens" | "NPS" | "General",
   "categoryColor": the matching hex color for that category
 }

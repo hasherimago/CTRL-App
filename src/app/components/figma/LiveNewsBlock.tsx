@@ -66,12 +66,20 @@ Category colors:
 Opioids=#FFD0B4, Stimulants=#FFADA5, Psychedelics=#B2FFF1, Depressants=#B3C3D1,
 Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
 
-const url = import.meta.env.DEV
-? '/api/anthropic/v1/messages'
-: 'https://api.anthropic.com/v1/messages';
-const response = await fetch(url, {
+  const url = import.meta.env.DEV
+    ? '/api/anthropic/v1/messages'
+    : '/api/news';
+
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (import.meta.env.DEV) {
+    headers['x-api-key'] = import.meta.env.VITE_ANTHROPIC_API_KEY;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+
+  const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
@@ -81,15 +89,24 @@ const response = await fetch(url, {
     }),
   });
 
-  if (!response.ok) throw new Error('API error');
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    console.error('[LiveNews] API error', response.status, errText);
+    throw new Error(`API error ${response.status}`);
+  }
 
   const data = await response.json();
+  console.log('[LiveNews] raw response', JSON.stringify(data).slice(0, 500));
 
   // Extract text blocks from response (may include tool_use and tool_result blocks)
   const textBlock = data.content?.find((b: { type: string }) => b.type === 'text');
-  if (!textBlock) throw new Error('No text in response');
+  if (!textBlock) {
+    console.error('[LiveNews] no text block, content types:', data.content?.map((b: { type: string }) => b.type));
+    throw new Error('No text in response');
+  }
 
   const clean = textBlock.text.replace(/```json|```/g, '').trim();
+  console.log('[LiveNews] parsed text:', clean.slice(0, 300));
   const parsed: NewsItem = JSON.parse(clean);
 
   // Cache it
@@ -113,7 +130,7 @@ export function LiveNewsBlock({ onReadArticle }: LiveNewsBlockProps) {
   useEffect(() => {
     fetchLiveNews()
       .then(setNews)
-      .catch(() => setNews(FALLBACK))
+      .catch((err) => { console.error('[LiveNews] fetch failed:', err); setNews(FALLBACK); })
       .finally(() => setLoading(false));
   }, []);
 

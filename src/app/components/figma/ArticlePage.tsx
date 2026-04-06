@@ -3,6 +3,7 @@ import { BottomNav } from '../ui/BottomNav';
 import { LAYOUT } from '../../constants/layout';
 import type { NewsItem } from './LiveNewsBlock';
 import type { TripSitDrug } from './LibraryPage';
+import { DRUG_CATEGORY_COLOR } from '../ui/DrugCardArt';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
@@ -24,15 +25,16 @@ function escapeRegex(s: string) {
 function parseDrugLinks(
   text: string,
   drugs: TripSitDrug[],
-  color: string,
   onDrug: (key: string) => void,
 ): React.ReactNode[] {
-  // Build map: lowercase name/alias → drug key
-  const nameMap = new Map<string, string>();
+  // Build map: lowercase name/alias → { key, color }
+  const nameMap = new Map<string, { key: string; color: string }>();
   for (const drug of drugs) {
-    nameMap.set(drug.pretty_name.toLowerCase(), drug.key);
+    const color = DRUG_CATEGORY_COLOR[drug.categories?.[0]] ?? '#F1F1F1';
+    const entry = { key: drug.key, color };
+    nameMap.set(drug.pretty_name.toLowerCase(), entry);
     for (const alias of drug.aliases ?? []) {
-      if (alias.length > 2) nameMap.set(alias.toLowerCase(), drug.key);
+      if (alias.length > 2) nameMap.set(alias.toLowerCase(), entry);
     }
   }
 
@@ -46,7 +48,7 @@ function parseDrugLinks(
 
   while ((m = pattern.exec(text)) !== null) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
-    const key = nameMap.get(m[0].toLowerCase())!;
+    const { key, color } = nameMap.get(m[0].toLowerCase())!;
     nodes.push(
       <button
         key={m.index}
@@ -116,7 +118,7 @@ function ArticleCard({ item, drugs, onDrug }: { item: NewsItem; drugs: TripSitDr
       <div style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, width: '100%' }}>
         {bodyParagraphs.map((para, i) => (
           <p key={i} style={{ margin: 0, marginTop: i > 0 ? '1em' : 0 }}>
-            {parseDrugLinks(para, drugs, item.categoryColor, onDrug)}
+            {parseDrugLinks(para, drugs, onDrug)}
           </p>
         ))}
       </div>

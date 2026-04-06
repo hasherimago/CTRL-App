@@ -2,14 +2,69 @@ import svgPaths from '../../../imports/svg-hke02eu6ox';
 import { BottomNav } from '../ui/BottomNav';
 import { LAYOUT } from '../../constants/layout';
 import type { NewsItem } from './LiveNewsBlock';
+import type { TripSitDrug } from './LibraryPage';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
 interface ArticlePageProps {
   news: NewsItem[];
+  drugs: TripSitDrug[];
+  onDrug: (key: string) => void;
   onBack: () => void;
   onSearchOpen: () => void;
   onTabChange: (tab: NavTab) => void;
+}
+
+// ─── Drug link parser ─────────────────────────────────────────────────────────
+
+function escapeRegex(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function parseDrugLinks(
+  text: string,
+  drugs: TripSitDrug[],
+  color: string,
+  onDrug: (key: string) => void,
+): React.ReactNode[] {
+  // Build map: lowercase name/alias → drug key
+  const nameMap = new Map<string, string>();
+  for (const drug of drugs) {
+    nameMap.set(drug.pretty_name.toLowerCase(), drug.key);
+    for (const alias of drug.aliases ?? []) {
+      if (alias.length > 2) nameMap.set(alias.toLowerCase(), drug.key);
+    }
+  }
+
+  const allNames = Array.from(nameMap.keys()).sort((a, b) => b.length - a.length);
+  if (allNames.length === 0) return [text];
+
+  const pattern = new RegExp(`\\b(${allNames.map(escapeRegex).join('|')})\\b`, 'gi');
+  const nodes: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+
+  while ((m = pattern.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    const key = nameMap.get(m[0].toLowerCase())!;
+    nodes.push(
+      <button
+        key={m.index}
+        onClick={() => onDrug(key)}
+        style={{
+          background: 'none', border: 'none', padding: 0,
+          color, textDecoration: 'underline', cursor: 'pointer',
+          fontSize: 'inherit', fontFamily: 'inherit', lineHeight: 'inherit',
+          letterSpacing: 'inherit',
+        }}
+      >
+        {m[0]}
+      </button>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
 }
 
 // ─── Share icon ───────────────────────────────────────────────────────────────
@@ -29,7 +84,7 @@ function ShareIcon() {
 
 // ─── Article card — matches Figma design ────────────────────────────────────
 
-function ArticleCard({ item }: { item: NewsItem }) {
+function ArticleCard({ item, drugs, onDrug }: { item: NewsItem; drugs: TripSitDrug[]; onDrug: (key: string) => void }) {
   const bodyParagraphs = (item.body ?? item.summary ?? '').split('\n\n').filter(Boolean);
 
   return (
@@ -37,30 +92,11 @@ function ArticleCard({ item }: { item: NewsItem }) {
 
       {/* Date + Title */}
       <div className="flex flex-col gap-3 w-full">
-        <p style={{
-          fontFamily: 'Roboto, sans-serif',
-          fontWeight: 500,
-          fontSize: '16px',
-          color: '#F1F1F1',
-          opacity: 0.4,
-          letterSpacing: '0.32px',
-          lineHeight: 1.3,
-          margin: 0,
-        }}>
+        <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', opacity: 0.4, letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
           {item.date}
         </p>
         <div className="flex items-start justify-between w-full gap-4">
-          <p style={{
-            fontFamily: "'Sora', sans-serif",
-            fontWeight: 800,
-            fontSize: '29px',
-            lineHeight: '30px',
-            letterSpacing: '0.58px',
-            color: '#F3EFEF',
-            textTransform: 'uppercase',
-            margin: 0,
-            flex: 1,
-          }}>
+          <p style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: '29px', lineHeight: '30px', letterSpacing: '0.58px', color: '#F3EFEF', textTransform: 'uppercase', margin: 0, flex: 1 }}>
             {item.title.replace('\n', ' ')}
           </p>
           <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, marginTop: '2px' }} aria-label="Share">
@@ -76,10 +112,12 @@ function ArticleCard({ item }: { item: NewsItem }) {
         </span>
       </div>
 
-      {/* Body */}
+      {/* Body with inline drug links */}
       <div style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, width: '100%' }}>
         {bodyParagraphs.map((para, i) => (
-          <p key={i} style={{ margin: 0, marginTop: i > 0 ? '1em' : 0 }}>{para}</p>
+          <p key={i} style={{ margin: 0, marginTop: i > 0 ? '1em' : 0 }}>
+            {parseDrugLinks(para, drugs, item.categoryColor, onDrug)}
+          </p>
         ))}
       </div>
     </div>
@@ -88,7 +126,7 @@ function ArticleCard({ item }: { item: NewsItem }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ArticlePage({ news, onBack, onSearchOpen, onTabChange }: ArticlePageProps) {
+export function ArticlePage({ news, drugs, onDrug, onBack, onSearchOpen, onTabChange }: ArticlePageProps) {
   return (
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
@@ -115,7 +153,7 @@ export function ArticlePage({ news, onBack, onSearchOpen, onTabChange }: Article
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div className="px-2 flex flex-col gap-4" style={{ paddingTop: '70px', paddingBottom: `${LAYOUT.CONTENT_BOTTOM_PADDING}px` }}>
           {news.map((item, i) => (
-            <ArticleCard key={i} item={item} />
+            <ArticleCard key={i} item={item} drugs={drugs} onDrug={onDrug} />
           ))}
         </div>
       </div>

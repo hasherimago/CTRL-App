@@ -166,6 +166,8 @@ export default function App() {
       ) : currentPage === 'article' ? (
         <ArticlePage
           news={liveNews}
+          drugs={DRUGS}
+          onDrug={(key) => { handleDrugClick(key); setCurrentPage('home'); }}
           onBack={() => setCurrentPage('home')}
           onTabChange={handleTabChange}
           onSearchOpen={openSearch}

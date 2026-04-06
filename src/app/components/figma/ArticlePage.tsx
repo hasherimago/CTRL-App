@@ -57,8 +57,8 @@ function ShareIcon() {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ArticlePage({ news, onBack, onDrug, onSearchOpen, onTabChange }: ArticlePageProps) {
-  const titleLines = news.title.split('\n');
-  const bodyParagraphs = news.body.split('\n\n').filter(Boolean);
+  const titleLines = (news.title ?? '').split('\n');
+  const bodyParagraphs = (news.body ?? news.summary ?? '').split('\n\n').filter(Boolean);
 
   return (
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">

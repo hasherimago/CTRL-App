@@ -34,7 +34,7 @@ export const FALLBACK_NEWS: NewsItem = {
   categoryColor: CATEGORY_COLOR['Opioids'],
 };
 
-const CACHE_KEY = 'ctrl_live_news_v1';
+const CACHE_KEY = 'ctrl_live_news_v2';
 const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
 
 // ─── Fetch logic ──────────────────────────────────────────────────────────────

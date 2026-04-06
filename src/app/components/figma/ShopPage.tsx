@@ -1,20 +1,32 @@
 import svgPaths from '../../../imports/svg-9phyw3y14s';
-import imgBoxKit32 from 'figma:asset/3540376fb624c022b5c0acc0baca73f0f03c7230.png';
+import imgPrePartyKit from '../../../assets/Pre-Party Kit.png';
+import imgAfterPartyKit from '../../../assets/After-Party Kit.png';
+import imgTwoInOneKit from '../../../assets/2-in-1 Party Kit.png';
+import imgTestingKit from '../../../assets/Testing Kit.png';
+import imgCtrlLabBg from '../../../assets/Ctrl-lab.png';
+import imgCtrlCheckBg from '../../../assets/Ctrl-check.png';
+import imgMerch1 from '../../../assets/merch1.png';
+import imgMerch2 from '../../../assets/merch2.png';
+import imgMerch3 from '../../../assets/merch3.png';
 import { BottomNav } from '../ui/BottomNav';
 import { LAYOUT } from '../../constants/layout';
+
+// Figma remote assets — price badge starbursts (valid ~7 days from generation)
+const imgStar19 = 'https://www.figma.com/api/mcp/asset/8a52ad7d-1282-4db8-9163-54bfe9987ade';
+const imgStar35 = 'https://www.figma.com/api/mcp/asset/ff232a4e-7f06-47de-900f-40c9c0795d34';
 
 interface ShopPageProps {
   onBack: () => void;
   onSearchOpen?: () => void;
+  onKitClick?: (kit: 'preParty' | 'afterParty' | 'twoInOne' | 'testing') => void;
 }
 
-export function ShopPage({ onBack, onSearchOpen }: ShopPageProps) {
+export function ShopPage({ onBack, onSearchOpen, onKitClick }: ShopPageProps) {
   return (
-    <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
+    <div className="relative w-full h-screen bg-[#181818] overflow-hidden">
 
       {/* ── FIXED HEADER ── */}
       <div className="fixed top-0 left-0 right-0 z-50 h-[56px]">
-        {/* Layer 1: blur + mask */}
         <div
           className="absolute inset-0"
           style={{
@@ -24,38 +36,29 @@ export function ShopPage({ onBack, onSearchOpen }: ShopPageProps) {
             maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
           }}
         />
-        {/* Layer 2: solid → transparent gradient */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)',
+            background: 'linear-gradient(to bottom, #181818 30%, rgba(24,24,24,0) 100%)',
             pointerEvents: 'none',
           }}
         />
-        {/* Layer 3: content */}
-        <div className="relative h-full flex flex-col z-10">
-          {/* Nav row: back ← | Shop | search */}
-          <div className="h-[56px] flex items-center justify-between px-4">
-            {/* Back button */}
-            <button
-              onClick={onBack}
-              className="w-8 h-8 flex items-center justify-center"
-              aria-label="Go back"
-            >
-              <svg width="22" height="21" viewBox="0 0 22 20.5677" fill="none">
-                <path d={svgPaths.pb6bc280} fill="#F1F1F1" />
-              </svg>
-            </button>
-
-            {/* Title */}
-            <p className="text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px]">Shop</p>
-
-            {/* Search icon */}
-            <button
-              onClick={onSearchOpen}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-              aria-label="Open search"
-            >
+        <div className="relative h-full flex items-center justify-between px-4 z-10">
+          <button
+            onClick={onBack}
+            className="w-8 h-8 flex items-center justify-center"
+            aria-label="Go back"
+          >
+            <svg width="22" height="21" viewBox="0 0 22 20.5677" fill="none">
+              <path d={svgPaths.pb6bc280} fill="#F1F1F1" />
+            </svg>
+          </button>
+          <p className="text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px]">Shop</p>
+          <button
+            onClick={onSearchOpen}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            aria-label="Open search"
+          >
             <div className="w-8 h-8 relative">
               <div className="absolute left-[5px] top-[5px] w-[18px] h-[18px]">
                 <div className="absolute inset-[-5.56%]">
@@ -72,8 +75,7 @@ export function ShopPage({ onBack, onSearchOpen }: ShopPageProps) {
                 </div>
               </div>
             </div>
-            </button>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -89,112 +91,231 @@ export function ShopPage({ onBack, onSearchOpen }: ShopPageProps) {
           overflowX: 'hidden',
         }}
       >
-        {/* Hero image area — 397px tall, image sits 43px from top */}
-        <div className="relative w-full" style={{ height: '397px' }}>
-          <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '43px', width: '385px', height: '385px' }}>
-            <img
-              src={imgBoxKit32}
-              alt="Testing Kit"
-              className="w-full h-full object-cover pointer-events-none"
+        <div className="flex flex-col gap-4 pt-[72px]" style={{ paddingBottom: `${LAYOUT.CONTENT_BOTTOM_PADDING}px` }}>
+
+          {/* ── KIT HORIZONTAL SCROLL ── */}
+          <div
+            style={{
+              overflowX: 'auto',
+              overflowY: 'visible',
+              paddingLeft: '8px',
+              paddingRight: '8px',
+            }}
+          >
+            <div className="flex gap-[14px]" style={{ width: 'max-content' }}>
+
+              {/* Pre-party kit */}
+              <button
+                onClick={() => onKitClick?.('preParty')}
+                className="relative flex-shrink-0 rounded-[16px] overflow-hidden"
+                style={{ width: '240px', height: '174px', background: '#8C5CFE' }}
+              >
+                <img
+                  src={imgPrePartyKit}
+                  alt=""
+                  className="absolute object-cover pointer-events-none"
+                  style={{ width: '260px', height: '260px', left: '40px', bottom: '-44px' }}
+                />
+                <p
+                  className="absolute text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px] whitespace-nowrap"
+                  style={{ fontFamily: 'Roboto, sans-serif', bottom: '16px', left: '16px' }}
+                >
+                  Pre-party kit
+                </p>
+              </button>
+
+              {/* After-party kit */}
+              <button
+                onClick={() => onKitClick?.('afterParty')}
+                className="relative flex-shrink-0 rounded-[16px] overflow-hidden"
+                style={{ width: '240px', height: '174px', background: '#AAFF00' }}
+              >
+                <img
+                  src={imgAfterPartyKit}
+                  alt=""
+                  className="absolute object-cover pointer-events-none"
+                  style={{ width: '260px', height: '260px', left: '40px', top: '50%', transform: 'translateY(-50%)' }}
+                />
+                <p
+                  className="absolute text-[#0D0D0D] text-[18px] font-bold tracking-[0.36px] whitespace-nowrap"
+                  style={{ fontFamily: 'Roboto, sans-serif', bottom: '16px', left: '16px' }}
+                >
+                  After-party kit
+                </p>
+              </button>
+
+              {/* 2-in-1 party kit */}
+              <button
+                onClick={() => onKitClick?.('twoInOne')}
+                className="relative flex-shrink-0 rounded-[16px] overflow-hidden"
+                style={{ width: '240px', height: '174px', background: '#0D0D0D' }}
+              >
+                <img
+                  src={imgTwoInOneKit}
+                  alt=""
+                  className="absolute object-cover pointer-events-none"
+                  style={{ width: '260px', height: '260px', left: '40px', top: '50%', transform: 'translateY(-50%)' }}
+                />
+                <p
+                  className="absolute text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px] whitespace-nowrap"
+                  style={{ fontFamily: 'Roboto, sans-serif', bottom: '16px', left: '16px' }}
+                >
+                  2-in-1 party kit
+                </p>
+              </button>
+
+              {/* Testing kit */}
+              <button
+                onClick={() => onKitClick?.('testing')}
+                className="relative flex-shrink-0 rounded-[16px] overflow-hidden"
+                style={{ width: '240px', height: '174px', background: '#0D0D0D' }}
+              >
+                <img
+                  src={imgTestingKit}
+                  alt=""
+                  className="absolute object-cover pointer-events-none"
+                  style={{ width: '260px', height: '260px', left: '40px', top: '-42px' }}
+                />
+                <p
+                  className="absolute text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px] whitespace-nowrap"
+                  style={{ fontFamily: 'Roboto, sans-serif', bottom: '16px', left: '16px' }}
+                >
+                  Testing kit
+                </p>
+              </button>
+
+            </div>
+          </div>
+
+          {/* ── CTRL.LAB BANNER ── */}
+          <div className="mx-2 relative rounded-[20px] overflow-hidden flex flex-col justify-end px-4 py-[30px]" style={{ height: '222px' }}>
+            {/* Gradient bg */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, #0b0d0c 40%, #ff81b2)' }}
             />
-          </div>
-        </div>
-
-        {/* Product card — overlaps image by ~31px */}
-        <div
-          className="relative mx-2 -mt-[31px] rounded-[16px] overflow-hidden"
-          style={{
-            backgroundColor: '#171717',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-          }}
-        >
-          <div className="flex flex-col gap-10 px-4 pt-6" style={{ paddingBottom: `${LAYOUT.CONTENT_BOTTOM_PADDING}px` }}>
-
-            {/* Title + Price */}
-            <div className="flex items-end justify-between w-full">
-              <p
-                className="text-[#F1F1F1] text-[24px] tracking-[0.24px]"
-                style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
-              >
-                Testing Kit
-              </p>
-              <p
-                className="text-[#F1F1F1] text-[32px] tracking-[0.64px]"
-                style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
-              >
-                €30
-              </p>
-            </div>
-
-            {/* Description */}
+            {/* Van photo */}
+            <img
+              src={imgCtrlLabBg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              style={{ mixBlendMode: 'overlay' }}
+            />
+            {/* Dark vignette */}
             <div
-              className="text-[#F1F1F1] text-[16px] leading-[1.3] tracking-[0.32px] w-full"
-              style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}
-            >
-              <p className="mb-0">CTRL. Drug Checking Kit</p>
-              <p>
-                Know what you're taking — before you take it.
-                <br /><br />
-                Whether you're heading to a rave, hosting a house party, or just staying curious, the ctrl. kit gives you the tools to test and verify substances quickly and discreetly. Packed with essential reagents, step-by-step guides, and no-BS harm reduction tips, it's designed to help you stay safe without killing the vibe.
-              </p>
-            </div>
-
-            {/* What's inside label */}
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(102,102,102,0.4), rgba(0,0,0,0.4))' }}
+            />
             <p
-              className="text-[#F1F1F1] text-[18px] leading-[1.5] tracking-[0.36px] w-full"
-              style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
+              className="relative text-white text-[32px] tracking-[0.64px]"
+              style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
             >
-              What's inside:
+              Ctrl.lab
             </p>
-
-            {/* Bullet list */}
-            <ul
-              className="list-disc text-[#F1F1F1] text-[16px] leading-[1.3] tracking-[0.32px] w-full"
-              style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, paddingLeft: '24px' }}
-            >
-              <li className="mb-1">Reagents for the most common club substances</li>
-              <li className="mb-1">Spill-proof vials and single-use tools</li>
-              <li className="mb-1">Fast guides + QR access to deeper info</li>
-              <li>Gloves, wipes, and everything you need to test on the go</li>
-            </ul>
-
-            {/* Closing lines */}
-            <div
-              className="text-[#F1F1F1] text-[16px] leading-[1.3] tracking-[0.32px] w-full"
-              style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}
-            >
-              <p className="mb-0">Built for real life.</p>
-              <p className="mb-0">Pocket-sized.</p>
-              <p className="mb-0">Party-proof.</p>
-              <p>And judgment-free.</p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex gap-4 w-full">
-              <button className="flex-1 h-[61px] bg-[#8C5CFE] rounded-[8px] flex items-center justify-center">
-                <span
-                  className="text-[#F1F1F1] text-[18px] tracking-[0.36px]"
-                  style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
-                >
-                  Get this Kit
-                </span>
-              </button>
-              <button className="flex-1 h-[61px] bg-[#F1F1F1] rounded-[8px] flex items-center justify-center gap-2">
-                {/* Apple logo */}
-                <svg width="13" height="16" viewBox="0 0 13.0084 16" fill="none">
-                  <path d={svgPaths.p3147340} fill="#0D0D0D" />
-                </svg>
-                <span
-                  className="text-[#0D0D0D] text-[18px] tracking-[0.36px]"
-                  style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
-                >
-                  Pay
-                </span>
-              </button>
-            </div>
-
           </div>
+
+          {/* ── CTRL.CHECK BANNER ── */}
+          <div className="mx-2 relative rounded-[20px] overflow-hidden flex flex-col justify-end px-4 py-[30px] gap-[10px]" style={{ height: '222px' }}>
+            {/* Map photo */}
+            <img
+              src={imgCtrlCheckBg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            />
+            {/* Dark vignette */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(102,102,102,0.5), rgba(0,0,0,0.5))' }}
+            />
+            {/* Map pins */}
+            {[{ left: '130px', top: '87px' }, { left: '260px', top: '138px' }, { left: '46px', top: '37px' }].map((pos, i) => (
+              <svg key={i} className="absolute w-6 h-6" style={pos} viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FF2D55"/>
+              </svg>
+            ))}
+            <p
+              className="relative text-white text-[32px] tracking-[0.64px] whitespace-nowrap"
+              style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
+            >
+              Ctrl.check
+            </p>
+          </div>
+
+          {/* ── CTRL.MERCH ── */}
+          <div style={{ overflowX: 'auto', paddingLeft: '8px', paddingRight: '8px' }}>
+            <div className="flex items-center" style={{ width: 'max-content', gap: '0' }}>
+
+              {/* Title */}
+              <div className="flex-shrink-0" style={{ paddingRight: '16px' }}>
+                <p
+                  className="text-white text-[32px] tracking-[0.64px]"
+                  style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704, lineHeight: '1.2' }}
+                >
+                  Ctrl.<br />merch
+                </p>
+              </div>
+
+              {/* Black shirt — €19 badge */}
+              <div className="relative flex-shrink-0" style={{ width: '192px', height: '192px' }}>
+                <img
+                  src={imgMerch1}
+                  alt="Black t-shirt"
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+                <div className="absolute" style={{ top: '10px', right: '-16px', width: '74px', height: '74px' }}>
+                  <img src={imgStar19} alt="" className="w-full h-full" />
+                  <span
+                    className="absolute inset-0 flex items-center justify-center text-[24px] font-bold text-black"
+                    style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '-1px' }}
+                  >
+                    €19
+                  </span>
+                </div>
+              </div>
+
+              {/* Pink cap */}
+              <div className="relative flex-shrink-0" style={{ width: '129px', height: '129px', marginLeft: '48px' }}>
+                <img
+                  src={imgMerch2}
+                  alt="Cap"
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+              </div>
+
+              {/* White shirt — €35 badge */}
+              <div className="relative flex-shrink-0" style={{ width: '192px', height: '192px' }}>
+                <img
+                  src={imgMerch3}
+                  alt="White t-shirt"
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+                <div className="absolute" style={{ bottom: '10px', left: '-16px', width: '74px', height: '74px' }}>
+                  <img src={imgStar35} alt="" className="w-full h-full" />
+                  <span
+                    className="absolute inset-0 flex items-center justify-center text-[24px] font-bold text-black"
+                    style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '-1px' }}
+                  >
+                    €35
+                  </span>
+                </div>
+              </div>
+
+              {/* See all merch */}
+              <div
+                className="flex-shrink-0 flex items-center justify-center rounded-[20px]"
+                style={{ width: '261px', height: '192px', background: '#DBFF00', marginLeft: '16px' }}
+              >
+                <p
+                  className="text-black text-[24px] font-bold"
+                  style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '-0.5px' }}
+                >
+                  See all merch
+                </p>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </div>
 

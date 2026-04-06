@@ -1,13 +1,17 @@
 import { useState, useRef } from 'react';
 import svgPaths from '../imports/svg-srcobnd1q5';
 import ArrowUpIcon from '../imports/24x24_arrow_up.svg';
-import img1BoxKit2 from 'figma:asset/21513547f5bac8311041c05250d422150f954ce0.png';
-import imgBoxKit22 from 'figma:asset/427be1764d9d405c7a5e965a565203239a7abd9b.png';
-import imgBoxKit32 from 'figma:asset/fe666c239a772ba091da12ba0d15214623bc20e0.png';
-import imgTestingKit1 from 'figma:asset/3540376fb624c022b5c0acc0baca73f0f03c7230.png';
+import imgPrePartyKit from '../assets/Pre-Party Kit.png';
+import imgAfterPartyKit from '../assets/After-Party Kit.png';
+import imgTwoInOneKit from '../assets/2-in-1 Party Kit.png';
+import imgTestingKit from '../assets/Testing Kit.png';
 import shopImage from 'figma:asset/158d2cf416b73440500600afc54970028192895b.png';
 import { LiveNewsBlock } from './components/figma/LiveNewsBlock';
 import { ShopPage } from './components/figma/ShopPage';
+import { ShopKitPage } from './components/figma/ShopKitPage';
+import { PrePartyKitPage } from './components/figma/PrePartyKitPage';
+import { AfterPartyKitPage } from './components/figma/AfterPartyKitPage';
+import { TwoInOneKitPage } from './components/figma/TwoInOneKitPage';
 // ── CHANGED: also import adaptDrugs + TripSitDrug type ──
 import { LibraryPage, adaptDrugs } from './components/figma/LibraryPage';
 import type { TripSitDrug } from './components/figma/LibraryPage';
@@ -40,7 +44,7 @@ export default function App() {
   const checklistNextId = useRef(1);
 
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
-  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   // ── CHANGED: number → TripSitDrug object ──
   const [selectedDrug, setSelectedDrug] = useState<TripSitDrug | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -54,7 +58,8 @@ export default function App() {
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
 
-  const previousPageRef = useRef<'home' | 'shop' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const kitBackRef = useRef<'home' | 'shop'>('shop');
   const skipTransitionRef = useRef(false);
 
   const openSearch = () => {
@@ -109,7 +114,41 @@ export default function App() {
 
       {/* ── BASE PAGE LAYER ── */}
       {currentPage === 'shop' ? (
-        <ShopPage onBack={() => { setCurrentPage('home'); setActiveTab('Home'); }} onSearchOpen={openSearch} />
+        <ShopPage
+          onBack={() => { setCurrentPage('home'); setActiveTab('Home'); }}
+          onSearchOpen={openSearch}
+          onKitClick={(kit) => {
+            kitBackRef.current = 'shop';
+            if (kit === 'preParty') setCurrentPage('shopKitPre');
+            else if (kit === 'afterParty') setCurrentPage('shopKitAfter');
+            else if (kit === 'twoInOne') setCurrentPage('shopKitTwo');
+            else if (kit === 'testing') setCurrentPage('shopKit');
+          }}
+        />
+      ) : currentPage === 'shopKit' ? (
+        <ShopKitPage
+          onBack={() => setCurrentPage(kitBackRef.current)}
+          onSearchOpen={openSearch}
+          onTabChange={handleTabChange}
+        />
+      ) : currentPage === 'shopKitPre' ? (
+        <PrePartyKitPage
+          onBack={() => setCurrentPage(kitBackRef.current)}
+          onSearchOpen={openSearch}
+          onTabChange={handleTabChange}
+        />
+      ) : currentPage === 'shopKitAfter' ? (
+        <AfterPartyKitPage
+          onBack={() => setCurrentPage(kitBackRef.current)}
+          onSearchOpen={openSearch}
+          onTabChange={handleTabChange}
+        />
+      ) : currentPage === 'shopKitTwo' ? (
+        <TwoInOneKitPage
+          onBack={() => setCurrentPage(kitBackRef.current)}
+          onSearchOpen={openSearch}
+          onTabChange={handleTabChange}
+        />
       ) : currentPage === 'checker' ? (
         <CheckerPage onTabChange={handleTabChange} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'library' ? (
@@ -295,20 +334,20 @@ export default function App() {
                         </svg>
                       </div>
                     </div>
-                    <div className="relative w-[240px] h-[174px] bg-[#8C5CFE] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => setCurrentPage('shop')}>
-                      <img src={img1BoxKit2} alt="" className="absolute bottom-[-44px] left-[40px] w-[260px] h-[260px] object-cover" />
+                    <div className="relative w-[240px] h-[174px] bg-[#8C5CFE] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => { kitBackRef.current = 'home'; setCurrentPage('shopKitPre'); }}>
+                      <img src={imgPrePartyKit} alt="" className="absolute bottom-[-44px] left-[40px] w-[260px] h-[260px] object-contain" />
                       <p className="absolute bottom-4 left-4 text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px]">Pre-party kit</p>
                     </div>
-                    <div className="relative w-[240px] h-[174px] bg-[#AAFF00] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => setCurrentPage('shop')}>
-                      <img src={imgBoxKit22} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-cover" />
+                    <div className="relative w-[240px] h-[174px] bg-[#AAFF00] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => { kitBackRef.current = 'home'; setCurrentPage('shopKitAfter'); }}>
+                      <img src={imgAfterPartyKit} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-contain" />
                       <p className="absolute bottom-4 left-4 text-[#0D0D0D] text-[18px] font-bold tracking-[0.36px]">After-party kit</p>
                     </div>
-                    <div className="relative w-[240px] h-[174px] bg-[#171717] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => setCurrentPage('shop')}>
-                      <img src={imgBoxKit32} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-cover" />
+                    <div className="relative w-[240px] h-[174px] bg-[#171717] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => { kitBackRef.current = 'home'; setCurrentPage('shopKitTwo'); }}>
+                      <img src={imgTwoInOneKit} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-contain" />
                       <p className="absolute bottom-4 left-4 text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px]">2-in-1 party kit</p>
                     </div>
-                    <div className="relative w-[240px] h-[174px] bg-[#171717] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => setCurrentPage('shop')}>
-                      <img src={imgTestingKit1} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-cover" />
+                    <div className="relative w-[240px] h-[174px] bg-[#171717] rounded-[16px] overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => { kitBackRef.current = 'home'; setCurrentPage('shopKit'); }}>
+                      <img src={imgTestingKit} alt="" className="absolute top-1/2 left-[40px] -translate-y-1/2 w-[260px] h-[260px] object-contain" />
                       <p className="absolute bottom-4 left-4 text-[#F1F1F1] text-[18px] font-bold tracking-[0.36px]">Testing kit</p>
                     </div>
                   </div>

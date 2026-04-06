@@ -577,7 +577,11 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
 
               {infoState === 'nodata' && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center' }}>
-                  
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#F1F1F1" strokeOpacity="0.2" strokeWidth="1.5" />
+                    <path d="M12 8v5" stroke="#F1F1F1" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="12" cy="16" r="0.8" fill="#F1F1F1" fillOpacity="0.4" />
+                  </svg>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '15px', color: '#F1F1F1', opacity: 0.45, margin: 0, letterSpacing: '0.32px' }}>
                     No interaction data available
                   </p>

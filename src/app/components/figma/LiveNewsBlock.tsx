@@ -37,7 +37,7 @@ export const FALLBACK_NEWS: NewsItem = {
 };
 
 const CACHE_KEY = 'ctrl_live_news_v4';
-const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 // ─── Fetch logic ──────────────────────────────────────────────────────────────
 

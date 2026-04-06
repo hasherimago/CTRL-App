@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Module-level cache — survives across warm invocations on the same instance
 let cachedNews: object | null = null;
 let cacheTime = 0;
-const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 function buildPrompt(today: string) {
   return `You are a harm reduction news editor for CTRL, a drug safety app used at clubs and parties.
@@ -68,6 +68,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // CDN caches for 3 hours; serves stale while regenerating in background
-  res.setHeader('Cache-Control', 'public, s-maxage=10800, stale-while-revalidate=86400');
+  res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=172800');
   res.status(200).json(cachedNews);
 }

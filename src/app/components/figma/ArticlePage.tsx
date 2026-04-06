@@ -8,35 +8,8 @@ type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 interface ArticlePageProps {
   news: NewsItem;
   onBack: () => void;
-  onDrug: () => void;
   onSearchOpen: () => void;
   onTabChange: (tab: NavTab) => void;
-}
-
-// ─── Reusable inline drug link ────────────────────────────────────────────────
-
-function DrugLink({ name, color, onTap }: { name: string; color: string; onTap: () => void }) {
-  return (
-    <button
-      onClick={onTap}
-      style={{
-        background: 'none',
-        border: 'none',
-        padding: 0,
-        color,
-        textDecoration: 'underline',
-        fontFamily: 'Roboto, sans-serif',
-        fontSize: '16px',
-        fontWeight: 400,
-        letterSpacing: '0.32px',
-        lineHeight: 1.3,
-        cursor: 'pointer',
-        display: 'inline',
-      }}
-    >
-      {name}
-    </button>
-  );
 }
 
 // ─── Share icon ───────────────────────────────────────────────────────────────
@@ -56,7 +29,7 @@ function ShareIcon() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ArticlePage({ news, onBack, onDrug, onSearchOpen, onTabChange }: ArticlePageProps) {
+export function ArticlePage({ news, onBack, onSearchOpen, onTabChange }: ArticlePageProps) {
   const titleLines = (news.title ?? '').split('\n');
   const bodyParagraphs = (news.body ?? news.summary ?? '').split('\n\n').filter(Boolean);
 
@@ -147,7 +120,7 @@ export function ArticlePage({ news, onBack, onDrug, onSearchOpen, onTabChange }:
           <div className="backdrop-blur-[20px] bg-[#171717] flex flex-col gap-[30px] items-start px-4 py-[26px] rounded-[20px] w-full">
             {/* Title + share */}
             <div className="flex items-start justify-between w-full">
-              <div className="flex flex-col font-['TT_Travels_Next_Trial_Variable:Bold',sans-serif] font-[704] leading-normal not-italic text-[#F1F1F1] text-[24px] flex-1 min-w-0" style={{ textTransform: 'uppercase' }}>
+              <div className="flex flex-col flex-1 min-w-0" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: '28px', lineHeight: '30px', color: '#F1F1F1', textTransform: 'uppercase', fontStyle: 'normal' }}>
                 {titleLines.map((line, i) => <p key={i} className="mb-0">{line}</p>)}
               </div>
               <button
@@ -184,66 +157,6 @@ export function ArticlePage({ news, onBack, onDrug, onSearchOpen, onTabChange }:
                     {para}
                   </p>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── CARD 2 — Dangerous "Pink Cocaine" ── */}
-          <div
-            className="backdrop-blur-[20px] bg-[#171717] flex flex-col gap-[30px] items-start px-4 py-[26px] rounded-[20px] w-full"
-          >
-            {/* Title + share */}
-            <div className="flex items-start justify-between w-full">
-              <div className="flex flex-col font-['TT_Travels_Next_Trial_Variable:Bold',sans-serif] font-[704] leading-normal not-italic text-[#F1F1F1] text-[24px] flex-1 min-w-0">
-                <p className="mb-0">Dangerous</p>
-                <p className="mb-0">&ldquo;Pink Cocaine&rdquo;</p>
-              </div>
-              <button
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, marginTop: '2px' }}
-                aria-label="Share"
-              >
-                <ShareIcon />
-              </button>
-            </div>
-
-            {/* Stimulants tag */}
-            <div className="flex items-start">
-              <button
-                className="flex items-center justify-center relative cursor-pointer shrink-0"
-                style={{ background: 'none', border: '1px solid #FFADA5', padding: '8px 12px', borderRadius: '100px' }}
-              >
-                <span
-                  className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.3] text-[#FFADA5] text-[16px] tracking-[0.32px] whitespace-nowrap"
-                  style={{ fontVariationSettings: "'wdth' 100" }}
-                >
-                  Stimulants
-                </span>
-              </button>
-            </div>
-
-            {/* Description */}
-            <div className="flex items-center w-full">
-              <div
-                className="flex-1 font-['Roboto:Regular',sans-serif] font-normal text-[#F1F1F1] text-[16px] tracking-[0.32px]"
-                style={{ fontVariationSettings: "'wdth' 100", lineHeight: 1.3 }}
-              >
-                <p className="mb-0">
-                  <span>A batch of so-called &ldquo;pink cocaine&rdquo; tested in Hamburg on 09.06.2025 was found to contain a mix of{' '}</span>
-                  <DrugLink name="MDMA" color="#B2FFF1" onTap={onDrug} />
-                  <span>,{' '}</span>
-                  <DrugLink name="Ketamine" color="#CCF1FF" onTap={onDrug} />
-                  <span>, and{' '}</span>
-                  <DrugLink name="2C-B" color="#B2FFF1" onTap={onDrug} />
-                  <span>{' '}— not cocaine at all. This unpredictable combo increases the risk of anxiety, disorientation, and dangerous overstimulation.</span>
-                </p>
-                <p className="leading-[1.3] mb-0">&nbsp;</p>
-                <p className="leading-[1.3] mb-0">
-                  Avoid using if unsure of the source. If you&apos;ve already taken it, stay hydrated, avoid mixing with alcohol, and stick with trusted people. Test if possible, and seek medical help if symptoms feel intense or unfamiliar.
-                </p>
-                <p className="leading-[1.3] mb-0">&nbsp;</p>
-                <p className="leading-[1.3] mb-0">
-                  Spread the word — it could save someone&apos;s night.
-                </p>
               </div>
             </div>
           </div>

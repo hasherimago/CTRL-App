@@ -167,11 +167,6 @@ export default function App() {
         <ArticlePage
           news={liveNews}
           onBack={() => setCurrentPage('home')}
-          onDrug={() => {
-            skipTransitionRef.current = true;
-            setSelectedDrug(null);
-            requestAnimationFrame(() => { skipTransitionRef.current = false; });
-          }}
           onTabChange={handleTabChange}
           onSearchOpen={openSearch}
         />

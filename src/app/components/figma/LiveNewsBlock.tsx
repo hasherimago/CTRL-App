@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface NewsItem {
-  badge: string;       // e.g. "Warning", "Alert", "Update"
+  badge: string;       // e.g. "Warning", "Update", "Caution"
   badgeColor: string;  // hex — red for danger, yellow for caution, purple for info
   title: string;       // 2–4 words, uppercase in render
   summary: string;     // 1–2 sentences shown on card
   body: string;        // 3–5 sentences shown on article page
+  date: string;        // e.g. "12.04.2026"
   category: string;    // e.g. "Opioids", "Stimulants", "Psychedelics"
   categoryColor: string;
 }
@@ -30,11 +31,12 @@ export const FALLBACK_NEWS: NewsItem = {
   title: 'Fake batch\nof Oxycodone',
   summary: 'Fentanyl was found in a batch of oxycodone in Berlin on 12.05.2025',
   body: 'A counterfeit batch of oxycodone containing fentanyl was detected in Berlin on 12.05.2025. Fentanyl is an extremely potent opioid linked to fatal overdoses, especially when taken unknowingly.\n\nIf you or someone you know has sourced oxycodone recently, do not use it without testing. Start with a very small dose, never use alone, and keep naloxone nearby if possible.\n\nStay safe — share this with your community.',
+  date: '12.05.2025',
   category: 'Opioids',
   categoryColor: CATEGORY_COLOR['Opioids'],
 };
 
-const CACHE_KEY = 'ctrl_live_news_v2';
+const CACHE_KEY = 'ctrl_live_news_v3';
 const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
 
 // ─── Fetch logic ──────────────────────────────────────────────────────────────
@@ -56,11 +58,12 @@ Base it on patterns from DanceSafe, The Loop, EMCDDA, or drug checking services.
 
 Respond ONLY with a valid JSON object — no markdown, no backticks, no explanation:
 {
-  "badge": "Warning" | "Alert" | "Update" | "Caution",
-  "badgeColor": "#FF5545" for danger | "#FFD400" for caution | "#C9B2FF" for info,
+  "badge": "Warning" | "Update" | "Caution",
+  "badgeColor": "#FF5545" for Warning | "#FFD400" for Caution | "#C9B2FF" for Update,
   "title": "2-4 word headline (will be displayed uppercase)",
   "summary": "1 sentence plain text teaser shown on the home card",
   "body": "3-5 sentence plain text article body with full harm reduction advice. Use \\n\\n to separate paragraphs.",
+  "date": "the most plausible date for this alert in DD.MM.YYYY format",
   "category": one of: "Opioids" | "Stimulants" | "Psychedelics" | "Depressants" | "Dissociatives" | "Empathogens" | "NPS" | "General",
   "categoryColor": the matching hex color for that category
 }
@@ -200,28 +203,42 @@ export function LiveNewsBlock({ onReadArticle, onNewsLoaded }: LiveNewsBlockProp
       {/* Content */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-        {/* Badge */}
-        <div
-          style={{
-            alignSelf: 'flex-start',
-            background: item.badgeColor,
-            borderRadius: '18px',
-            padding: '8px 12px',
-            boxShadow: item.badgeColor === '#FF5545'
-              ? '0px 3px 3px rgba(160,34,34,0.33)'
-              : '0px 3px 3px rgba(0,0,0,0.2)',
-          }}
-        >
+        {/* Badge + date row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: item.badgeColor,
+              borderRadius: '44px',
+              padding: '4px 12px',
+              boxShadow: item.badgeColor === '#FF5545'
+                ? '0px 3px 3px rgba(160,34,34,0.33)'
+                : '0px 3px 3px rgba(0,0,0,0.2)',
+            }}
+          >
+            <span style={{
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 500,
+              fontSize: '16px',
+              color: '#0D0D0D',
+              letterSpacing: '0.32px',
+              lineHeight: 1.3,
+              whiteSpace: 'nowrap',
+            }}>
+              {item.badge}
+            </span>
+          </div>
           <span style={{
             fontFamily: 'Roboto, sans-serif',
-            fontWeight: 500,
-            fontSize: '16px',
-            color: '#0D0D0D',
-            letterSpacing: '0.32px',
+            fontWeight: 400,
+            fontSize: '14px',
+            color: 'rgba(243,239,239,0.5)',
+            letterSpacing: '0.28px',
             lineHeight: 1.3,
-            whiteSpace: 'nowrap',
           }}>
-            {item.badge}
+            {item.date}
           </span>
         </div>
 
@@ -231,13 +248,12 @@ export function LiveNewsBlock({ onReadArticle, onNewsLoaded }: LiveNewsBlockProp
             <p
               key={i}
               style={{
-                fontFamily: "'TT Travels Next Trial Variable', sans-serif",
+                fontFamily: "'Sora', sans-serif",
                 fontWeight: 800,
-                fontSize: '24px',
+                fontSize: '28px',
                 color: '#F3EFEF',
-                letterSpacing: '0.48px',
                 textTransform: 'uppercase',
-                lineHeight: '26px',
+                lineHeight: '30px',
                 margin: 0,
                 fontStyle: 'normal',
               }}
@@ -256,7 +272,8 @@ export function LiveNewsBlock({ onReadArticle, onNewsLoaded }: LiveNewsBlockProp
           letterSpacing: '0.32px',
           lineHeight: 1.3,
           margin: 0,
-          maxWidth: '284px',
+          width: 'fit-content',
+          height: 'fit-content',
           display: '-webkit-box',
           WebkitLineClamp: 4,
           WebkitBoxOrient: 'vertical',

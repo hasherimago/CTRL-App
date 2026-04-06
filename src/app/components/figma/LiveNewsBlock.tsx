@@ -81,11 +81,10 @@ Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
     method: 'POST',
     headers,
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       system: systemPrompt,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      messages: [{ role: 'user', content: 'Find the most recent harm reduction drug safety alert or warning.' }],
+      messages: [{ role: 'user', content: 'Generate a realistic and plausible harm reduction drug safety alert or warning based on known drug safety trends in Europe.' }],
     }),
   });
 

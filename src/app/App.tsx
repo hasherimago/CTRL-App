@@ -44,7 +44,7 @@ export default function App() {
   const [checklistOpen, setChecklistOpen] = useState(false);
   const checklistNextId = useRef(1);
 
-  const [liveNews, setLiveNews] = useState<NewsItem>(FALLBACK_NEWS);
+  const [liveNews, setLiveNews] = useState<NewsItem[]>(FALLBACK_NEWS);
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
   const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   // ── CHANGED: number → TripSitDrug object ──

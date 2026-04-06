@@ -73,44 +73,36 @@ Category colors:
 Opioids=#FFD0B4, Stimulants=#FFADA5, Psychedelics=#B2FFF1, Depressants=#B3C3D1,
 Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
 
-  const url = import.meta.env.DEV
-    ? '/api/anthropic/v1/messages'
-    : '/api/news';
+  let parsed: NewsItem;
 
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (import.meta.env.DEV) {
-    headers['x-api-key'] = import.meta.env.VITE_ANTHROPIC_API_KEY;
-    headers['anthropic-version'] = '2023-06-01';
-    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    // Dev: call Anthropic directly via Vite proxy
+    const response = await fetch('/api/anthropic/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: 'Generate a realistic harm reduction drug safety alert or warning.' }],
+      }),
+    });
+    if (!response.ok) throw new Error(`API error ${response.status}`);
+    const data = await response.json();
+    const textBlock = data.content?.find((b: { type: string }) => b.type === 'text');
+    if (!textBlock) throw new Error('No text block');
+    parsed = JSON.parse(textBlock.text.replace(/```json|```/g, '').trim());
+  } else {
+    // Prod: GET pre-generated cached news from Vercel edge
+    const response = await fetch('/api/news-cached');
+    if (!response.ok) throw new Error(`API error ${response.status}`);
+    parsed = await response.json();
   }
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1500,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: 'Generate a realistic harm reduction drug safety alert or warning.' }],
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    console.error('[LiveNews] API error', response.status, errText);
-    throw new Error(`API error ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  const textBlock = data.content?.find((b: { type: string }) => b.type === 'text');
-  if (!textBlock) {
-    console.error('[LiveNews] no text block, content types:', data.content?.map((b: { type: string }) => b.type));
-    throw new Error('No text in response');
-  }
-
-  const clean = textBlock.text.replace(/```json|```/g, '').trim();
-  const parsed: NewsItem = JSON.parse(clean);
 
   // Cache it
   try {

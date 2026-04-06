@@ -344,11 +344,12 @@ const CATEGORY_COLOR: Record<string, string> = {
 // ─── Substances ───────────────────────────────────────────────────────────────
 // One entry per unique comboKey where possible — no duplicate-key clutter.
 // comboKey MUST exactly match a top-level key in combos.json.
-// Verified keys: alcohol, amphetamines, amt, benzodiazepines, caffeine,
-//   cannabis, cocaine, dextromethorphan, diphenhydramine, dmt, dox,
+// Verified keys: 2-fdck, 2c-t-x, 2c-x, 3-mmc, 5-meo-xxt, alcohol,
+//   alphetamines, amt, ayahuasca, benzodiazepines, caffeine, cannabis,
+//   cocaine, dextromethorphan, diphenhydramine, dmt, dox, fentanyl,
 //   ghb/gbl, ketamine, lithium, lsd, maois, mdma, mephedrone, mescaline,
-//   mushrooms, mxe, nbomes, nitrous, opioids, pcp, pregabalin, ssris,
-//   tramadol, viagra, 2c-x, 2c-t-x, 5-meo-xxt
+//   mushrooms, mxe, nbomes, nitrous, opioids, pcp, poppers, pregabalin,
+//   ssris, tilidine, tramadol, viagra, 2c-x, 2c-t-x, 5-meo-xxt
 
 interface Substance {
   name: string;     // display name in UI
@@ -359,57 +360,61 @@ interface Substance {
 
 const SUBSTANCES: Substance[] = [
   // ── Stimulants ──────────────────────────────────────────────────────────────
-  { name: 'Cocaine',         comboKey: 'cocaine',         category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Amphetamines',    comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Meth', comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Methylphenidate', comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Modafinil',       comboKey: 'amphetamines',    category: 'Stimulants',   color: '#FFADA5' },
-  { name: 'Caffeine',        comboKey: 'caffeine',        category: 'Stimulants',   color: '#FFADA5' },
+  { name: 'Cocaine',         comboKey: 'cocaine',          category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Amphetamines',    comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Meth',            comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Methylphenidate', comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Modafinil',       comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Caffeine',        comboKey: 'caffeine',         category: 'Stimulants',    color: '#FFADA5' },
 
   // ── Psychedelics ─────────────────────────────────────────────────────────────
-  { name: 'LSD',             comboKey: 'lsd',             category: 'Psychedelics', color: '#B5EAD7' },
-  { name: 'Mushrooms',       comboKey: 'mushrooms',       category: 'Psychedelics', color: '#B2FFF1' },
-  { name: 'DMT',             comboKey: 'dmt',             category: 'Psychedelics', color: '#B2FFF1' },
-  { name: 'Mescaline',       comboKey: 'mescaline',       category: 'Psychedelics', color: '#B2FFF1' },
-  { name: '2C-B',            comboKey: '2c-x',            category: 'Psychedelics', color: '#FFB6A3' },
-  { name: 'NBOMe',           comboKey: 'nbomes',          category: 'Psychedelics', color: '#B2FFF1' },
-  { name: 'DOx',             comboKey: 'dox',             category: 'Psychedelics', color: '#B2FFF1' },
-  { name: 'aMT',             comboKey: 'amt',             category: 'Psychedelics', color: '#B2FFF1' },
-  { name: '5-MeO-MiPT',     comboKey: '5-meo-xxt',       category: 'Psychedelics', color: '#B2FFF1' },
+  { name: 'LSD',             comboKey: 'lsd',              category: 'Psychedelics',  color: '#B5EAD7' },
+  { name: 'Mushrooms',       comboKey: 'mushrooms',        category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: 'DMT',             comboKey: 'dmt',              category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: 'Ayahuasca',       comboKey: 'ayahuasca',        category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: 'Mescaline',       comboKey: 'mescaline',        category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: '2C-B',            comboKey: '2c-x',             category: 'Psychedelics',  color: '#FFB6A3' },
+  { name: 'NBOMe',           comboKey: 'nbomes',           category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: 'DOx',             comboKey: 'dox',              category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: 'aMT',             comboKey: 'amt',              category: 'Psychedelics',  color: '#B2FFF1' },
+  { name: '5-MeO-MiPT',     comboKey: '5-meo-xxt',        category: 'Psychedelics',  color: '#B2FFF1' },
 
   // ── Depressants ──────────────────────────────────────────────────────────────
-  { name: 'Alcohol',         comboKey: 'alcohol',         category: 'Depressants',  color: '#F5D163' },
-  { name: 'GHB / GBL',       comboKey: 'ghb/gbl',         category: 'Depressants',  color: '#A8E6CF' },
-  { name: 'Cannabis',        comboKey: 'cannabis',        category: 'Depressants',  color: '#CBFFC6' },
+  { name: 'Alcohol',         comboKey: 'alcohol',          category: 'Depressants',   color: '#F5D163' },
+  { name: 'GHB / GBL',       comboKey: 'ghb/gbl',          category: 'Depressants',   color: '#A8E6CF' },
+  { name: 'Cannabis',        comboKey: 'cannabis',         category: 'Depressants',   color: '#CBFFC6' },
+  { name: 'Poppers',         comboKey: 'poppers',          category: 'Depressants',   color: '#FFE5B4' },
 
   // ── Opioids ──────────────────────────────────────────────────────────────────
-  { name: 'Opioids',         comboKey: 'opioids',         category: 'Opioids',      color: '#FFD0B4' },
-  { name: 'Heroin',          comboKey: 'opioids',         category: 'Opioids',      color: '#FFD0B4' },
-  { name: 'Tramadol',        comboKey: 'tramadol',        category: 'Opioids',      color: '#FFD0B4' },
-  { name: 'Kratom',          comboKey: 'opioids',         category: 'Opioids',      color: '#FFD0B4' },
+  { name: 'Heroin',          comboKey: 'opioids',          category: 'Opioids',       color: '#FFD0B4' },
+  { name: 'Fentanyl',        comboKey: 'opioids',          category: 'Opioids',       color: '#FFD0B4' },
+  { name: 'Oxycodone',       comboKey: 'opioids',          category: 'Opioids',       color: '#FFD0B4' },
+  { name: 'Tilidine',        comboKey: 'opioids',          category: 'Opioids',       color: '#FFD0B4' },
+  { name: 'Tramadol',        comboKey: 'tramadol',         category: 'Opioids',       color: '#FFD0B4' },
+  { name: 'Kratom',          comboKey: 'opioids',          category: 'Opioids',       color: '#FFD0B4' },
 
   // ── Dissociatives ────────────────────────────────────────────────────────────
-  { name: 'Ketamine',        comboKey: 'ketamine',        category: 'Dissociatives', color: '#CCF1FF' },
-  { name: 'DXM',             comboKey: 'dextromethorphan',category: 'Dissociatives', color: '#CCF1FF' },
-  { name: 'MXE',             comboKey: 'mxe',             category: 'Dissociatives', color: '#CCF1FF' },
-  { name: 'PCP',             comboKey: 'pcp',             category: 'Dissociatives', color: '#CCF1FF' },
-  { name: 'Nitrous',         comboKey: 'nitrous',         category: 'Dissociatives', color: '#CCF1FF' },
+  { name: 'Ketamine',        comboKey: 'ketamine',         category: 'Dissociatives', color: '#CCF1FF' },
+  { name: '2-FDCK',          comboKey: '2-fdck',           category: 'Dissociatives', color: '#CCF1FF' },
+  { name: 'DXM',             comboKey: 'dextromethorphan', category: 'Dissociatives', color: '#CCF1FF' },
+  { name: 'MXE',             comboKey: 'mxe',              category: 'Dissociatives', color: '#CCF1FF' },
+  { name: 'Nitrous',         comboKey: 'nitrous',          category: 'Dissociatives', color: '#CCF1FF' },
 
   // ── Empathogens ──────────────────────────────────────────────────────────────
-  { name: 'MDMA',            comboKey: 'mdma',            category: 'Empathogens',  color: '#FFBEEA' },
-  { name: 'Mephedrone',      comboKey: 'mephedrone',      category: 'Empathogens',  color: '#FFBEEA' },
-  { name: 'MDA',             comboKey: 'mdma',            category: 'Empathogens',  color: '#FFBEEA' },
-  { name: 'Methylone',       comboKey: 'mephedrone',      category: 'Empathogens',  color: '#FFBEEA' },
-  { name: '4-FA',            comboKey: 'amphetamines',    category: 'Empathogens',  color: '#FFBEEA' },
+  { name: 'MDMA',            comboKey: 'mdma',             category: 'Empathogens',   color: '#FFBEEA' },
+  { name: 'Mephedrone',      comboKey: 'mephedrone',       category: 'Empathogens',   color: '#FFBEEA' },
+  { name: '3-MMC',           comboKey: 'mephedrone',       category: 'Empathogens',   color: '#FFBEEA' },
+  { name: 'MDA',             comboKey: 'mdma',             category: 'Empathogens',   color: '#FFBEEA' },
+  { name: '4-FA',            comboKey: 'amphetamines',     category: 'Empathogens',   color: '#FFBEEA' },
 
   // ── Medications ──────────────────────────────────────────────────────────────
-  { name: 'SSRIs',           comboKey: 'ssris',           category: 'Medications',  color: '#D4B3FF' },
-  { name: 'MAOIs',           comboKey: 'maois',           category: 'Medications',  color: '#D4B3FF' },
-  { name: 'Benzos',          comboKey: 'benzodiazepines', category: 'Medications',  color: '#D4B3FF' },
-  { name: 'Pregabalin',      comboKey: 'pregabalin',      category: 'Medications',  color: '#D4B3FF' },
-  { name: 'Benadryl / DPH',  comboKey: 'diphenhydramine', category: 'Medications',  color: '#D4B3FF' },
-  { name: 'Lithium',         comboKey: 'lithium',         category: 'Medications',  color: '#D4B3FF' },
-  { name: 'Viagra',          comboKey: 'viagra',          category: 'Medications',  color: '#D4B3FF' },
+  { name: 'SSRIs',           comboKey: 'ssris',            category: 'Medications',   color: '#D4B3FF' },
+  { name: 'MAOIs',           comboKey: 'maois',            category: 'Medications',   color: '#D4B3FF' },
+  { name: 'Xanax / Benzos',  comboKey: 'benzodiazepines',  category: 'Medications',   color: '#D4B3FF' },
+  { name: 'Pregabalin',      comboKey: 'pregabalin',       category: 'Medications',   color: '#D4B3FF' },
+  { name: 'Benadryl / DPH',  comboKey: 'diphenhydramine',  category: 'Medications',   color: '#D4B3FF' },
+  { name: 'Lithium',         comboKey: 'lithium',          category: 'Medications',   color: '#D4B3FF' },
+  { name: 'Viagra',          comboKey: 'viagra',           category: 'Medications',   color: '#D4B3FF' },
 ];
 
 // ─── Risk icons & colours ─────────────────────────────────────────────────────

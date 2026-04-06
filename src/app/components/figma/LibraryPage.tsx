@@ -28,6 +28,11 @@ export interface TripSitDrug {
   formatted_aftereffects?: Record<string, string>;
   formatted_effects?: string[];
   dose_note?: string;
+  links?: {
+    experiences?: string;
+    pihkal?: string;
+    tihkal?: string;
+  };
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────
@@ -88,6 +93,7 @@ export function adaptDrugs(raw: Record<string, unknown>): TripSitDrug[] {
       formatted_aftereffects: d.formatted_aftereffects as TripSitDrug['formatted_aftereffects'],
       formatted_effects: d.formatted_effects as string[] | undefined,
       dose_note: d.dose_note as string | undefined,
+      links: d.links as TripSitDrug['links'],
     });
   }
   return drugs.sort((a, b) => a.pretty_name.localeCompare(b.pretty_name));

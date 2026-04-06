@@ -9119,5 +9119,171 @@
       "status": "Low Risk & Caution",
       "note": "No significant pharmacodynamic interaction between lithium and sildenafil is documented. Both are used in quite different therapeutic contexts. Lithium toxicity is more of a concern with other substances. Low risk combination."
     }
+  },
+  "poppers": {
+    "viagra": {
+      "status": "Dangerous",
+      "note": "Both poppers (alkyl nitrites) and Viagra (sildenafil) are vasodilators acting through different mechanisms \u2014 nitric oxide pathway and PDE5 inhibition respectively. Together they cause synergistic, severe hypotension that can be rapid and fatal. Even a single use of each is dangerous in combination. This is one of the most well-documented dangerous recreational drug interactions. Absolutely avoid."
+    },
+    "alcohol": {
+      "status": "Caution",
+      "note": "Both alcohol and poppers lower blood pressure. The combination can cause pronounced dizziness, fainting, and orthostatic hypotension. At higher alcohol doses the risk increases significantly. Sit or lie down and avoid standing up quickly."
+    },
+    "mdma": {
+      "status": "Caution",
+      "note": "MDMA raises heart rate and cardiovascular load. Poppers cause a sudden drop in blood pressure. The opposing cardiovascular demands can cause dizziness, fainting, and arrhythmia. The combination is common in club settings but carries real cardiovascular risk."
+    },
+    "cocaine": {
+      "status": "Unsafe",
+      "note": "Cocaine is a potent vasoconstrictor and stimulant. Poppers are a vasodilator. The opposing cardiovascular effects \u2014 cocaine raising blood pressure and heart rate while poppers suddenly drop blood pressure \u2014 creates significant cardiac stress and risk of arrhythmia."
+    },
+    "amphetamines": {
+      "status": "Caution",
+      "note": "Amphetamines raise blood pressure and heart rate. Poppers cause a rapid blood pressure drop. The opposing cardiovascular effects increase the risk of arrhythmia and cardiac stress. The sudden hypotension from poppers may be more pronounced."
+    },
+    "ghb/gbl": {
+      "status": "Caution",
+      "note": "GHB/GBL can cause CNS depression and blood pressure lowering. Combined with the vasodilatory effects of poppers, the hypotensive effect can be additive and pronounced. Risk of fainting and loss of consciousness increases."
+    },
+    "ketamine": {
+      "status": "Caution",
+      "note": "Ketamine can cause cardiovascular stimulation at lower doses but blood pressure changes are unpredictable. Combined with the sudden hypotension from poppers, disorientation and fainting risk increases. Avoid using poppers while dissociated."
+    },
+    "cannabis": {
+      "status": "Low Risk & Caution",
+      "note": "Cannabis can cause mild hypotension, particularly orthostatic. Combined with poppers' vasodilation, dizziness and fainting risk increases. Generally manageable but avoid standing up quickly and use in a safe seated position."
+    },
+    "opioids": {
+      "status": "Caution",
+      "note": "Opioids cause respiratory depression and can lower blood pressure. Combined with the vasodilation of poppers, hypotension can be pronounced. Avoid this combination particularly at higher opioid doses."
+    },
+    "benzodiazepines": {
+      "status": "Low Risk & Caution",
+      "note": "Benzodiazepines cause CNS depression and mild blood pressure lowering. Combined with poppers the hypotensive effect may be slightly enhanced. Generally low risk at moderate doses but monitor for dizziness."
+    },
+    "lsd": {
+      "status": "Low Risk & Caution",
+      "note": "LSD causes vasoconstriction which partially counteracts poppers' vasodilation. The interaction is generally not life-threatening but the brief intense poppers rush may be psychologically overwhelming during a psychedelic experience."
+    },
+    "mushrooms": {
+      "status": "Low Risk & Caution",
+      "note": "No major direct interaction. The brief poppers rush may be psychologically intense during a psilocybin experience. Mild blood pressure changes are possible. Generally manageable but set and setting should be considered."
+    },
+    "nitrous": {
+      "status": "Caution",
+      "note": "Both nitrous oxide and poppers cause brief but intense altered states and blood pressure changes. Combining them can cause profound disorientation, loss of motor control, and risk of fainting. Positional asphyxia is a risk if consciousness is lost."
+    },
+    "ssris": {
+      "status": "Low Risk & Caution",
+      "note": "No major direct pharmacological interaction expected between SSRIs and poppers. SSRIs may affect blood pressure mildly. The combination is generally considered low risk at standard doses."
+    },
+    "maois": {
+      "status": "Caution",
+      "note": "MAOIs can cause significant cardiovascular instability and blood pressure fluctuations. Combined with the rapid vasodilation from poppers, blood pressure changes may be unpredictable and pronounced. Use with caution."
+    }
+  },
+  "ayahuasca": {
+    "alcohol": {
+      "status": "Unsafe",
+      "note": "Ayahuasca contains MAO inhibitors (harmaline/harmine). Combining alcohol with MAOIs can cause dangerous blood pressure fluctuations, nausea, and cardiovascular instability. Alcohol also dehydrates and impairs thermoregulation during the experience."
+    },
+    "mdma": {
+      "status": "Dangerous",
+      "note": "Ayahuasca's MAOI component prevents breakdown of serotonin. MDMA causes massive serotonin release. Together this creates a very high risk of serotonin syndrome \u2014 hyperthermia, seizures, cardiovascular collapse, and potentially death. This combination has caused fatalities."
+    },
+    "cocaine": {
+      "status": "Dangerous",
+      "note": "Ayahuasca's MAOIs prevent cocaine metabolism, dramatically extending and intensifying its effects. Severe hypertension, arrhythmia, and cardiovascular crisis are real risks. This combination is life-threatening."
+    },
+    "amphetamines": {
+      "status": "Dangerous",
+      "note": "Combining MAOIs (from ayahuasca) with amphetamines creates a hypertensive crisis and high risk of serotonin syndrome. The MAOI prevents monoamine breakdown while amphetamines flood the synapse with dopamine, norepinephrine, and serotonin. Potentially fatal."
+    },
+    "ssris": {
+      "status": "Dangerous",
+      "note": "Combining ayahuasca's MAOI component with SSRIs causes serotonin syndrome \u2014 a potentially fatal condition involving hyperthermia, seizures, and cardiovascular collapse. SSRIs should be discontinued well before ayahuasca use. Consult a medical professional."
+    },
+    "cannabis": {
+      "status": "Caution",
+      "note": "Cannabis can intensify and destabilize the ayahuasca experience, increasing anxiety, paranoia, and psychological difficulty. Many practitioners advise avoiding cannabis for days before ceremony. The MAOI component does not create a direct dangerous interaction with cannabis."
+    },
+    "mushrooms": {
+      "status": "Caution",
+      "note": "Combining ayahuasca with psilocybin produces an extremely intense, prolonged, and unpredictable psychedelic experience. Both are powerful serotonergic psychedelics. The MAOI component may extend and intensify psilocybin's effects significantly. Only for very experienced users in appropriate settings."
+    },
+    "lsd": {
+      "status": "Caution",
+      "note": "LSD combined with ayahuasca's MAOI produces an extremely intense and prolonged experience. MAOIs may potentiate LSD's effects unpredictably. The psychological challenge is enormous and the experience is very difficult to manage. Not recommended."
+    },
+    "ketamine": {
+      "status": "Caution",
+      "note": "No direct dangerous pharmacological interaction, but combining a dissociative with ayahuasca creates a deeply disorienting experience that is very difficult to navigate. The cardiovascular effects of both may combine unpredictably."
+    },
+    "opioids": {
+      "status": "Dangerous",
+      "note": "Ayahuasca's MAOI component combined with opioids \u2014 particularly meperidine/pethidine, tramadol, and dextromethorphan \u2014 can cause fatal serotonin syndrome. Many opioids are unsafe with MAOIs. Even standard opioids can interact dangerously. Avoid entirely."
+    },
+    "benzodiazepines": {
+      "status": "Caution",
+      "note": "Benzodiazepines blunt or abort the ayahuasca experience and are sometimes used as emergency trip terminators. No acute dangerous interaction, but the MAOI component means standard caution applies. Avoid recreational combinations."
+    },
+    "lithium": {
+      "status": "Dangerous",
+      "note": "Lithium significantly lowers the seizure threshold when combined with serotonergic compounds and MAOIs. Ayahuasca contains both DMT and MAOI. This combination is potentially life-threatening and is known to cause violent seizures."
+    }
+  },
+  "2-fdck": {
+    "alcohol": {
+      "status": "Dangerous",
+      "note": "Like ketamine, 2-FDCK combined with alcohol causes synergistic CNS and respiratory depression. Loss of consciousness and respiratory arrest are real risks. Avoid."
+    },
+    "cannabis": {
+      "status": "Low Risk & Synergy",
+      "note": "Cannabis can intensify the dissociative effects of 2-FDCK. Effects may be more intense and disorienting than either alone. Start low and ensure a safe environment."
+    },
+    "mdma": {
+      "status": "Low Risk & Synergy",
+      "note": "Similar to ketamine + MDMA. Generally considered manageable but may increase blood pressure. Ensure hydration and temperature regulation."
+    },
+    "cocaine": {
+      "status": "Caution",
+      "note": "Both drugs increase heart rate and blood pressure through different mechanisms. Combined cardiovascular strain is significant. Avoid high doses."
+    },
+    "amphetamines": {
+      "status": "Caution",
+      "note": "Stimulants combined with 2-FDCK create opposing CNS demands \u2014 cardiovascular stimulation alongside dissociation. Increased heart rate and blood pressure risk."
+    },
+    "opioids": {
+      "status": "Unsafe",
+      "note": "Both 2-FDCK and opioids depress the CNS and respiration. The combination risks respiratory arrest. Avoid."
+    },
+    "benzodiazepines": {
+      "status": "Unsafe",
+      "note": "CNS depressants combined with a dissociative causes synergistic respiratory depression. Risk of unconsciousness and respiratory arrest."
+    },
+    "ghb/gbl": {
+      "status": "Unsafe",
+      "note": "GHB/GBL and 2-FDCK together cause profound CNS depression. Loss of consciousness and respiratory depression are serious risks."
+    },
+    "lsd": {
+      "status": "Caution",
+      "note": "The combination produces an unpredictable and intense experience mixing dissociation with psychedelia. Difficult to manage psychologically. Ensure a safe set and setting."
+    },
+    "mushrooms": {
+      "status": "Caution",
+      "note": "Psilocybin and 2-FDCK produce an intense dissociative-psychedelic experience. Psychologically overwhelming and difficult to navigate. Only for very experienced users."
+    },
+    "maois": {
+      "status": "Caution",
+      "note": "MAOIs may potentiate 2-FDCK unpredictably. Limited data exists. Cardiovascular effects may be altered."
+    },
+    "ssris": {
+      "status": "Low Risk & Caution",
+      "note": "No major direct interaction expected. SSRIs may slightly modulate ketamine-class dissociatives' antidepressant properties. Generally considered low risk."
+    },
+    "nitrous": {
+      "status": "Caution",
+      "note": "Both are dissociatives. Combined they produce an extremely intense dissociative experience that is very difficult to control. High risk of losing motor function and memory."
+    }
   }
 }

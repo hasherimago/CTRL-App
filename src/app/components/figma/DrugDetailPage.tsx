@@ -120,8 +120,6 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
 
 
-  const primaryCat = drug.categories[0];
-  const primaryColor = CATEGORY_COLOR[primaryCat] ?? '#F1F1F1';
 
   // Build detection rows from properties.detection string
   const detectionRows = (() => {
@@ -137,31 +135,48 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
     return rows.length > 0 ? rows : null;
   })();
 
+  // Format a raw timing number (minutes or hours) into a readable string.
+  function formatTimingNum(n: number, unitKey: string): string {
+    if (n === 0) return '0';
+    if (unitKey === 'minutes') {
+      if (n >= 60) {
+        const h = Math.floor(n / 60);
+        const m = Math.round(n % 60);
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
+      }
+      return `${Math.round(n)}m`;
+    }
+    if (unitKey === 'hours') {
+      if (n < 1) return `${Math.round(n * 60)}m`;
+      const h = Math.floor(n);
+      const m = Math.round((n - h) * 60);
+      return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    }
+    return `${n} ${unitKey}`;
+  }
+
+  // Format a raw range string like "7.5-20" with a given unit key → "8m to 20m".
+  function formatTimingValue(rawStr: string, unitKey: string): string {
+    const parts = rawStr.split('-').map(Number);
+    return parts.map(n => formatTimingNum(n, unitKey)).join(' to ');
+  }
+
   // Parse a formatted timing field into per-route rows.
   // Handles both { _unit, value } (single, no route) and { _unit, Oral: "x", Insufflated: "y" } (per-route).
   function parseTiming(field: Record<string, string> | undefined): { route: string | null; value: string }[] | null {
     if (!field) return null;
-    const unit = field._unit === 'hours' ? 'h' : field._unit === 'minutes' ? 'min' : field._unit;
+    const unitKey = field._unit ?? '';
     if (field.value) {
-      return [{ route: null, value: `${field.value} ${unit}` }];
+      return [{ route: null, value: formatTimingValue(field.value, unitKey) }];
     }
     const routes = Object.keys(field).filter(k => k !== '_unit');
     if (routes.length === 0) return null;
-    return routes.map(r => ({ route: r, value: `${field[r]} ${unit}` }));
+    return routes.map(r => ({ route: r, value: formatTimingValue(field[r], unitKey) }));
   }
 
   const onsetData    = parseTiming(drug.formatted_onset);
   const durationData = parseTiming(drug.formatted_duration);
   const afterData    = parseTiming(drug.formatted_aftereffects);
-
-  // Collect all unique routes across all three timing fields (null = no specific route)
-  const timingRoutes = (() => {
-    const routes = new Set<string | null>();
-    for (const data of [onsetData, durationData, afterData]) {
-      data?.forEach(r => routes.add(r.route));
-    }
-    return [...routes];
-  })();
 
   // Dose tiers in order
   const TIER_ORDER = ['Threshold', 'Light', 'Common', 'Strong', 'Heavy'];
@@ -327,7 +342,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                   alignItems: 'flex-start',
                 }}>
                   <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
-                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flex: '1 0 0', minWidth: '1px' }}>
                     <span style={{ fontWeight: 700 }}>Avoid: </span>{avoidText}
                   </p>
                 </div>
@@ -345,7 +360,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                   alignItems: 'flex-start',
                 }}>
                   <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
-                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flex: '1 0 0', minWidth: '1px' }}>
                     {warningText}
                   </p>
                 </div>
@@ -354,7 +369,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Detection */}
             {detectionRows && detectionRows.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 <SectionTitle>Detection</SectionTitle>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {detectionRows.map(row => (
@@ -366,9 +381,9 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Dosages */}
             {doseRoutes && doseRoutes.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 <SectionTitle>Dosages</SectionTitle>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                   {doseRoutes.map(([route, tiers]) => {
                     const orderedTiers = TIER_ORDER.filter(t => tiers[t]);
                     if (orderedTiers.length === 0) return null;
@@ -395,7 +410,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                     alignItems: 'flex-start',
                   }}>
                     <div style={{ flexShrink: 0, marginTop: '2px' }}><IconInfo /></div>
-                    <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FFD400', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+                    <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FFD400', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flex: '1 0 0', minWidth: '1px' }}>
                       {doseNote}
                     </p>
                   </div>
@@ -405,36 +420,89 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Durations */}
             {(onsetData || durationData || afterData) && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 <SectionTitle>Durations</SectionTitle>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                  {timingRoutes.map(route => (
-                    <div key={route ?? 'default'} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                      {route && <SubLabel>{route}</SubLabel>}
-                      {onsetData?.filter(r => r.route === route).map(r => (
-                        <InfoRow key="onset" label="Onset" value={r.value} />
-                      ))}
-                      {durationData?.filter(r => r.route === route).map(r => (
-                        <InfoRow key="duration" label="Duration" value={r.value} />
-                      ))}
-                      {afterData?.filter(r => r.route === route).map(r => (
-                        <InfoRow key="after" label="After-effects" value={r.value} />
-                      ))}
-                    </div>
-                  ))}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                  {([
+                    { label: 'Onset', data: onsetData },
+                    { label: 'Duration', data: durationData },
+                    { label: 'After-effects', data: afterData },
+                  ] as const).map(({ label, data }) => {
+                    if (!data) return null;
+                    const isPerRoute = data[0].route !== null;
+                    if (!isPerRoute) {
+                      return <InfoRow key={label} label={label} value={data[0].value} />;
+                    }
+                    return (
+                      <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.4, letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+                            {label}
+                          </p>
+                        </div>
+                        {data.map(r => (
+                          <div key={r.route} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+                              {r.route}
+                            </p>
+                            <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flexShrink: 0 }}>
+                              {r.value}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Effects */}
             {drug.properties.effects && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 <SectionTitle>Effects</SectionTitle>
                 <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.8, letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
                   {drug.properties.effects}
                 </p>
               </div>
             )}
+
+            {/* Sources */}
+            {drug.links?.experiences && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                <SectionTitle>Sources</SectionTitle>
+                <a
+                  href={drug.links.experiences}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontFamily: 'Roboto, sans-serif',
+                    fontWeight: 400,
+                    fontSize: '16px',
+                    color: '#C6ADFF',
+                    letterSpacing: '0.32px',
+                    lineHeight: 1.3,
+                    textDecoration: 'underline',
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  {drug.pretty_name} Reports
+                </a>
+              </div>
+            )}
+
+            {/* Attribution */}
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+              {'Based on open-source harm-reduction data, including '}
+              <a
+                href="https://tripsit.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#C6ADFF', textDecoration: 'underline' }}
+              >
+                TripSit
+              </a>
+            </p>
 
           </div>
         </div>

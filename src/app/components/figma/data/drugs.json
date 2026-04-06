@@ -671,7 +671,8 @@
     "categories": [
       "tentative",
       "dissociative",
-      "habit-forming"
+      "habit-forming",
+      "common"
     ],
     "formatted_aftereffects": {
       "_unit": "hours",
@@ -3785,7 +3786,8 @@
     "categories": [
       "stimulant",
       "habit-forming",
-      "empathogen"
+      "empathogen",
+      "common"
     ],
     "formatted_aftereffects": {
       "_unit": "hours",
@@ -12652,7 +12654,7 @@
     ],
     "categories": [
       "psychedelic",
-      "empathogen"
+      "common"
     ],
     "formatted_aftereffects": {
       "_unit": "hours",
@@ -21797,7 +21799,7 @@
     "categories": [
       "opioid",
       "habit-forming",
-      "depressant"
+      "common"
     ],
     "dose_note": " NOTE: Due to Fentanyl's high potency, it is incredibly difficult to measure safely, which failure to do so can easily lead to overdose.",
     "formatted_dose": {
@@ -28068,9 +28070,9 @@
     ],
     "categories": [
       "stimulant",
-      "research-chemical",
       "habit-forming",
-      "empathogen"
+      "empathogen",
+      "common"
     ],
     "combos": {
       "caffeine": {
@@ -38631,7 +38633,7 @@
     "categories": [
       "opioid",
       "habit-forming",
-      "depressant"
+      "common"
     ],
     "formatted_aftereffects": {
       "_unit": "hours",
@@ -40225,5 +40227,60 @@
       "onset": "30-50 minutes",
       "summary": "\u03b2-Hydroxy-2C-B is a novel analogue of 2C-B that is a slightly less potent to 2C-B, and reportedly a longer duration. 2C-B is suspected to be the active metabolite of \u03b2k-2C-B."
     }
+  },
+  "poppers": {
+    "pretty_name": "Poppers",
+    "name": "poppers",
+    "aliases": [
+      "amyl nitrite",
+      "butyl nitrite",
+      "isobutyl nitrite",
+      "alkyl nitrites",
+      "rush",
+      "jungle juice"
+    ],
+    "categories": [
+      "common",
+      "depressant"
+    ],
+    "properties": {
+      "summary": "Poppers is a colloquial term for alkyl nitrite inhalants \u2014 most commonly amyl nitrite, butyl nitrite, or isobutyl nitrite. They cause rapid, brief vasodilation (blood vessel widening) and smooth muscle relaxation, producing a short-lived head rush and euphoria lasting 1\u20133 minutes. Extremely popular in club and queer nightlife settings. The critical safety concern is combining with PDE5 inhibitors like Viagra or Cialis \u2014 this combination causes severe, potentially fatal hypotension.",
+      "dose": "Inhalation: 1\u20133 brief inhalations from bottle. Effects onset within seconds and last 1\u20133 minutes.",
+      "onset": "5-15 seconds",
+      "duration": "1-3 minutes",
+      "after-effects": "Mild headache may persist 5\u201315 minutes.",
+      "avoid": "Never combine with Viagra, Cialis, or any PDE5 inhibitor \u2014 risk of fatal blood pressure crash. Avoid with other vasodilators.",
+      "warning": "Do not swallow \u2014 liquid poppers are caustic and toxic if ingested. Keep away from flames \u2014 highly flammable.",
+      "effects": "Brief intense euphoria, head rush, facial flushing, enhanced sensation, muscle relaxation, lowered inhibitions.",
+      "detection": "Not typically screened in standard drug tests."
+    },
+    "formatted_dose": {
+      "Inhalation": {
+        "Light": "1 inhalation",
+        "Common": "2-3 inhalations",
+        "Strong": "4+ inhalations"
+      }
+    },
+    "formatted_onset": {
+      "_unit": "seconds",
+      "value": "5-15"
+    },
+    "formatted_duration": {
+      "_unit": "minutes",
+      "value": "1-3"
+    },
+    "formatted_aftereffects": {
+      "_unit": "minutes",
+      "value": "5-15"
+    },
+    "pweffects": [
+      "Euphoria",
+      "Vasodilation",
+      "Head rush",
+      "Muscle relaxation",
+      "Enhanced sensation",
+      "Facial flushing",
+      "Lowered inhibitions"
+    ]
   }
 }

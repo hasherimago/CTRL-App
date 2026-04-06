@@ -219,7 +219,7 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug, drugs }: SearchOv
                 <DrugCardArt drug={drug} />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
                 <p
                   style={{
                     fontFamily: 'Roboto, sans-serif',

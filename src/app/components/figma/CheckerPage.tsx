@@ -363,7 +363,7 @@ const SUBSTANCES: Substance[] = [
   { name: 'Cocaine',         comboKey: 'cocaine',          category: 'Stimulants',    color: '#FFADA5' },
   { name: 'Amphetamines',    comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
   { name: 'Meth',            comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
-  { name: 'Methylphenidate', comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
+  { name: 'Ritalin', comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
   { name: 'Modafinil',       comboKey: 'amphetamines',     category: 'Stimulants',    color: '#FFADA5' },
   { name: 'Caffeine',        comboKey: 'caffeine',         category: 'Stimulants',    color: '#FFADA5' },
 
@@ -554,7 +554,7 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
               alignItems: infoState === 'result' ? 'flex-start' : 'center',
             }}>
               {(infoState === 'empty' || infoState === 'one') && (
-                <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.3, textAlign: 'center', margin: 0, letterSpacing: '0.32px', lineHeight: 1.5 }}>
+                <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '15px', color: '#F1F1F1', opacity: 0.3, textAlign: 'center', margin: 0, letterSpacing: '0.32px', lineHeight: 1.5 }}>
                   {infoState === 'empty'
                     ? 'Choose at least two substances to see the results'
                     : 'Choose one more substance to see the results'}
@@ -577,12 +577,8 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
 
               {infoState === 'nodata' && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="#F1F1F1" strokeOpacity="0.2" strokeWidth="1.5" />
-                    <path d="M12 8v5" stroke="#F1F1F1" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="12" cy="16" r="0.8" fill="#F1F1F1" fillOpacity="0.4" />
-                  </svg>
-                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 600, fontSize: '15px', color: '#F1F1F1', opacity: 0.45, margin: 0, letterSpacing: '0.3px' }}>
+                  
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '15px', color: '#F1F1F1', opacity: 0.45, margin: 0, letterSpacing: '0.32px' }}>
                     No interaction data available
                   </p>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '13px', color: '#F1F1F1', opacity: 0.25, margin: 0, letterSpacing: '0.26px', lineHeight: 1.6 }}>
@@ -662,7 +658,7 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
                 return (
                   <button key={sub.name} onClick={() => toggle(sub.name)} style={{
                     padding: '14px 8px', borderRadius: '12px',
-                    border: isSelected ? `1.5px solid ${sub.color}` : '1px solid #2A2A2A',
+                    border: isSelected ? `1.5px solid ${sub.color}`: '1.5px solid #2A2A2A',  // same width, just dimmer color
                     background: isSelected ? `${sub.color}1A` : '#171717',
                     color: isSelected ? sub.color : '#F1F1F1',
                     fontFamily: 'Roboto, sans-serif',

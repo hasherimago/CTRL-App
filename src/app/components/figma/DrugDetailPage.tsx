@@ -56,6 +56,24 @@ import {
   IconInfo,
 } from '../ui/icons/Icons';
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// Replace bare URLs in alert text with a purple "Link" anchor.
+function renderAlertText(text: string) {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.match(/^https?:\/\//) ? (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: '#C6ADFF', textDecoration: 'underline' }}>Link</a>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SectionTitle({ children }: { children: string }) {
@@ -246,7 +264,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
         }}>
 
           {/* ── HEADER ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
             {/* Save + Share */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '24px' }}>
@@ -266,7 +284,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
             </div>
 
             {/* Name block */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <p style={{
                 fontFamily: "'TT Travels Next Trial Variable', 'Roboto', sans-serif",
                 fontWeight: 700,
@@ -320,7 +338,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
           </div>
 
           {/* ── MAIN CONTENT ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '42px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
 
             {/* Summary section */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -343,7 +361,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                 }}>
                   <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flex: '1 0 0', minWidth: '1px' }}>
-                    <span style={{ fontWeight: 700 }}>Avoid: </span>{avoidText}
+                    <span style={{ fontWeight: 700 }}>Avoid: </span>{renderAlertText(avoidText)}
                   </p>
                 </div>
               )}
@@ -361,7 +379,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                 }}>
                   <div style={{ flexShrink: 0, marginTop: '2px' }}><IconAlert /></div>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#FF5545', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, flex: '1 0 0', minWidth: '1px' }}>
-                    {warningText}
+                    {renderAlertText(warningText)}
                   </p>
                 </div>
               )}
@@ -369,7 +387,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Detection */}
             {detectionRows && detectionRows.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <SectionTitle>Detection</SectionTitle>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   {detectionRows.map(row => (
@@ -382,23 +400,25 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
             {/* Dosages */}
             {doseRoutes && doseRoutes.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                <SectionTitle>Dosages</SectionTitle>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                  {doseRoutes.map(([route, tiers]) => {
-                    const orderedTiers = TIER_ORDER.filter(t => tiers[t]);
-                    if (orderedTiers.length === 0) return null;
-                    return (
-                      <div key={route} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                        <SubLabel>{route}</SubLabel>
-                        {orderedTiers.map(tier => (
-                          <DoseRow key={tier} tier={tier} value={tiers[tier]} />
-                        ))}
-                      </div>
-                    );
-                  })}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                  <SectionTitle>Dosages</SectionTitle>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                    {doseRoutes.map(([route, tiers]) => {
+                      const orderedTiers = TIER_ORDER.filter(t => tiers[t]);
+                      if (orderedTiers.length === 0) return null;
+                      return (
+                        <div key={route} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                          <SubLabel>{route}</SubLabel>
+                          {orderedTiers.map(tier => (
+                            <DoseRow key={tier} tier={tier} value={tiers[tier]} />
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Yellow info note — only the NOTE portion, not the tier list */}
+                {/* Yellow info note */}
                 {doseNote && (
                   <div style={{
                     background: 'rgba(255,212,0,0.1)',
@@ -420,7 +440,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Durations */}
             {(onsetData || durationData || afterData) && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <SectionTitle>Durations</SectionTitle>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                   {([
@@ -459,7 +479,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Effects */}
             {drug.properties.effects && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <SectionTitle>Effects</SectionTitle>
                 <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.8, letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
                   {drug.properties.effects}
@@ -469,7 +489,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
             {/* Sources */}
             {drug.links?.experiences && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <SectionTitle>Sources</SectionTitle>
                 <a
                   href={drug.links.experiences}
@@ -483,7 +503,6 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                     letterSpacing: '0.32px',
                     lineHeight: 1.3,
                     textDecoration: 'underline',
-                    wordBreak: 'break-all',
                   }}
                 >
                   {drug.pretty_name} Reports

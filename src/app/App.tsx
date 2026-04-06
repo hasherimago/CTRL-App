@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react';
+import { id } from '@instantdb/react';
+import { db } from '../db';
 import svgPaths from '../imports/svg-srcobnd1q5';
 import ArrowUpIcon from '../imports/24x24_arrow_up.svg';
 import imgPrePartyKit from '../assets/Pre-Party Kit.png';
@@ -40,9 +42,12 @@ type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 const DRUGS: TripSitDrug[] = adaptDrugs(drugsRaw as Record<string, unknown>);
 
 export default function App() {
-  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
+  const { data } = db.useQuery({ checklistItems: {}, tripLogs: {}, savedDrugs: {} });
+
+  // ── Checklist ─────────────────────────────────────────────────────────────
+  const checklistItems: ChecklistItem[] = [...(data?.checklistItems ?? [])]
+    .sort((a, b) => a.createdAt - b.createdAt);
   const [checklistOpen, setChecklistOpen] = useState(false);
-  const checklistNextId = useRef(1);
 
   const [liveNews, setLiveNews] = useState<NewsItem[]>(FALLBACK_NEWS);
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
@@ -51,11 +56,9 @@ export default function App() {
   const [selectedDrug, setSelectedDrug] = useState<TripSitDrug | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
 
 
   // Journal state
-  const [tripLogs, setTripLogs] = useState<TripLog[]>([]);
   const [journalStep, setJournalStep] = useState<JournalStep>('main');
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
@@ -70,19 +73,23 @@ export default function App() {
   };
 
   const addChecklistItem = (text: string) => {
-    setChecklistItems(prev => [...prev, { id: checklistNextId.current++, text, checked: false }]);
+    db.transact(db.tx.checklistItems[id()].update({ text, checked: false, createdAt: Date.now() }));
   };
-  const toggleChecklistItem = (id: number) => {
-    setChecklistItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i));
+  const toggleChecklistItem = (itemId: string) => {
+    const item = checklistItems.find(i => i.id === itemId);
+    if (item) db.transact(db.tx.checklistItems[itemId].update({ checked: !item.checked }));
   };
-  const deleteChecklistItem = (id: number) => {
-    setChecklistItems(prev => prev.filter(i => i.id !== id));
+  const deleteChecklistItem = (itemId: string) => {
+    db.transact(db.tx.checklistItems[itemId].delete());
   };
 
-  const sessionDays = [
-    false, false, false, false, true, false, false, false, false, false, false,
-    false, true, false, false, false, false, false, false, false, true, false,
-  ];
+  // ── Saved drugs ───────────────────────────────────────────────────────────
+  const savedDrugMap = new Map((data?.savedDrugs ?? []).map(d => [d.drugKey as string, d.id]));
+  const savedKeys = new Set(savedDrugMap.keys());
+
+  // ── Trip logs ─────────────────────────────────────────────────────────────
+  const tripLogs: TripLog[] = [...(data?.tripLogs ?? [])]
+    .sort((a, b) => (b.createdAt as number) - (a.createdAt as number)) as TripLog[];
 
   const handleTabChange = (tab: NavTab) => {
     setActiveTab(tab);
@@ -101,14 +108,10 @@ export default function App() {
     setSelectedDrug(drug);
   };
   const handleDrugBack = () => setSelectedDrug(null);
-  // ── CHANGED: add to savedKeys set ──
   const handleSaveToggle = (drugKey: string) => {
-    setSavedKeys(prev => {
-      const next = new Set(prev);
-      if (next.has(drugKey)) next.delete(drugKey);
-      else next.add(drugKey);
-      return next;
-    });
+    const entityId = savedDrugMap.get(drugKey);
+    if (entityId) db.transact(db.tx.savedDrugs[entityId].delete());
+    else db.transact(db.tx.savedDrugs[id()].update({ drugKey }));
   };
 
   return (
@@ -219,7 +222,7 @@ export default function App() {
             key={`refl-${sessionKey}`}
             isOpen={journalStep === 'reflection'}
             draftLog={draftLog}
-            onDone={(log) => { setTripLogs(prev => [log, ...prev]); setDraftLog({}); setJournalStep('done'); }}
+            onDone={(log) => { db.transact(db.tx.tripLogs[id()].update({ ...log, createdAt: Date.now() })); setDraftLog({}); setJournalStep('done'); }}
             onBack={() => setJournalStep('mood')}
             onClose={() => setJournalStep('main')}
           />

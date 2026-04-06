@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import svgPaths from '../../../imports/svg-0uazz9hzf3';
 
 export interface ChecklistItem {
-  id: number;
+  id: string;
   text: string;
   checked: boolean;
 }
@@ -11,8 +11,8 @@ interface ChecklistOverlayProps {
   isOpen: boolean;
   items: ChecklistItem[];
   onAdd: (text: string) => void;
-  onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
   onClose: () => void;
 }
 

@@ -6,7 +6,8 @@ import imgAfterPartyKit from '../assets/After-Party Kit.png';
 import imgTwoInOneKit from '../assets/2-in-1 Party Kit.png';
 import imgTestingKit from '../assets/Testing Kit.png';
 import shopImage from 'figma:asset/158d2cf416b73440500600afc54970028192895b.png';
-import { LiveNewsBlock } from './components/figma/LiveNewsBlock';
+import { LiveNewsBlock, FALLBACK_NEWS } from './components/figma/LiveNewsBlock';
+import type { NewsItem } from './components/figma/LiveNewsBlock';
 import { ShopPage } from './components/figma/ShopPage';
 import { ShopKitPage } from './components/figma/ShopKitPage';
 import { PrePartyKitPage } from './components/figma/PrePartyKitPage';
@@ -43,6 +44,7 @@ export default function App() {
   const [checklistOpen, setChecklistOpen] = useState(false);
   const checklistNextId = useRef(1);
 
+  const [liveNews, setLiveNews] = useState<NewsItem>(FALLBACK_NEWS);
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
   const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   // ── CHANGED: number → TripSitDrug object ──
@@ -163,8 +165,9 @@ export default function App() {
         />
       ) : currentPage === 'article' ? (
         <ArticlePage
+          news={liveNews}
           onBack={() => setCurrentPage('home')}
-          onDrug={(drugId) => {
+          onDrug={() => {
             skipTransitionRef.current = true;
             setSelectedDrug(null);
             requestAnimationFrame(() => { skipTransitionRef.current = false; });
@@ -269,10 +272,11 @@ export default function App() {
 
           {/* ── SCROLLABLE CONTENT ── */}
           <div className="absolute top-0 bottom-0 left-0 right-0 overflow-y-auto overflow-x-hidden">
-            <div className="pb-[124px] space-y-4">
+            <div className="pb-[124px] space-y-4" style={{ paddingTop: '64px' }}>
 
               <div className="px-2 h-[416px]">
-              <LiveNewsBlock onReadArticle={() => setCurrentPage('article')} />              </div>
+                <LiveNewsBlock onReadArticle={() => setCurrentPage('article')} onNewsLoaded={setLiveNews} />
+              </div>
 
               <div className="px-2 space-y-4">
 

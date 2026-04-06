@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface NewsItem {
+export interface NewsItem {
   badge: string;       // e.g. "Warning", "Alert", "Update"
   badgeColor: string;  // hex — red for danger, yellow for caution, purple for info
   title: string;       // 2–4 words, uppercase in render
-  summary: string;     // 1–2 sentences
+  summary: string;     // 1–2 sentences shown on card
+  body: string;        // 3–5 sentences shown on article page
   category: string;    // e.g. "Opioids", "Stimulants", "Psychedelics"
   categoryColor: string;
 }
@@ -23,11 +24,12 @@ const CATEGORY_COLOR: Record<string, string> = {
 };
 
 // Static fallback — the original Figma story
-const FALLBACK: NewsItem = {
+export const FALLBACK_NEWS: NewsItem = {
   badge: 'Warning',
   badgeColor: '#FF5545',
   title: 'Fake batch\nof Oxycodone',
   summary: 'Fentanyl was found in a batch of oxycodone in Berlin on 12.05.2025',
+  body: 'A counterfeit batch of oxycodone containing fentanyl was detected in Berlin on 12.05.2025. Fentanyl is an extremely potent opioid linked to fatal overdoses, especially when taken unknowingly.\n\nIf you or someone you know has sourced oxycodone recently, do not use it without testing. Start with a very small dose, never use alone, and keep naloxone nearby if possible.\n\nStay safe — share this with your community.',
   category: 'Opioids',
   categoryColor: CATEGORY_COLOR['Opioids'],
 };
@@ -37,7 +39,7 @@ const CACHE_TTL = 1000 * 60 * 60 * 3; // 3 hours
 
 // ─── Fetch logic ──────────────────────────────────────────────────────────────
 
-async function fetchLiveNews(): Promise<NewsItem> {
+export async function fetchLiveNews(): Promise<NewsItem> {
   // Check sessionStorage cache first
   try {
     const cached = sessionStorage.getItem(CACHE_KEY);
@@ -48,16 +50,17 @@ async function fetchLiveNews(): Promise<NewsItem> {
   } catch {}
 
   const systemPrompt = `You are a harm reduction news editor for CTRL, a drug safety app used at clubs and parties.
-Search the web for the single most recent and important harm reduction or drug safety alert from the last 6 months.
+Generate a realistic and plausible harm reduction drug safety alert based on known drug safety trends in Europe.
 Focus on: adulterated drugs, dangerous batches, fentanyl contamination, overdose warnings, new psychoactive substances.
-Prefer European sources (DanceSafe, The Loop, EMCDDA, drug checking services, health authorities).
+Base it on patterns from DanceSafe, The Loop, EMCDDA, or drug checking services.
 
 Respond ONLY with a valid JSON object — no markdown, no backticks, no explanation:
 {
   "badge": "Warning" | "Alert" | "Update" | "Caution",
   "badgeColor": "#FF5545" for danger | "#FFD400" for caution | "#C9B2FF" for info,
   "title": "2-4 word headline (will be displayed uppercase)",
-  "summary": "1-2 sentence plain text summary of the key safety information",
+  "summary": "1 sentence plain text teaser shown on the home card",
+  "body": "3-5 sentence plain text article body with full harm reduction advice. Use \\n\\n to separate paragraphs.",
   "category": one of: "Opioids" | "Stimulants" | "Psychedelics" | "Depressants" | "Dissociatives" | "Empathogens" | "NPS" | "General",
   "categoryColor": the matching hex color for that category
 }
@@ -82,9 +85,9 @@ Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
+      max_tokens: 1500,
       system: systemPrompt,
-      messages: [{ role: 'user', content: 'Generate a realistic and plausible harm reduction drug safety alert or warning based on known drug safety trends in Europe.' }],
+      messages: [{ role: 'user', content: 'Generate a realistic harm reduction drug safety alert or warning.' }],
     }),
   });
 
@@ -95,9 +98,7 @@ Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
   }
 
   const data = await response.json();
-  console.log('[LiveNews] raw response', JSON.stringify(data).slice(0, 500));
 
-  // Extract text blocks from response (may include tool_use and tool_result blocks)
   const textBlock = data.content?.find((b: { type: string }) => b.type === 'text');
   if (!textBlock) {
     console.error('[LiveNews] no text block, content types:', data.content?.map((b: { type: string }) => b.type));
@@ -105,7 +106,6 @@ Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
   }
 
   const clean = textBlock.text.replace(/```json|```/g, '').trim();
-  console.log('[LiveNews] parsed text:', clean.slice(0, 300));
   const parsed: NewsItem = JSON.parse(clean);
 
   // Cache it
@@ -120,20 +120,21 @@ Dissociatives=#CCF1FF, Empathogens=#FFBEEA, NPS=#E9FF93, General=#C9B2FF`;
 
 interface LiveNewsBlockProps {
   onReadArticle: () => void;
+  onNewsLoaded?: (news: NewsItem) => void;
 }
 
-export function LiveNewsBlock({ onReadArticle }: LiveNewsBlockProps) {
+export function LiveNewsBlock({ onReadArticle, onNewsLoaded }: LiveNewsBlockProps) {
   const [news, setNews] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLiveNews()
-      .then(setNews)
-      .catch((err) => { console.error('[LiveNews] fetch failed:', err); setNews(FALLBACK); })
+      .then((item) => { setNews(item); onNewsLoaded?.(item); })
+      .catch((err) => { console.error('[LiveNews] fetch failed:', err); setNews(FALLBACK_NEWS); onNewsLoaded?.(FALLBACK_NEWS); })
       .finally(() => setLoading(false));
   }, []);
 
-  const item = news ?? FALLBACK;
+  const item = news ?? FALLBACK_NEWS;
 
   // Split title on newline for two-line display
   const titleLines = item.title.split('\n');
@@ -246,7 +247,7 @@ export function LiveNewsBlock({ onReadArticle }: LiveNewsBlockProps) {
           ))}
         </div>
 
-        {/* Summary */}
+        {/* Summary — clamped to 4 lines */}
         <p style={{
           fontFamily: 'Roboto, sans-serif',
           fontWeight: 400,
@@ -256,6 +257,10 @@ export function LiveNewsBlock({ onReadArticle }: LiveNewsBlockProps) {
           lineHeight: 1.3,
           margin: 0,
           maxWidth: '284px',
+          display: '-webkit-box',
+          WebkitLineClamp: 4,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
         }}>
           {item.summary}
         </p>

@@ -1,12 +1,14 @@
 import svgPaths from '../../../imports/svg-hke02eu6ox';
 import { BottomNav } from '../ui/BottomNav';
 import { LAYOUT } from '../../constants/layout';
+import type { NewsItem } from './LiveNewsBlock';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
 interface ArticlePageProps {
+  news: NewsItem;
   onBack: () => void;
-  onDrug: (drugId: number) => void;
+  onDrug: () => void;
   onSearchOpen: () => void;
   onTabChange: (tab: NavTab) => void;
 }
@@ -54,7 +56,10 @@ function ShareIcon() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ArticlePage({ onBack, onDrug, onSearchOpen, onTabChange }: ArticlePageProps) {
+export function ArticlePage({ news, onBack, onDrug, onSearchOpen, onTabChange }: ArticlePageProps) {
+  const titleLines = news.title.split('\n');
+  const bodyParagraphs = news.body.split('\n\n').filter(Boolean);
+
   return (
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
@@ -138,15 +143,12 @@ export function ArticlePage({ onBack, onDrug, onSearchOpen, onTabChange }: Artic
         }}
       >
         <div className="px-2 flex flex-col gap-4" style={{ paddingTop: '70px', paddingBottom: `${LAYOUT.CONTENT_BOTTOM_PADDING}px` }}>
-          {/* ── CARD 1 — Fake batch of Oxycodone ── */}
-          <div
-            className="backdrop-blur-[20px] bg-[#171717] flex flex-col gap-[30px] items-start px-4 py-[26px] rounded-[20px] w-full"
-          >
+          {/* ── CARD 1 — Live news ── */}
+          <div className="backdrop-blur-[20px] bg-[#171717] flex flex-col gap-[30px] items-start px-4 py-[26px] rounded-[20px] w-full">
             {/* Title + share */}
             <div className="flex items-start justify-between w-full">
-              <div className="flex flex-col font-['TT_Travels_Next_Trial_Variable:Bold',sans-serif] font-[704] leading-normal not-italic text-[#F1F1F1] text-[24px] flex-1 min-w-0">
-                <p className="mb-0">Fake batch</p>
-                <p className="mb-0">of Oxycodone</p>
+              <div className="flex flex-col font-['TT_Travels_Next_Trial_Variable:Bold',sans-serif] font-[704] leading-normal not-italic text-[#F1F1F1] text-[24px] flex-1 min-w-0" style={{ textTransform: 'uppercase' }}>
+                {titleLines.map((line, i) => <p key={i} className="mb-0">{line}</p>)}
               </div>
               <button
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, marginTop: '2px' }}
@@ -156,40 +158,32 @@ export function ArticlePage({ onBack, onDrug, onSearchOpen, onTabChange }: Artic
               </button>
             </div>
 
-            {/* Opioids tag */}
+            {/* Category tag */}
             <div className="flex items-start">
-              <button
-                className="flex items-center justify-center relative cursor-pointer shrink-0"
-                style={{ background: 'none', border: '1px solid #FFD0B4', padding: '8px 12px', borderRadius: '100px' }}
+              <div
+                className="flex items-center justify-center relative shrink-0"
+                style={{ border: `1px solid ${news.categoryColor}`, padding: '8px 12px', borderRadius: '100px' }}
               >
                 <span
-                  className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.3] text-[#FFD0B4] text-[16px] tracking-[0.32px] whitespace-nowrap"
-                  style={{ fontVariationSettings: "'wdth' 100" }}
+                  className="font-['Roboto:Regular',sans-serif] font-normal leading-[1.3] text-[16px] tracking-[0.32px] whitespace-nowrap"
+                  style={{ color: news.categoryColor, fontVariationSettings: "'wdth' 100" }}
                 >
-                  Opioids
+                  {news.category}
                 </span>
-              </button>
+              </div>
             </div>
 
-            {/* Description */}
+            {/* Body */}
             <div className="flex items-center w-full">
               <div
                 className="flex-1 font-['Roboto:Regular',sans-serif] font-normal text-[#F1F1F1] text-[16px] tracking-[0.32px]"
                 style={{ fontVariationSettings: "'wdth' 100", lineHeight: 1.3 }}
               >
-                <p className="mb-0">
-                  <span>A counterfeit batch of oxycodone containing fentanyl was detected in Berlin on 12.05.2025.{' '}</span>
-                  <DrugLink name="Fentanyl" color="#FFD0B4" onTap={() => onDrug(1)} />
-                  <span>{' '}is an extremely potent opioid linked to fatal overdoses, especially when taken unknowingly.</span>
-                </p>
-                <p className="leading-[1.3] mb-0">&nbsp;</p>
-                <p className="leading-[1.3] mb-0" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  If you or someone you know has sourced oxycodone recently, do not use it without testing. Start with a very small dose, never use alone, and keep naloxone nearby if possible.
-                </p>
-                <p className="leading-[1.3] mb-0">&nbsp;</p>
-                <p className="leading-[1.3] mb-0" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Stay safe — share this with your community.
-                </p>
+                {bodyParagraphs.map((para, i) => (
+                  <p key={i} className="mb-0" style={i > 0 ? { marginTop: '1em' } : {}}>
+                    {para}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
@@ -235,11 +229,11 @@ export function ArticlePage({ onBack, onDrug, onSearchOpen, onTabChange }: Artic
               >
                 <p className="mb-0">
                   <span>A batch of so-called &ldquo;pink cocaine&rdquo; tested in Hamburg on 09.06.2025 was found to contain a mix of{' '}</span>
-                  <DrugLink name="MDMA" color="#B2FFF1" onTap={() => onDrug(5)} />
+                  <DrugLink name="MDMA" color="#B2FFF1" onTap={onDrug} />
                   <span>,{' '}</span>
-                  <DrugLink name="Ketamine" color="#CCF1FF" onTap={() => onDrug(3)} />
+                  <DrugLink name="Ketamine" color="#CCF1FF" onTap={onDrug} />
                   <span>, and{' '}</span>
-                  <DrugLink name="2C-B" color="#B2FFF1" onTap={() => onDrug(5)} />
+                  <DrugLink name="2C-B" color="#B2FFF1" onTap={onDrug} />
                   <span>{' '}— not cocaine at all. This unpredictable combo increases the risk of anxiety, disorientation, and dangerous overstimulation.</span>
                 </p>
                 <p className="leading-[1.3] mb-0">&nbsp;</p>

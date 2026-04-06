@@ -107,13 +107,6 @@ function ArticleCard({ item, drugs, onDrug }: { item: NewsItem; drugs: TripSitDr
         </div>
       </div>
 
-      {/* Category tag */}
-      <div style={{ display: 'inline-flex', alignItems: 'center', border: `1px solid ${item.categoryColor}`, borderRadius: '18px', padding: '8px 12px' }}>
-        <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: item.categoryColor, letterSpacing: '0.32px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>
-          {item.category}
-        </span>
-      </div>
-
       {/* Body with inline drug links */}
       <div style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, width: '100%' }}>
         {bodyParagraphs.map((para, i) => (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { db } from '../../../db';
 
 interface AuthBottomSheetProps {
@@ -27,6 +27,9 @@ export function AuthBottomSheet({ isOpen, onClose, onSuccess }: AuthBottomSheetP
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const touchStartY = useRef(0);
 
   const reset = () => {
     setStep('email');
@@ -84,6 +87,24 @@ export function AuthBottomSheet({ isOpen, onClose, onSuccess }: AuthBottomSheetP
     }
   };
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    setDragging(true);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const delta = e.touches[0].clientY - touchStartY.current;
+    if (delta > 0) setDragY(delta);
+  };
+  const onTouchEnd = () => {
+    setDragging(false);
+    if (dragY > 90) {
+      setDragY(0);
+      handleClose();
+    } else {
+      setDragY(0);
+    }
+  };
+
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: '#1E1E1E',
@@ -135,6 +156,9 @@ export function AuthBottomSheet({ isOpen, onClose, onSuccess }: AuthBottomSheetP
 
       {/* Sheet */}
       <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         style={{
           position: 'fixed',
           left: 0,
@@ -144,12 +168,12 @@ export function AuthBottomSheet({ isOpen, onClose, onSuccess }: AuthBottomSheetP
           background: '#171717',
           borderRadius: '20px 20px 0 0',
           padding: '20px 16px 48px',
-          transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isOpen ? `translateY(${dragY}px)` : 'translateY(100%)',
+          transition: dragging ? 'none' : 'transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         {/* Drag handle */}
-        <div style={{ width: '36px', height: '4px', background: '#2D2D2D', borderRadius: '2px', margin: '0 auto 28px' }} />
+        <div style={{ width: '36px', height: '4px', background: '#2D2D2D', borderRadius: '2px', margin: '0 auto 28px', cursor: 'grab' }} />
 
         {step === 'email' ? (
           <>

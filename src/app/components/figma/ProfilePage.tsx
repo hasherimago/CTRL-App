@@ -550,6 +550,8 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
     if (logoutConfirm) {
       if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
       setLogoutConfirm(false);
+      if (user?.id) localStorage.removeItem(`ctrl_name_${user.id}`);
+      setProfileName('');
       db.auth.signOut();
     } else {
       setLogoutConfirm(true);

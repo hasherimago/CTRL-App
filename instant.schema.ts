@@ -2,6 +2,9 @@ import { i } from '@instantdb/react';
 
 const _schema = i.schema({
   entities: {
+    $users: i.entity({
+      email: i.string().unique().indexed().optional(),
+    }),
     tripLogs: i.entity({
       date: i.string(),
       mood: i.string(),
@@ -25,6 +28,20 @@ const _schema = i.schema({
     savedDrugs: i.entity({
       drugKey: i.string(),
     }),
+  },
+  links: {
+    tripLogOwner: {
+      forward: { on: 'tripLogs', has: 'one', label: 'owner' },
+      reverse: { on: '$users', has: 'many', label: 'userTripLogs' },
+    },
+    checklistItemOwner: {
+      forward: { on: 'checklistItems', has: 'one', label: 'owner' },
+      reverse: { on: '$users', has: 'many', label: 'userChecklistItems' },
+    },
+    savedDrugOwner: {
+      forward: { on: 'savedDrugs', has: 'one', label: 'owner' },
+      reverse: { on: '$users', has: 'many', label: 'userSavedDrugs' },
+    },
   },
 });
 

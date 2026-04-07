@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { LAYOUT } from '../../constants/layout';
 import svgPaths from '../../../imports/svg-srcobnd1q5';
 import svgPathsNav from '../../../imports/svg-9phyw3y14s';
 import proBg from 'figma:asset/b0891f744249fc9bb461ad6a1ac607c6e8e2c669.png';
+import { db } from '../../../db';
+import { AuthBottomSheet } from './AuthBottomSheet';
 
 type SubPage = 'editProfile' | 'subscription' | 'language' | 'helpSupport' | 'privacyPolicy' | null;
 
@@ -100,6 +103,37 @@ function ProfileAvatar({ size = 32 }: { size?: number }) {
   );
 }
 
+function AuthAvatar({ email, size = 36 }: { email?: string; size?: number }) {
+  const letter = (email ?? '?')[0].toUpperCase();
+  return (
+    <div style={{
+      width: `${size}px`, height: `${size}px`, borderRadius: '50%',
+      background: 'linear-gradient(135deg, #8C5CFE 0%, #6B3FD4 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      flexShrink: 0,
+    }}>
+      <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: `${Math.round(size * 0.44)}px`, color: '#fff', lineHeight: 1 }}>
+        {letter}
+      </span>
+    </div>
+  );
+}
+
+function CardSpinner() {
+  return (
+    <>
+      <style>{`@keyframes profile-spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{
+        width: '22px', height: '22px',
+        border: '2px solid rgba(241,241,241,0.15)',
+        borderTopColor: '#8C5CFE',
+        borderRadius: '50%',
+        animation: 'profile-spin 0.75s linear infinite',
+      }} />
+    </>
+  );
+}
+
 function Divider() {
   return <div style={{ height: '1px', background: '#2D2D2D', margin: '0 -16px' }} />;
 }
@@ -127,11 +161,22 @@ function SubPageSlide({ visible, children }: { visible: boolean; children: React
 
 // ─── Sub Page 1 — Edit Profile ────────────────────────────────────────────────
 
-function EditProfilePage({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
-  const [name, setName] = useState('Luca');
-  const [email, setEmail] = useState('luca1987@gmail.com');
-  const [phone, setPhone] = useState('+44 7700 900123');
+function EditProfilePage({ onBack, onClose, userEmail, savedName, onSaveName }: {
+  onBack: () => void;
+  onClose: () => void;
+  userEmail?: string;
+  savedName: string;
+  onSaveName: (name: string) => void;
+}) {
+  const [name, setName] = useState(savedName);
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
+
+  // Sync email whenever auth resolves (component is always mounted inside SubPageSlide)
+  useEffect(() => {
+    if (userEmail) setEmail(userEmail);
+  }, [userEmail]);
 
   const inputStyle: React.CSSProperties = {
     width: '100%', background: '#0D0D0D', border: '1px solid #2D2D2D', borderRadius: '10px',
@@ -181,7 +226,7 @@ function EditProfilePage({ onBack, onClose }: { onBack: () => void; onClose: () 
           </div>
 
           <button
-            onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}
+            onClick={() => { onSaveName(name.trim()); setSaved(true); setTimeout(() => setSaved(false), 2000); }}
             style={{ marginTop: '32px', width: '100%', height: '52px', background: saved ? '#AAFF00' : '#8C5CFE', border: 'none', borderRadius: '14px', cursor: 'pointer', fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: saved ? '#0D0D0D' : '#F1F1F1', letterSpacing: '0.32px', transition: 'background 0.3s ease' }}
           >
             {saved ? 'Saved!' : 'Save Changes'}
@@ -450,6 +495,67 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [vibrateOn, setVibrateOn] = useState(true);
   const [subPage, setSubPage] = useState<SubPage>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [justSignedIn, setJustSignedIn] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { isLoading: authLoading, user } = db.useAuth();
+
+  // Load saved name for this user from localStorage
+  useEffect(() => {
+    if (user?.id) {
+      setProfileName(localStorage.getItem(`ctrl_name_${user.id}`) ?? '');
+    } else {
+      setProfileName('');
+    }
+  }, [user?.id]);
+
+  const handleSaveName = (name: string) => {
+    setProfileName(name);
+    if (user?.id) localStorage.setItem(`ctrl_name_${user.id}`, name);
+  };
+
+  // Close the auth sheet as soon as we have a user (sign-in succeeded)
+  useEffect(() => {
+    if (user) setShowAuth(false);
+  }, [user]);
+
+  // After sign-in: link any unowned records to the new user
+  useEffect(() => {
+    if (!user || !justSignedIn) return;
+    setJustSignedIn(false);
+    (async () => {
+      try {
+        const { data } = await db.queryOnce({ tripLogs: {}, checklistItems: {}, savedDrugs: {} });
+        const txs = [
+          ...(data?.tripLogs ?? []).map((r: { id: string }) => db.tx.tripLogs[r.id].link({ owner: user.id })),
+          ...(data?.checklistItems ?? []).map((r: { id: string }) => db.tx.checklistItems[r.id].link({ owner: user.id })),
+          ...(data?.savedDrugs ?? []).map((r: { id: string }) => db.tx.savedDrugs[r.id].link({ owner: user.id })),
+        ];
+        if (txs.length > 0) await db.transact(txs);
+      } catch {
+        // migration is best-effort
+      }
+    })();
+  }, [user, justSignedIn]);
+
+  const handleAuthSuccess = () => {
+    setJustSignedIn(true);
+    setShowAuth(false);
+  };
+
+  const handleLogout = () => {
+    if (logoutConfirm) {
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+      setLogoutConfirm(false);
+      db.auth.signOut();
+    } else {
+      setLogoutConfirm(true);
+      logoutTimerRef.current = setTimeout(() => setLogoutConfirm(false), 3000);
+    }
+  };
 
   const openSub = (page: SubPage) => setSubPage(page);
   const closeSub = () => setSubPage(null);
@@ -486,20 +592,45 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: `70px 8px ${LAYOUT.CONTENT_BOTTOM_PADDING}px`, display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-          {/* User card */}
-          <button
-            onClick={() => openSub('editProfile')}
-            style={{ background: '#171717', borderRadius: '12px', padding: '16px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxSizing: 'border-box', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ProfileAvatar />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3 }}>Luca</span>
-                <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '14px', color: '#B0B0B0', letterSpacing: '0.28px', lineHeight: 1.3 }}>luca1987@gmail.com</span>
-              </div>
+          {/* User card — three states: loading / logged-in / logged-out */}
+          {authLoading ? (
+            <div style={{ background: '#171717', borderRadius: '12px', padding: '16px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
+              <CardSpinner />
             </div>
-            <ChevronRight />
-          </button>
+          ) : user ? (
+            <button
+              onClick={() => openSub('editProfile')}
+              style={{ background: '#171717', borderRadius: '12px', padding: '16px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxSizing: 'border-box', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <AuthAvatar email={user.email} size={36} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3 }}>
+                    {profileName || user.email?.split('@')[0] || 'Account'}
+                  </span>
+                  <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '13px', color: '#888', letterSpacing: '0.26px', lineHeight: 1.3 }}>
+                    {user.email}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight />
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowAuth(true)}
+              style={{ background: '#171717', borderRadius: '16px', padding: '16px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxSizing: 'border-box', border: '1px solid #2A2A2A', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#242424', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <ProfileAvatar size={20} />
+                </div>
+                <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3 }}>
+                  Sign In / Create Account
+                </span>
+              </div>
+              <ChevronRight />
+            </button>
+          )}
 
           {/* PRO banner */}
           <button
@@ -536,17 +667,24 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
             <SettingsRow label="Rate App" right={<ChevronRight />} />
           </div>
 
-          {/* Logout card */}
-          <div style={{ background: '#171717', borderRadius: '12px', padding: '16px' }}>
-            <SettingsRow label="Logout" color="#FF9999" right={<ChevronRight color="#FF9999" />} />
-          </div>
+          {/* Logout card — only shown when signed in, double-tap to confirm */}
+          {user && (
+            <div style={{ background: '#171717', borderRadius: '12px', padding: '16px' }}>
+              <SettingsRow
+                label={logoutConfirm ? 'Tap again to confirm' : 'Logout'}
+                color={logoutConfirm ? '#FF5545' : '#FF9999'}
+                onClick={handleLogout}
+                right={<ChevronRight color={logoutConfirm ? '#FF5545' : '#FF9999'} />}
+              />
+            </div>
+          )}
 
         </div>
       </div>
 
       {/* ── SUBPAGES — slide over the profile using position:absolute ── */}
       <SubPageSlide visible={subPage === 'editProfile'}>
-        <EditProfilePage onBack={closeSub} onClose={closeAll} />
+        <EditProfilePage onBack={closeSub} onClose={closeAll} userEmail={user?.email} savedName={profileName} onSaveName={handleSaveName} />
       </SubPageSlide>
 
       <SubPageSlide visible={subPage === 'subscription'}>
@@ -564,6 +702,17 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
       <SubPageSlide visible={subPage === 'privacyPolicy'}>
         <PrivacyPolicyPage onBack={closeSub} onClose={closeAll} />
       </SubPageSlide>
+
+      {/* Auth bottom sheet — portalled into document.body to escape ProfilePage's
+          CSS transform, which would otherwise break position:fixed descendants */}
+      {createPortal(
+        <AuthBottomSheet
+          isOpen={showAuth}
+          onClose={() => setShowAuth(false)}
+          onSuccess={handleAuthSuccess}
+        />,
+        document.body
+      )}
 
     </div>
   );

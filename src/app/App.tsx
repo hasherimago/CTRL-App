@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { id } from '@instantdb/react';
 import { db } from '../db';
 import svgPaths from '../imports/svg-srcobnd1q5';
@@ -41,12 +41,46 @@ type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 // ── CHANGED: adapt once at module level, not inside the component ──
 const DRUGS: TripSitDrug[] = adaptDrugs(drugsRaw as Record<string, unknown>);
 
+const RESET_KEY = 'ctrl_reset_v1';
+
 export default function App() {
-  const { data } = db.useQuery({ checklistItems: {}, tripLogs: {}, savedDrugs: {} });
+  const { user } = db.useAuth();
+
+  // Local state for guest mode (user === null) — zero InstantDB persistence
+  const [localChecklistItems, setLocalChecklistItems] = useState<ChecklistItem[]>([]);
+  const [localTripLogs, setLocalTripLogs] = useState<TripLog[]>([]);
+  const [localSavedDrugs, setLocalSavedDrugs] = useState<Array<{ id: string; drugKey: string }>>([]);
+
+  // InstantDB query — skipped entirely (null) when not logged in
+  const { data } = db.useQuery(user ? {
+    checklistItems: { $: { where: { 'owner.id': user.id } } },
+    tripLogs: { $: { where: { 'owner.id': user.id } } },
+    savedDrugs: { $: { where: { 'owner.id': user.id } } },
+  } : null);
+
+  // One-time wipe of all persisted data on first load after this build.
+  useEffect(() => {
+    if (!user) return;
+    if (localStorage.getItem(RESET_KEY)) return;
+    (async () => {
+      try {
+        const { data: snap } = await db.queryOnce({ checklistItems: {}, tripLogs: {}, savedDrugs: {} });
+        const txs = [
+          ...(snap?.checklistItems ?? []).map((r: { id: string }) => db.tx.checklistItems[r.id].delete()),
+          ...(snap?.tripLogs ?? []).map((r: { id: string }) => db.tx.tripLogs[r.id].delete()),
+          ...(snap?.savedDrugs ?? []).map((r: { id: string }) => db.tx.savedDrugs[r.id].delete()),
+        ];
+        if (txs.length > 0) await db.transact(txs);
+      } finally {
+        localStorage.setItem(RESET_KEY, '1');
+      }
+    })();
+  }, [user]);
 
   // ── Checklist ─────────────────────────────────────────────────────────────
-  const checklistItems: ChecklistItem[] = [...(data?.checklistItems ?? [])]
-    .sort((a, b) => a.createdAt - b.createdAt);
+  const checklistItems: ChecklistItem[] = user
+    ? [...(data?.checklistItems ?? [])].sort((a, b) => a.createdAt - b.createdAt)
+    : [...localChecklistItems].sort((a, b) => a.createdAt - b.createdAt);
   const [checklistOpen, setChecklistOpen] = useState(false);
 
   const [liveNews, setLiveNews] = useState<NewsItem[]>(FALLBACK_NEWS);
@@ -73,23 +107,37 @@ export default function App() {
   };
 
   const addChecklistItem = (text: string) => {
-    db.transact(db.tx.checklistItems[id()].update({ text, checked: false, createdAt: Date.now() }));
+    if (!user) {
+      setLocalChecklistItems(prev => [...prev, { id: id(), text, checked: false, createdAt: Date.now() }]);
+      return;
+    }
+    db.transact(db.tx.checklistItems[id()].update({ text, checked: false, createdAt: Date.now() }).link({ owner: user.id }));
   };
   const toggleChecklistItem = (itemId: string) => {
+    if (!user) {
+      setLocalChecklistItems(prev => prev.map(i => i.id === itemId ? { ...i, checked: !i.checked } : i));
+      return;
+    }
     const item = checklistItems.find(i => i.id === itemId);
     if (item) db.transact(db.tx.checklistItems[itemId].update({ checked: !item.checked }));
   };
   const deleteChecklistItem = (itemId: string) => {
+    if (!user) {
+      setLocalChecklistItems(prev => prev.filter(i => i.id !== itemId));
+      return;
+    }
     db.transact(db.tx.checklistItems[itemId].delete());
   };
 
   // ── Saved drugs ───────────────────────────────────────────────────────────
-  const savedDrugMap = new Map((data?.savedDrugs ?? []).map(d => [d.drugKey as string, d.id]));
+  const savedDrugSource = user ? (data?.savedDrugs ?? []) : localSavedDrugs;
+  const savedDrugMap = new Map(savedDrugSource.map(d => [d.drugKey as string, d.id]));
   const savedKeys = new Set(savedDrugMap.keys());
 
   // ── Trip logs ─────────────────────────────────────────────────────────────
-  const tripLogs: TripLog[] = [...(data?.tripLogs ?? [])]
-    .sort((a, b) => (b.createdAt as number) - (a.createdAt as number)) as TripLog[];
+  const tripLogs: TripLog[] = user
+    ? [...(data?.tripLogs ?? [])].sort((a, b) => (b.createdAt as number) - (a.createdAt as number)) as TripLog[]
+    : [...localTripLogs].sort((a, b) => (b.createdAt as number) - (a.createdAt as number)) as TripLog[];
 
   const handleTabChange = (tab: NavTab) => {
     setActiveTab(tab);
@@ -109,9 +157,18 @@ export default function App() {
   };
   const handleDrugBack = () => setSelectedDrug(null);
   const handleSaveToggle = (drugKey: string) => {
+    if (!user) {
+      const exists = localSavedDrugs.find(d => d.drugKey === drugKey);
+      if (exists) {
+        setLocalSavedDrugs(prev => prev.filter(d => d.drugKey !== drugKey));
+      } else {
+        setLocalSavedDrugs(prev => [...prev, { id: id(), drugKey }]);
+      }
+      return;
+    }
     const entityId = savedDrugMap.get(drugKey);
     if (entityId) db.transact(db.tx.savedDrugs[entityId].delete());
-    else db.transact(db.tx.savedDrugs[id()].update({ drugKey }));
+    else db.transact(db.tx.savedDrugs[id()].update({ drugKey }).link({ owner: user.id }));
   };
 
   return (
@@ -223,7 +280,14 @@ export default function App() {
             key={`refl-${sessionKey}`}
             isOpen={journalStep === 'reflection'}
             draftLog={draftLog}
-            onDone={(log) => { db.transact(db.tx.tripLogs[id()].update({ ...log, createdAt: Date.now() })); setDraftLog({}); setJournalStep('done'); }}
+            onDone={(log) => {
+              if (!user) {
+                setLocalTripLogs(prev => [{ ...log, id: id(), createdAt: Date.now() } as TripLog, ...prev]);
+              } else {
+                db.transact(db.tx.tripLogs[id()].update({ ...log, createdAt: Date.now() }).link({ owner: user.id }));
+              }
+              setDraftLog({}); setJournalStep('done');
+            }}
             onBack={() => setJournalStep('mood')}
             onClose={() => setJournalStep('main')}
           />
@@ -513,6 +577,9 @@ export default function App() {
           setJournalStep('main');
           setDraftLog({});
           setSessionKey(k => k + 1);
+          setLocalChecklistItems([]);
+          setLocalTripLogs([]);
+          setLocalSavedDrugs([]);
         }}
       />
     </div>

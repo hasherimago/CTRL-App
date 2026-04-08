@@ -24,7 +24,7 @@ const textareaStyle: React.CSSProperties = {
   borderRadius: '10px',
   color: '#F1F1F1',
   fontFamily: 'Roboto, sans-serif',
-  fontSize: '14px',
+  fontSize: '16px',
   lineHeight: '23px',
   padding: '8px 11px',
   resize: 'none',
@@ -53,7 +53,8 @@ export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onC
       return;
     }
     const newLog: TripLog = {
-      id: Date.now(),
+      id: String(Date.now()),
+      createdAt: Date.now(),
       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
       mood: MOOD_LABELS[draftLog.moodIndex ?? 3],
       moodSub: MOOD_SUBS[draftLog.moodIndex ?? 3],

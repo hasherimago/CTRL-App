@@ -77,6 +77,7 @@ const MOODS: { face: EmojiProps['face'] }[] = [
 ];
 
 const DELETE_WIDTH = 80;
+const LONG_PRESS_MS = 480;
 
 function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: () => void; onEdit: () => void }) {
   const face = MOODS[log.moodIndex ?? 3]?.face ?? 'Happy';
@@ -87,16 +88,41 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [swipeOpen, setSwipeOpen] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
+
   const startX = useRef(0);
   const startY = useRef(0);
   const moved = useRef(false);
   const directionLocked = useRef<'h' | 'v' | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const openMenu = () => {
+    didLongPress.current = true;
+    setMenuMounted(true);
+    requestAnimationFrame(() => setMenuVisible(true));
+  };
+
+  const closeMenu = () => {
+    setMenuVisible(false);
+    setTimeout(() => setMenuMounted(false), 220);
+  };
 
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
     moved.current = false;
+    didLongPress.current = false;
     directionLocked.current = null;
+    longPressTimer.current = setTimeout(openMenu, LONG_PRESS_MS);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
@@ -107,8 +133,12 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
       if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
       directionLocked.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
     }
-    if (directionLocked.current === 'v') return;
+    if (directionLocked.current === 'v') {
+      cancelLongPress();
+      return;
+    }
 
+    cancelLongPress();
     e.preventDefault();
     moved.current = true;
     setIsDragging(true);
@@ -118,13 +148,13 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
   };
 
   const onTouchEnd = () => {
+    cancelLongPress();
     setIsDragging(false);
+    if (didLongPress.current) return;
     if (!moved.current) {
       if (swipeOpen) {
         setTranslateX(0);
         setSwipeOpen(false);
-      } else {
-        onEdit();
       }
       return;
     }
@@ -138,81 +168,138 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
   };
 
   return (
-    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
-      {/* Delete button revealed on swipe */}
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: DELETE_WIDTH,
-        background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        borderRadius: '0 16px 16px 0',
-      }}>
-        <button
-          onClick={onDelete}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+    <>
+      {/* Long-press context menu */}
+      {menuMounted && (
+        <div
+          onClick={closeMenu}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: menuVisible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+            transition: 'background 0.22s ease',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            padding: '0 16px 48px',
+          }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600 }}>Delete</span>
-        </button>
-      </div>
-
-      {/* Card */}
-      <div
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        style={{
-          background: '#171717',
-          borderRadius: '16px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px',
-          overflow: 'hidden',
-          transform: `translateX(${translateX}px)`,
-          transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-          cursor: swipeOpen ? 'default' : 'pointer',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          touchAction: 'pan-y',
-        }}
-      >
-        {/* Row 1: emoji + mood + date */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MoodEmoji face={face} selected={true} size={40} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5 }}>{log.mood}</span>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '14px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.28px', lineHeight: 1.3 }}>{log.moodSub}</span>
-            </div>
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '420px',
+              background: '#1E1E1E',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              transform: menuVisible ? 'translateY(0)' : 'translateY(24px)',
+              opacity: menuVisible ? 1 : 0,
+              transition: 'transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.22s ease',
+            }}
+          >
+            <button
+              onClick={() => { closeMenu(); onEdit(); }}
+              style={{
+                width: '100%', padding: '18px 20px', background: 'none', border: 'none',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px' }}>Edit log</span>
+            </button>
+            <button
+              onClick={() => { closeMenu(); onDelete(); }}
+              style={{
+                width: '100%', padding: '18px 20px', background: 'none', border: 'none',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#FF3B30', letterSpacing: '0.32px' }}>Delete log</span>
+            </button>
           </div>
-          <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.32px', lineHeight: 1.3, flexShrink: 0 }}>{log.date}</span>
+        </div>
+      )}
+
+      {/* Swipeable row */}
+      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
+        {/* Delete button revealed on swipe */}
+        <div style={{
+          position: 'absolute', right: 0, top: 0, bottom: 0, width: DELETE_WIDTH,
+          background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          borderRadius: '0 16px 16px 0',
+        }}>
+          <button
+            onClick={onDelete}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600 }}>Delete</span>
+          </button>
         </div>
 
-        {/* Row 2: reflection text */}
-        {reflectionText ? (
-          <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>{reflectionText}</p>
-        ) : null}
-
-        {/* Tags — all inline */}
-        {(hasSubstancesOrLocations || hasReasonsOrBody) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {log.substances.map(s => (
-              <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#F1F1F1'}`, color: SUBSTANCE_COLORS[s] || '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
-            ))}
-            {log.locations.map(l => (
-              <span key={l} style={{ border: '1px solid #F1F1F1', color: '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{l}</span>
-            ))}
-            {(log.reasons ?? []).map(r => (
-              <span key={r} style={{ border: `1px solid ${REASON_COLOR}`, color: REASON_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{r}</span>
-            ))}
-            {(log.bodyFeelings ?? []).map(b => (
-              <span key={b} style={{ border: `1px solid ${BODY_COLOR}`, color: BODY_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{b}</span>
-            ))}
+        {/* Card */}
+        <div
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          style={{
+            background: '#171717',
+            borderRadius: '16px',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            overflow: 'hidden',
+            transform: `translateX(${translateX}px)`,
+            transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            touchAction: 'pan-y',
+          }}
+        >
+          {/* Row 1: emoji + mood + date */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <MoodEmoji face={face} selected={true} size={40} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5 }}>{log.mood}</span>
+                <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '14px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.28px', lineHeight: 1.3 }}>{log.moodSub}</span>
+              </div>
+            </div>
+            <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.32px', lineHeight: 1.3, flexShrink: 0 }}>{log.date}</span>
           </div>
-        )}
+
+          {/* Row 2: reflection text */}
+          {reflectionText ? (
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>{reflectionText}</p>
+          ) : null}
+
+          {/* Tags — all inline */}
+          {(hasSubstancesOrLocations || hasReasonsOrBody) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {log.substances.map(s => (
+                <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#F1F1F1'}`, color: SUBSTANCE_COLORS[s] || '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
+              ))}
+              {log.locations.map(l => (
+                <span key={l} style={{ border: '1px solid #F1F1F1', color: '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{l}</span>
+              ))}
+              {(log.reasons ?? []).map(r => (
+                <span key={r} style={{ border: `1px solid ${REASON_COLOR}`, color: REASON_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{r}</span>
+              ))}
+              {(log.bodyFeelings ?? []).map(b => (
+                <span key={b} style={{ border: `1px solid ${BODY_COLOR}`, color: BODY_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{b}</span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

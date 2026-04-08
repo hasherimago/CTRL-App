@@ -1,5 +1,6 @@
 export interface TripLog {
   id: string;
+  createdAt: number;
   date: string;
   mood: string;
   moodSub: string;

@@ -8,7 +8,7 @@ interface JournalContextOverlayProps {
   onClose: () => void;
 }
 
-const SUBSTANCES = ['MDMA', 'GHB', 'Ecstasy', 'Cocaine', '2C-B', 'DMT', 'Ketamine', 'Cannabis'];
+const SUBSTANCES = ['MDMA', 'GHB', 'LSD', 'Cocaine', '2C-B', 'Alcohol', 'Ketamine', 'Cannabis'];
 const LOCATIONS = ['Club', 'Home', 'Nature', 'Solo', 'Date', 'Sex', 'Festival', 'Office'];
 const REASONS = ['Curiosity', 'Fun', 'Connection', 'Healing', 'Escape', 'Creativity'];
 
@@ -193,9 +193,9 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
         style={{
           position: 'absolute',
           bottom: '60px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '244px',
+          left: '24px',
+          right: '24px',
+          width: 'auto',
           height: '60px',
           background: '#F1F1F1',
           border: 'none',

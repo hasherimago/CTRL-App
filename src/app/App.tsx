@@ -34,6 +34,7 @@ import type { ChecklistItem } from './components/figma/ChecklistOverlay';
 import type { TripLog, JournalStep } from './types/journal';
 // ── CHANGED: import the raw TripSit JSON ──
 import drugsRaw from './components/figma/data/drugs.json';
+import { DRUG_CATEGORY_COLOR } from './components/ui/DrugCardArt';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
@@ -79,8 +80,6 @@ export default function App() {
 
   const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   const kitBackRef = useRef<'home' | 'shop'>('shop');
-  const skipTransitionRef = useRef(false);
-
   const openSearch = () => {
     previousPageRef.current = currentPage;
     setSearchOpen(true);
@@ -413,18 +412,44 @@ export default function App() {
                     ? '1 moment reflected this month'
                     : `${sessionCount} moments reflected this month`;
 
-                  const totalDots = 22;
-                  const activeDotIndices = tripLogs.map((_, i) =>
-                    Math.floor((i / Math.max(tripLogs.length, 1)) * totalDots)
-                  );
+                  const totalDots = 31;
+                  const dayCountMap = new Map<number, number>();
+                  tripLogs.forEach(log => {
+                    const match = log.date?.match(/\d+/);
+                    if (match) {
+                      const day = parseInt(match[0], 10);
+                      dayCountMap.set(day, (dayCountMap.get(day) ?? 0) + 1);
+                    }
+                  });
 
                   const lastEntry = isEmpty ? null : tripLogs[0].date;
                   const lastSubstances = tripLogs[0]?.substances ?? [];
                   const lastFeelings = tripLogs[0]?.bodyFeelings ?? [];
 
                   const SUBSTANCE_COLORS: Record<string, string> = {
-                    MDMA: '#FFBEEA', GHB: '#A8E6CF', Ecstasy: '#FF9BE0', Cocaine: '#F1F1F1',
-                    '2C-B': '#FFB6A3', DMT: '#C3B1E1', Ketamine: '#CCF1FF', Caffeine: '#F5D163', LSD: '#B5EAD7',
+                    // Empathogens
+                    MDMA: DRUG_CATEGORY_COLOR.Empathogens, Ecstasy: DRUG_CATEGORY_COLOR.Empathogens,
+                    MDA: DRUG_CATEGORY_COLOR.Empathogens, Mephedrone: DRUG_CATEGORY_COLOR.Empathogens,
+                    '3-MMC': DRUG_CATEGORY_COLOR.Empathogens, '4-FA': DRUG_CATEGORY_COLOR.Empathogens,
+                    // Psychedelics
+                    LSD: DRUG_CATEGORY_COLOR.Psychedelics, Mushrooms: DRUG_CATEGORY_COLOR.Psychedelics,
+                    DMT: DRUG_CATEGORY_COLOR.Psychedelics, Ayahuasca: DRUG_CATEGORY_COLOR.Psychedelics,
+                    Mescaline: DRUG_CATEGORY_COLOR.Psychedelics, '2C-B': DRUG_CATEGORY_COLOR.Psychedelics,
+                    NBOMe: DRUG_CATEGORY_COLOR.Psychedelics,
+                    // Stimulants
+                    Cocaine: DRUG_CATEGORY_COLOR.Stimulants, Amphetamines: DRUG_CATEGORY_COLOR.Stimulants,
+                    Meth: DRUG_CATEGORY_COLOR.Stimulants, Speed: DRUG_CATEGORY_COLOR.Stimulants,
+                    Caffeine: DRUG_CATEGORY_COLOR.Stimulants, Ritalin: DRUG_CATEGORY_COLOR.Stimulants,
+                    // Depressants
+                    Alcohol: DRUG_CATEGORY_COLOR.Depressants, GHB: DRUG_CATEGORY_COLOR.Depressants,
+                    'GHB/GBL': DRUG_CATEGORY_COLOR.Depressants, Cannabis: DRUG_CATEGORY_COLOR.Depressants,
+                    // Dissociatives
+                    Ketamine: DRUG_CATEGORY_COLOR.Dissociatives, Nitrous: DRUG_CATEGORY_COLOR.Dissociatives,
+                    '2-FDCK': DRUG_CATEGORY_COLOR.Dissociatives, DXM: DRUG_CATEGORY_COLOR.Dissociatives,
+                    // Opioids
+                    Heroin: DRUG_CATEGORY_COLOR.Opioids, Fentanyl: DRUG_CATEGORY_COLOR.Opioids,
+                    Oxycodone: DRUG_CATEGORY_COLOR.Opioids, Tramadol: DRUG_CATEGORY_COLOR.Opioids,
+                    Kratom: DRUG_CATEGORY_COLOR.Opioids,
                   };
 
                   const handleAddLog = () => {
@@ -458,12 +483,27 @@ export default function App() {
                       </div>
                       <div className="grid grid-cols-11 gap-2">
                         {Array.from({ length: totalDots }).map((_, i) => {
-                          const isActive = !isEmpty && activeDotIndices.includes(i);
+                          const day = i + 1;
+                          const count = dayCountMap.get(day) ?? 0;
+                          const isActive = count > 0;
                           return (
                             <div
                               key={i}
-                              className={`w-[23px] h-[23px] rounded-full ${isActive ? 'bg-[#8C5CFE]' : 'bg-[#2D2D2D]'}`}
-                            />
+                              className="w-[24px] h-[24px] rounded-full flex items-center justify-center"
+                              style={{ backgroundColor: isActive ? '#8C5CFE' : '#2D2D2D' }}
+                            >
+                              {isActive && (
+                                <span style={{
+                                  color: '#F1F1F1',
+                                  fontFamily: 'Sora',
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  lineHeight: 'normal',
+                                }}>
+                                  {count}
+                                </span>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
@@ -477,7 +517,7 @@ export default function App() {
                               <span
                                 key={tag}
                                 style={{ borderColor: SUBSTANCE_COLORS[tag] || '#F1F1F1', color: SUBSTANCE_COLORS[tag] || '#F1F1F1' }}
-                                className="border px-3 py-2 rounded-[18px] text-[14px]"
+                                className="border px-[10px] py-[4px] rounded-[18px] text-[14px]"
                               >{tag}</span>
                             ))}
                           </div>
@@ -485,7 +525,7 @@ export default function App() {
                             <p className="text-[#F1F1F1] text-[16px] font-normal tracking-[0.32px]">You felt most:</p>
                             {lastFeelings.length > 0 ? (
                               lastFeelings.map(tag => (
-                                <span key={tag} className="border border-[#FFADA5] text-[#FFADA5] px-3 py-2 rounded-[18px] text-[14px]">{tag}</span>
+                                <span key={tag} className="border border-[#F1F1F1] text-[#F1F1F1] px-[10px] py-[4px] rounded-[18px] text-[14px]">{tag}</span>
                               ))
                             ) : (
                               <span className="text-[#F1F1F1] text-[14px] opacity-50">—</span>

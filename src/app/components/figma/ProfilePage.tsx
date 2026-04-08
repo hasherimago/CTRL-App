@@ -341,7 +341,7 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
               <button
                 key={plan}
                 onClick={() => setSelected(plan)}
-                style={{ flex: 1, background: selected === plan ? '#8C5CFE' : '#171717', border: `1.5px solid ${selected === plan ? '#8C5CFE' : '#2D2D2D'}`, borderRadius: '14px', padding: '10px 12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '4px', transition: 'all 0.2s ease' }}
+                style={{ flex: 1, background: selected === plan ? '#8C5CFE' : '#171717', border: `1.5px solid ${selected === plan ? '#8C5CFE' : '#2D2D2D'}`, borderRadius: '14px', paddingTop: '40px', paddingBottom: '40px', paddingLeft: '12px', paddingRight: '12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '4px', transition: 'all 0.2s ease' }}
               >
                 <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F1F1F1', textTransform: 'capitalize' }}>{plan}</span>
                 <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '22px', fontWeight: 700, color: '#F1F1F1' }}>{plan === 'monthly' ? '€19' : '€159'}</span>

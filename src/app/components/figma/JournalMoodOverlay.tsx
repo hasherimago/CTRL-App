@@ -174,9 +174,9 @@ export function JournalMoodOverlay({ isOpen, onNext, onBack, onClose }: JournalM
           style={{
             position: 'absolute',
             bottom: '60px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '244px',
+            left: '24px',
+            right: '24px',
+            width: 'auto',
             height: '60px',
             background: '#F1F1F1',
             border: 'none',

@@ -4,6 +4,7 @@ import { BottomNav } from '../ui/BottomNav';
 import { MoodEmoji } from '../ui/MoodEmoji';
 import type { TripLog } from '../../types/journal';
 import type { EmojiProps } from '../ui/MoodEmoji';
+import { DRUG_CATEGORY_COLOR } from '../ui/DrugCardArt';
 
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
@@ -15,19 +16,53 @@ interface JournalMainPageProps {
 }
 
 const SUBSTANCE_COLORS: Record<string, string> = {
-  MDMA: '#FFBEEA',
-  GHB: '#A8E6CF',
-  Ecstasy: '#FF9BE0',
-  Cocaine: '#F1F1F1',
-  '2C-B': '#FFB6A3',
-  DMT: '#C3B1E1',
-  Ketamine: '#CCF1FF',
-  Caffeine: '#F5D163',
-  LSD: '#B5EAD7',
+  // Empathogens
+  MDMA: DRUG_CATEGORY_COLOR.Empathogens,
+  Ecstasy: DRUG_CATEGORY_COLOR.Empathogens,
+  MDA: DRUG_CATEGORY_COLOR.Empathogens,
+  Mephedrone: DRUG_CATEGORY_COLOR.Empathogens,
+  '3-MMC': DRUG_CATEGORY_COLOR.Empathogens,
+  '4-FA': DRUG_CATEGORY_COLOR.Empathogens,
+  // Psychedelics
+  LSD: DRUG_CATEGORY_COLOR.Psychedelics,
+  Mushrooms: DRUG_CATEGORY_COLOR.Psychedelics,
+  DMT: DRUG_CATEGORY_COLOR.Psychedelics,
+  Ayahuasca: DRUG_CATEGORY_COLOR.Psychedelics,
+  Mescaline: DRUG_CATEGORY_COLOR.Psychedelics,
+  '2C-B': DRUG_CATEGORY_COLOR.Psychedelics,
+  NBOMe: DRUG_CATEGORY_COLOR.Psychedelics,
+  // Stimulants
+  Cocaine: DRUG_CATEGORY_COLOR.Stimulants,
+  Amphetamines: DRUG_CATEGORY_COLOR.Stimulants,
+  Meth: DRUG_CATEGORY_COLOR.Stimulants,
+  Speed: DRUG_CATEGORY_COLOR.Stimulants,
+  Caffeine: DRUG_CATEGORY_COLOR.Stimulants,
+  Ritalin: DRUG_CATEGORY_COLOR.Stimulants,
+  Modafinil: DRUG_CATEGORY_COLOR.Stimulants,
+  // Depressants
+  Alcohol: DRUG_CATEGORY_COLOR.Depressants,
+  GHB: DRUG_CATEGORY_COLOR.Depressants,
+  'GHB/GBL': DRUG_CATEGORY_COLOR.Depressants,
+  Cannabis: DRUG_CATEGORY_COLOR.Depressants,
+  Poppers: DRUG_CATEGORY_COLOR.Depressants,
+  // Dissociatives
+  Ketamine: DRUG_CATEGORY_COLOR.Dissociatives,
+  '2-FDCK': DRUG_CATEGORY_COLOR.Dissociatives,
+  DXM: DRUG_CATEGORY_COLOR.Dissociatives,
+  MXE: DRUG_CATEGORY_COLOR.Dissociatives,
+  Nitrous: DRUG_CATEGORY_COLOR.Dissociatives,
+  // Opioids
+  Heroin: DRUG_CATEGORY_COLOR.Opioids,
+  Fentanyl: DRUG_CATEGORY_COLOR.Opioids,
+  Oxycodone: DRUG_CATEGORY_COLOR.Opioids,
+  Tramadol: DRUG_CATEGORY_COLOR.Opioids,
+  Kratom: DRUG_CATEGORY_COLOR.Opioids,
+  // NPS
+  'MDPV': DRUG_CATEGORY_COLOR.NPS,
 };
 
-const REASON_COLOR = '#B8A0FF';   // soft purple
-const BODY_COLOR   = '#FFADA5';   // warm salmon
+const REASON_COLOR = '#F1F1F1';
+const BODY_COLOR   = '#F1F1F1';
 
 // Mirror the MOODS array from JournalMoodOverlay so LogCard can resolve face → emoji
 const MOODS: { face: EmojiProps['face'] }[] = [
@@ -68,7 +103,7 @@ function LogCard({ log }: { log: TripLog }) {
       {(hasSubstancesOrLocations || hasReasonsOrBody) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {log.substances.map(s => (
-            <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#CCF1FF'}`, color: SUBSTANCE_COLORS[s] || '#CCF1FF', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
+            <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#F1F1F1'}`, color: SUBSTANCE_COLORS[s] || '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
           ))}
           {log.locations.map(l => (
             <span key={l} style={{ border: '1px solid #F1F1F1', color: '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{l}</span>
@@ -172,9 +207,9 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
             style={{
               position: 'absolute',
               bottom: '156px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '244px',
+              left: '24px',
+              right: '24px',
+              width: 'auto',
               height: '60px',
               background: '#F1F1F1',
               border: 'none',

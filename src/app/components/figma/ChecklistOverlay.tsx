@@ -3,6 +3,7 @@ import svgPaths from '../../../imports/svg-0uazz9hzf3';
 
 export interface ChecklistItem {
   id: string;
+  createdAt: number;
   text: string;
   checked: boolean;
 }
@@ -24,7 +25,12 @@ export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onD
 
   useEffect(() => {
     if (isOpen) {
-      if (focusAdd) setIsAdding(true);
+      if (focusAdd) {
+        // Wait for the 320ms slide-up animation before activating the input,
+        // otherwise mobile browsers won't show the keyboard (element off-screen).
+        const t = setTimeout(() => setIsAdding(true), 340);
+        return () => clearTimeout(t);
+      }
     } else {
       setIsAdding(false);
       setDraftText('');
@@ -174,6 +180,7 @@ export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onD
                   <div style={{ width: '24px', height: '24px', flexShrink: 0, borderRadius: '4px', border: '2px solid #555' }} />
                   <input
                     ref={inputRef}
+                    autoFocus
                     value={draftText}
                     onChange={e => setDraftText(e.target.value)}
                     onKeyDown={handleKeyDown}

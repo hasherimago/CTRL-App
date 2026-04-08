@@ -16,7 +16,15 @@ export function ScanPage({ onTabChange }: ScanPageProps) {
         loop
         muted
         playsInline
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          marginTop: '-70px',
+          marginBottom: '0px',
+        }}
       />
       <BottomNav activeTab="Scan" onTabChange={onTabChange} />
     </div>

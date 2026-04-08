@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { id } from '@instantdb/react';
 import { db } from '../db';
 import svgPaths from '../imports/svg-srcobnd1q5';
@@ -41,8 +41,6 @@ type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 // ── CHANGED: adapt once at module level, not inside the component ──
 const DRUGS: TripSitDrug[] = adaptDrugs(drugsRaw as Record<string, unknown>);
 
-const RESET_KEY = 'ctrl_reset_v1';
-
 export default function App() {
   const { user } = db.useAuth();
 
@@ -58,34 +56,12 @@ export default function App() {
     savedDrugs: { $: { where: { 'owner.id': user.id } } },
   } : null);
 
-  // One-time wipe of legacy unowned data on first login after this build.
-  useEffect(() => {
-    if (!user) return;
-    if (localStorage.getItem(RESET_KEY)) return;
-    (async () => {
-      try {
-        const { data: snap } = await db.queryOnce({
-          checklistItems: { $: { where: { 'owner.id': user.id } } },
-          tripLogs: { $: { where: { 'owner.id': user.id } } },
-          savedDrugs: { $: { where: { 'owner.id': user.id } } },
-        });
-        const txs = [
-          ...(snap?.checklistItems ?? []).map((r: { id: string }) => db.tx.checklistItems[r.id].delete()),
-          ...(snap?.tripLogs ?? []).map((r: { id: string }) => db.tx.tripLogs[r.id].delete()),
-          ...(snap?.savedDrugs ?? []).map((r: { id: string }) => db.tx.savedDrugs[r.id].delete()),
-        ];
-        if (txs.length > 0) await db.transact(txs);
-      } finally {
-        localStorage.setItem(RESET_KEY, '1');
-      }
-    })();
-  }, [user]);
-
   // ── Checklist ─────────────────────────────────────────────────────────────
   const checklistItems: ChecklistItem[] = user
     ? [...(data?.checklistItems ?? [])].sort((a, b) => a.createdAt - b.createdAt)
     : [...localChecklistItems].sort((a, b) => a.createdAt - b.createdAt);
   const [checklistOpen, setChecklistOpen] = useState(false);
+  const [checklistFocusAdd, setChecklistFocusAdd] = useState(false);
 
   const [liveNews, setLiveNews] = useState<NewsItem[]>(FALLBACK_NEWS);
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
@@ -341,7 +317,7 @@ export default function App() {
 
           {/* ── SCROLLABLE CONTENT ── */}
           <div className="absolute top-0 bottom-0 left-0 right-0 overflow-y-auto overflow-x-hidden">
-            <div className="pb-[124px] space-y-4" style={{ paddingTop: '64px' }}>
+            <div className="pb-[124px] space-y-4" style={{ paddingTop: '0px' }}>
 
               <div className="px-2 h-[416px]">
                 <LiveNewsBlock onReadArticle={() => setCurrentPage('article')} onNewsLoaded={setLiveNews} />
@@ -357,7 +333,7 @@ export default function App() {
                       <p className="text-[#8C5CFE] text-[18px] font-bold tracking-[0.36px]">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}</p>
                     </div>
                     <button
-                      onClick={e => { e.stopPropagation(); setChecklistOpen(true); }}
+                      onClick={e => { e.stopPropagation(); setChecklistFocusAdd(true); setChecklistOpen(true); }}
                       className="w-6 h-6 bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center"
                       aria-label="Add checklist item"
                     >
@@ -561,11 +537,12 @@ export default function App() {
       {/* ── CHECKLIST OVERLAY ── */}
       <ChecklistOverlay
         isOpen={checklistOpen}
+        focusAdd={checklistFocusAdd}
         items={checklistItems}
         onAdd={addChecklistItem}
         onToggle={toggleChecklistItem}
         onDelete={deleteChecklistItem}
-        onClose={() => setChecklistOpen(false)}
+        onClose={() => { setChecklistOpen(false); setChecklistFocusAdd(false); }}
       />
 
       {/* ── PROFILE OVERLAY ── */}

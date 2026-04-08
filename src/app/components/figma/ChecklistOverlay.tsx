@@ -9,6 +9,7 @@ export interface ChecklistItem {
 
 interface ChecklistOverlayProps {
   isOpen: boolean;
+  focusAdd?: boolean;
   items: ChecklistItem[];
   onAdd: (text: string) => void;
   onToggle: (id: string) => void;
@@ -16,17 +17,19 @@ interface ChecklistOverlayProps {
   onClose: () => void;
 }
 
-export function ChecklistOverlay({ isOpen, items, onAdd, onToggle, onDelete, onClose }: ChecklistOverlayProps) {
+export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onDelete, onClose }: ChecklistOverlayProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [draftText, setDraftText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (focusAdd) setIsAdding(true);
+    } else {
       setIsAdding(false);
       setDraftText('');
     }
-  }, [isOpen]);
+  }, [isOpen, focusAdd]);
 
   useEffect(() => {
     if (isAdding) {

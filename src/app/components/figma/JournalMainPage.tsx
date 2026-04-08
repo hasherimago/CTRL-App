@@ -76,8 +76,9 @@ const MOODS: { face: EmojiProps['face'] }[] = [
   { face: 'Super' },
 ];
 
-const DELETE_WIDTH = 80;
-const LONG_PRESS_MS = 480;
+const ACTION_W = 80;
+// ease-out-expo — confident, decisive snap
+const SNAP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: () => void; onEdit: () => void }) {
   const face = MOODS[log.moodIndex ?? 3]?.face ?? 'Happy';
@@ -85,184 +86,146 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
   const hasSubstancesOrLocations = log.substances.length > 0 || log.locations.length > 0;
   const hasReasonsOrBody = (log.reasons?.length ?? 0) > 0 || (log.bodyFeelings?.length ?? 0) > 0;
 
+  // 'closed' | 'left' (delete) | 'right' (edit)
+  const [swipeState, setSwipeState] = useState<'closed' | 'left' | 'right'>('closed');
   const [translateX, setTranslateX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [swipeOpen, setSwipeOpen] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const startX = useRef(0);
   const startY = useRef(0);
   const moved = useRef(false);
-  const directionLocked = useRef<'h' | 'v' | null>(null);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const didLongPress = useRef(false);
+  const dirLocked = useRef<'h' | 'v' | null>(null);
+  const lastClientX = useRef(0);
+  const velocity = useRef(0);
 
-  const cancelLongPress = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  };
-
-  const openMenu = () => {
-    didLongPress.current = true;
-    setMenuMounted(true);
-    requestAnimationFrame(() => setMenuVisible(true));
-  };
-
-  const closeMenu = () => {
-    setMenuVisible(false);
-    setTimeout(() => setMenuMounted(false), 220);
-  };
+  const close = () => { setTranslateX(0); setSwipeState('closed'); };
 
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
+    lastClientX.current = e.touches[0].clientX;
     moved.current = false;
-    didLongPress.current = false;
-    directionLocked.current = null;
-    longPressTimer.current = setTimeout(openMenu, LONG_PRESS_MS);
+    dirLocked.current = null;
+    velocity.current = 0;
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    const dx = e.touches[0].clientX - startX.current;
+    const cx = e.touches[0].clientX;
+    const dx = cx - startX.current;
     const dy = e.touches[0].clientY - startY.current;
+    velocity.current = cx - lastClientX.current;
+    lastClientX.current = cx;
 
-    if (!directionLocked.current) {
-      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      directionLocked.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    if (!dirLocked.current) {
+      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+      dirLocked.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
     }
-    if (directionLocked.current === 'v') {
-      cancelLongPress();
-      return;
-    }
+    if (dirLocked.current === 'v') return;
 
-    cancelLongPress();
     e.preventDefault();
     moved.current = true;
-    setIsDragging(true);
-    const base = swipeOpen ? -DELETE_WIDTH : 0;
-    const clamped = Math.max(-DELETE_WIDTH, Math.min(0, base + dx));
+    setDragging(true);
+
+    const base = swipeState === 'left' ? -ACTION_W : swipeState === 'right' ? ACTION_W : 0;
+    const raw = base + dx;
+
+    // Rubber-band resistance past action width
+    let clamped: number;
+    if (raw < -ACTION_W) {
+      clamped = -ACTION_W - ((-raw - ACTION_W) * 0.22);
+    } else if (raw > ACTION_W) {
+      clamped = ACTION_W + ((raw - ACTION_W) * 0.22);
+    } else {
+      clamped = raw;
+    }
     setTranslateX(clamped);
   };
 
   const onTouchEnd = () => {
-    cancelLongPress();
-    setIsDragging(false);
-    if (didLongPress.current) return;
+    setDragging(false);
     if (!moved.current) {
-      if (swipeOpen) {
-        setTranslateX(0);
-        setSwipeOpen(false);
-      }
+      if (swipeState !== 'closed') close();
       return;
     }
-    if (translateX < -DELETE_WIDTH / 2) {
-      setTranslateX(-DELETE_WIDTH);
-      setSwipeOpen(true);
+    const vel = velocity.current;
+    const FLICK = 6;
+    if (vel < -FLICK || translateX < -ACTION_W / 2) {
+      setTranslateX(-ACTION_W); setSwipeState('left');
+    } else if (vel > FLICK || translateX > ACTION_W / 2) {
+      setTranslateX(ACTION_W); setSwipeState('right');
     } else {
-      setTranslateX(0);
-      setSwipeOpen(false);
+      close();
     }
   };
 
+  // Icon animation progress (0→1) for each side
+  const leftProg  = Math.max(0, Math.min(1, -translateX / ACTION_W));
+  const rightProg = Math.max(0, Math.min(1,  translateX / ACTION_W));
+
   return (
-    <>
-      {/* Long-press context menu */}
-      {menuMounted && (
-        <div
-          onClick={closeMenu}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 200,
-            background: menuVisible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
-            transition: 'background 0.22s ease',
-            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-            padding: '0 16px 48px',
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: '100%',
-              maxWidth: '420px',
-              background: '#1E1E1E',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              transform: menuVisible ? 'translateY(0)' : 'translateY(24px)',
-              opacity: menuVisible ? 1 : 0,
-              transition: 'transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.22s ease',
-            }}
-          >
-            <button
-              onClick={() => { closeMenu(); onEdit(); }}
-              style={{
-                width: '100%', padding: '18px 20px', background: 'none', border: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.08)',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px',
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#F1F1F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px' }}>Edit log</span>
-            </button>
-            <button
-              onClick={() => { closeMenu(); onDelete(); }}
-              style={{
-                width: '100%', padding: '18px 20px', background: 'none', border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px',
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#FF3B30', letterSpacing: '0.32px' }}>Delete log</span>
-            </button>
-          </div>
-        </div>
-      )}
+    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
 
-      {/* Swipeable row */}
-      <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
-        {/* Delete button revealed on swipe */}
-        <div style={{
-          position: 'absolute', right: 0, top: 0, bottom: 0, width: DELETE_WIDTH,
-          background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          borderRadius: '0 16px 16px 0',
-        }}>
-          <button
-            onClick={onDelete}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600 }}>Delete</span>
-          </button>
-        </div>
-
-        {/* Card */}
-        <div
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          style={{
-            background: '#171717',
-            borderRadius: '16px',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '14px',
-            overflow: 'hidden',
-            transform: `translateX(${translateX}px)`,
-            transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            touchAction: 'pan-y',
-          }}
+      {/* ── Edit action (swipe right) — left side ── */}
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: ACTION_W,
+        background: '#8C5CFE',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: '16px 0 0 16px',
+      }}>
+        <button
+          onClick={() => { close(); onEdit(); }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
         >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            style={{ transform: `scale(${0.55 + 0.45 * rightProg})`, opacity: Math.min(1, rightProg * 1.4), transition: dragging ? 'none' : `transform 0.35s ${SNAP_EASE}, opacity 0.25s ease` }}>
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600,
+            opacity: Math.min(1, rightProg * 1.4), transition: dragging ? 'none' : 'opacity 0.25s ease' }}>Edit</span>
+        </button>
+      </div>
+
+      {/* ── Delete action (swipe left) — right side ── */}
+      <div style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: ACTION_W,
+        background: '#FF3B30',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: '0 16px 16px 0',
+      }}>
+        <button
+          onClick={() => { close(); onDelete(); }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            style={{ transform: `scale(${0.55 + 0.45 * leftProg})`, opacity: Math.min(1, leftProg * 1.4), transition: dragging ? 'none' : `transform 0.35s ${SNAP_EASE}, opacity 0.25s ease` }}>
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600,
+            opacity: Math.min(1, leftProg * 1.4), transition: dragging ? 'none' : 'opacity 0.25s ease' }}>Delete</span>
+        </button>
+      </div>
+
+      {/* ── Card ── */}
+      <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          background: '#171717',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          overflow: 'hidden',
+          transform: `translateX(${translateX}px)`,
+          transition: dragging ? 'none' : `transform 0.38s ${SNAP_EASE}`,
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          touchAction: 'pan-y',
+        }}
+      >
           {/* Row 1: emoji + mood + date */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -297,9 +260,8 @@ function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: (
               ))}
             </div>
           )}
-        </div>
       </div>
-    </>
+    </div>
   );
 }
 

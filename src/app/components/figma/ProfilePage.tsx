@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { LAYOUT } from '../../constants/layout';
 import svgPaths from '../../../imports/svg-srcobnd1q5';
@@ -104,7 +104,14 @@ function ProfileAvatar({ size = 32 }: { size?: number }) {
   );
 }
 
-function AuthAvatar({ email, size = 36 }: { email?: string; size?: number }) {
+function AuthAvatar({ email, size = 36, photoUrl }: { email?: string; size?: number; photoUrl?: string }) {
+  if (photoUrl) {
+    return (
+      <div style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+        <img src={photoUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+    );
+  }
   const letter = (email ?? '?')[0].toUpperCase();
   return (
     <div style={{
@@ -162,27 +169,50 @@ function SubPageSlide({ visible, children }: { visible: boolean; children: React
 
 // ─── Sub Page 1 — Edit Profile ────────────────────────────────────────────────
 
-function EditProfilePage({ onBack, onClose, userEmail, savedName, onSaveName }: {
+function EditProfilePage({ onBack, onClose, userEmail, savedName, savedPhotoUrl, onSaveName, onSavePhoto }: {
   onBack: () => void;
   onClose: () => void;
   userEmail?: string;
   savedName: string;
+  savedPhotoUrl?: string;
   onSaveName: (name: string) => void;
+  onSavePhoto: (photoUrl: string) => void;
 }) {
   const [name, setName] = useState(savedName);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
+  const [localPhoto, setLocalPhoto] = useState<string | undefined>(savedPhotoUrl);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync name when the $users query resolves (may arrive after mount)
-  useEffect(() => {
-    setName(savedName);
-  }, [savedName]);
+  useEffect(() => { setName(savedName); }, [savedName]);
+  // Sync photo when DB resolves
+  useEffect(() => { setLocalPhoto(prev => prev ?? savedPhotoUrl); }, [savedPhotoUrl]);
+  // Sync email whenever auth resolves
+  useEffect(() => { if (userEmail) setEmail(userEmail); }, [userEmail]);
 
-  // Sync email whenever auth resolves (component is always mounted inside SubPageSlide)
-  useEffect(() => {
-    if (userEmail) setEmail(userEmail);
-  }, [userEmail]);
+  const handlePhotoSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 400;
+      const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      setLocalPhoto(canvas.toDataURL('image/jpeg', 0.82));
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
+    // Reset so the same file can be re-selected
+    e.target.value = '';
+  }, []);
 
   const inputStyle: React.CSSProperties = {
     width: '100%', background: '#0D0D0D', border: '1px solid #2D2D2D', borderRadius: '10px',
@@ -200,19 +230,42 @@ function EditProfilePage({ onBack, onClose, userEmail, savedName, onSaveName }: 
         left={<BackArrow onBack={onBack} />}
         right={<CloseButton onClose={onClose} />}
       />
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handlePhotoSelect}
+      />
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '70px 16px 32px' }}>
-          {/* Avatar */}
+          {/* Avatar — tappable to change photo */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#1E1E1E', border: '2px solid #2D2D2D', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              <ProfileAvatar size={48} />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', position: 'relative', width: '80px', height: '80px' }}
+              aria-label="Change profile photo"
+            >
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#1E1E1E', border: '2px solid #2D2D2D', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {localPhoto ? (
+                  <img src={localPhoto} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <ProfileAvatar size={48} />
+                )}
+              </div>
               <div style={{ position: 'absolute', bottom: 0, right: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#8C5CFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M8.5 1.5L10.5 3.5L4 10H2V8L8.5 1.5Z" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-            </div>
-            <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '13px', color: '#8C5CFE', letterSpacing: '0.26px', cursor: 'pointer' }}>Change Photo</span>
+            </button>
+            <span
+              onClick={() => fileInputRef.current?.click()}
+              style={{ fontFamily: 'Roboto, sans-serif', fontSize: '13px', color: '#8C5CFE', letterSpacing: '0.26px', cursor: 'pointer' }}
+            >
+              Change Photo
+            </span>
           </div>
 
           {/* Fields */}
@@ -232,7 +285,12 @@ function EditProfilePage({ onBack, onClose, userEmail, savedName, onSaveName }: 
           </div>
 
           <button
-            onClick={() => { onSaveName(name.trim()); setSaved(true); setTimeout(() => setSaved(false), 2000); }}
+            onClick={() => {
+              onSaveName(name.trim());
+              if (localPhoto !== savedPhotoUrl) onSavePhoto(localPhoto ?? '');
+              setSaved(true);
+              setTimeout(() => setSaved(false), 2000);
+            }}
             style={{ marginTop: '32px', width: '100%', height: '52px', background: saved ? '#AAFF00' : '#8C5CFE', border: 'none', borderRadius: '14px', cursor: 'pointer', fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: saved ? '#0D0D0D' : '#F1F1F1', letterSpacing: '0.32px', transition: 'background 0.3s ease' }}
           >
             {saved ? 'Saved!' : 'Save Changes'}
@@ -510,14 +568,21 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
   const { data: usersData } = db.useQuery(
     user ? { $users: { $: { where: { id: user.id } } } } : null
   );
-  const profile = usersData?.$users?.[0] as { name?: string; email?: string } | undefined;
+  const profile = usersData?.$users?.[0] as { name?: string; email?: string; photoUrl?: string } | undefined;
   const displayName = profile?.name?.trim()
     ? profile.name.trim()
     : user?.email?.split('@')[0] ?? '';
+  const profilePhotoUrl = profile?.photoUrl ?? undefined;
 
   const handleSaveName = (name: string) => {
     if (user?.id) {
       db.transact((db.tx.$users[user.id] as any).update({ name }));
+    }
+  };
+
+  const handleSavePhoto = (photoUrl: string) => {
+    if (user?.id) {
+      db.transact((db.tx.$users[user.id] as any).update({ photoUrl }));
     }
   };
 
@@ -609,7 +674,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
               style={{ background: '#171717', borderRadius: '12px', padding: '16px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxSizing: 'border-box', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <AuthAvatar email={user.email} size={36} />
+                <AuthAvatar email={user.email} size={36} photoUrl={profilePhotoUrl} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3 }}>
                     {displayName || 'Account'}
@@ -690,7 +755,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
 
       {/* ── SUBPAGES — slide over the profile using position:absolute ── */}
       <SubPageSlide visible={subPage === 'editProfile'}>
-        <EditProfilePage onBack={closeSub} onClose={closeAll} userEmail={user?.email} savedName={displayName} onSaveName={handleSaveName} />
+        <EditProfilePage onBack={closeSub} onClose={closeAll} userEmail={user?.email} savedName={displayName} savedPhotoUrl={profilePhotoUrl} onSaveName={handleSaveName} onSavePhoto={handleSavePhoto} />
       </SubPageSlide>
 
       <SubPageSlide visible={subPage === 'subscription'}>

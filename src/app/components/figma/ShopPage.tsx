@@ -253,7 +253,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
               </div>
 
               {/* Black shirt — €19 badge */}
-              <div className="relative flex-shrink-0" style={{ width: '192px', height: '192px' }}>
+              <div className="relative flex-shrink-0" style={{ width: '192px', height: '192px', marginRight: '10px' }}>
                 <img
                   src={imgMerch1}
                   alt="Black t-shirt"
@@ -271,7 +271,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
               </div>
 
               {/* Pink cap */}
-              <div className="relative flex-shrink-0" style={{ width: '129px', height: '129px', marginLeft: '48px' }}>
+              <div className="relative flex-shrink-0" style={{ width: '129px', height: '129px', marginLeft: '0px', marginRight: '0px' }}>
                 <img
                   src={imgMerch2}
                   alt="Cap"

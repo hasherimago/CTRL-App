@@ -4,6 +4,8 @@ const _schema = i.schema({
   entities: {
     $users: i.entity({
       email: i.string().unique().indexed().optional(),
+      name: i.string().optional(),
+      photoUrl: i.string().optional(),
     }),
     tripLogs: i.entity({
       date: i.string(),

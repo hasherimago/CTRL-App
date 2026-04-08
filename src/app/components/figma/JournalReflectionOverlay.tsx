@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { TripLog } from '../../types/journal';
 import svgPaths from '../../../imports/svg-0uazz9hzf3';
 
@@ -11,6 +11,9 @@ interface JournalReflectionOverlayProps {
   onDone: (log: TripLog) => void;
   onBack: () => void;
   onClose: () => void;
+  /** When provided, switches to edit mode — fields are pre-filled and Save calls onUpdate */
+  editLog?: TripLog;
+  onUpdate?: (log: TripLog) => void;
 }
 
 const textareaStyle: React.CSSProperties = {
@@ -29,13 +32,26 @@ const textareaStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onClose }: JournalReflectionOverlayProps) {
+export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onClose, editLog, onUpdate }: JournalReflectionOverlayProps) {
   const [feltGood, setFeltGood] = useState('');
   const [challenging, setChallenging] = useState('');
   const [learned, setLearned] = useState('');
   const [different, setDifferent] = useState('');
 
+  useEffect(() => {
+    if (editLog) {
+      setFeltGood(editLog.feltGood ?? '');
+      setChallenging(editLog.challenging ?? '');
+      setLearned(editLog.learned ?? '');
+      setDifferent(editLog.different ?? '');
+    }
+  }, [editLog]);
+
   const handleDone = () => {
+    if (editLog && onUpdate) {
+      onUpdate({ ...editLog, feltGood, challenging, learned, different });
+      return;
+    }
     const newLog: TripLog = {
       id: Date.now(),
       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
@@ -132,7 +148,7 @@ export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onC
             zIndex: 10,
           }}
         >
-          Save
+          {editLog ? 'Save changes' : 'Save'}
         </button>
       </div>
     </>

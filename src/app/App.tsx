@@ -77,6 +77,7 @@ export default function App() {
   const [journalStep, setJournalStep] = useState<JournalStep>('main');
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
+  const [editingLog, setEditingLog] = useState<TripLog | null>(null);
 
   const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
   const kitBackRef = useRef<'home' | 'shop'>('shop');
@@ -240,6 +241,14 @@ export default function App() {
             }}
             onTabChange={handleTabChange}
             onProfileOpen={() => setProfileOpen(true)}
+            onDeleteLog={(logId) => {
+              if (!user) {
+                setLocalTripLogs(prev => prev.filter(l => l.id !== logId));
+              } else {
+                db.transact(db.tx.tripLogs[logId].delete());
+              }
+            }}
+            onEditLog={(log) => setEditingLog(log)}
           />
           <JournalContextOverlay
             key={`ctx-${sessionKey}`}
@@ -274,6 +283,30 @@ export default function App() {
             <SuccessScreen
               isFirst={tripLogs.length === 1}
               onComplete={() => setJournalStep('main')}
+            />
+          )}
+          {editingLog && (
+            <JournalReflectionOverlay
+              key={`edit-${editingLog.id}`}
+              isOpen={true}
+              draftLog={editingLog}
+              onDone={() => {}}
+              onBack={() => setEditingLog(null)}
+              onClose={() => setEditingLog(null)}
+              editLog={editingLog}
+              onUpdate={(updated) => {
+                if (!user) {
+                  setLocalTripLogs(prev => prev.map(l => l.id === updated.id ? updated : l));
+                } else {
+                  db.transact(db.tx.tripLogs[updated.id].update({
+                    feltGood: updated.feltGood,
+                    challenging: updated.challenging,
+                    learned: updated.learned,
+                    different: updated.different,
+                  }));
+                }
+                setEditingLog(null);
+              }}
             />
           )}
         </>

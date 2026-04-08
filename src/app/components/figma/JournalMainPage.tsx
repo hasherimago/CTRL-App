@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { LAYOUT } from '../../constants/layout';
 import svgPaths from '../../../imports/svg-lomm4xuy7s';
 import { BottomNav } from '../ui/BottomNav';
@@ -13,6 +14,8 @@ interface JournalMainPageProps {
   onLogTrip: () => void;
   onTabChange: (tab: NavTab) => void;
   onProfileOpen: () => void;
+  onDeleteLog: (id: string) => void;
+  onEditLog: (log: TripLog) => void;
 }
 
 const SUBSTANCE_COLORS: Record<string, string> = {
@@ -73,49 +76,142 @@ const MOODS: { face: EmojiProps['face'] }[] = [
   { face: 'Super' },
 ];
 
-function LogCard({ log }: { log: TripLog }) {
+const DELETE_WIDTH = 80;
+
+function SwipeableLogCard({ log, onDelete, onEdit }: { log: TripLog; onDelete: () => void; onEdit: () => void }) {
   const face = MOODS[log.moodIndex ?? 3]?.face ?? 'Happy';
   const reflectionText = log.feltGood || log.challenging || log.learned || '';
-
   const hasSubstancesOrLocations = log.substances.length > 0 || log.locations.length > 0;
   const hasReasonsOrBody = (log.reasons?.length ?? 0) > 0 || (log.bodyFeelings?.length ?? 0) > 0;
 
+  const [translateX, setTranslateX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [swipeOpen, setSwipeOpen] = useState(false);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const moved = useRef(false);
+  const directionLocked = useRef<'h' | 'v' | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+    startY.current = e.touches[0].clientY;
+    moved.current = false;
+    directionLocked.current = null;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    const dx = e.touches[0].clientX - startX.current;
+    const dy = e.touches[0].clientY - startY.current;
+
+    if (!directionLocked.current) {
+      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+      directionLocked.current = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    }
+    if (directionLocked.current === 'v') return;
+
+    e.preventDefault();
+    moved.current = true;
+    setIsDragging(true);
+    const base = swipeOpen ? -DELETE_WIDTH : 0;
+    const clamped = Math.max(-DELETE_WIDTH, Math.min(0, base + dx));
+    setTranslateX(clamped);
+  };
+
+  const onTouchEnd = () => {
+    setIsDragging(false);
+    if (!moved.current) {
+      if (swipeOpen) {
+        setTranslateX(0);
+        setSwipeOpen(false);
+      } else {
+        onEdit();
+      }
+      return;
+    }
+    if (translateX < -DELETE_WIDTH / 2) {
+      setTranslateX(-DELETE_WIDTH);
+      setSwipeOpen(true);
+    } else {
+      setTranslateX(0);
+      setSwipeOpen(false);
+    }
+  };
+
   return (
-    <div style={{ background: '#171717', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px', overflow: 'hidden' }}>
-      {/* Row 1: emoji + mood + date */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <MoodEmoji face={face} selected={true} size={40} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5 }}>{log.mood}</span>
-            <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '14px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.28px', lineHeight: 1.3 }}>{log.moodSub}</span>
-          </div>
-        </div>
-        <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.32px', lineHeight: 1.3, flexShrink: 0 }}>{log.date}</span>
+    <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
+      {/* Delete button revealed on swipe */}
+      <div style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: DELETE_WIDTH,
+        background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: '0 16px 16px 0',
+      }}>
+        <button
+          onClick={onDelete}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: '#fff', fontWeight: 600 }}>Delete</span>
+        </button>
       </div>
 
-      {/* Row 2: reflection text */}
-      {reflectionText ? (
-        <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>{reflectionText}</p>
-      ) : null}
-
-      {/* Tags — all inline */}
-      {(hasSubstancesOrLocations || hasReasonsOrBody) && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {log.substances.map(s => (
-            <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#F1F1F1'}`, color: SUBSTANCE_COLORS[s] || '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
-          ))}
-          {log.locations.map(l => (
-            <span key={l} style={{ border: '1px solid #F1F1F1', color: '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{l}</span>
-          ))}
-          {(log.reasons ?? []).map(r => (
-            <span key={r} style={{ border: `1px solid ${REASON_COLOR}`, color: REASON_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{r}</span>
-          ))}
-          {(log.bodyFeelings ?? []).map(b => (
-            <span key={b} style={{ border: `1px solid ${BODY_COLOR}`, color: BODY_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{b}</span>
-          ))}
+      {/* Card */}
+      <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          background: '#171717',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          overflow: 'hidden',
+          transform: `translateX(${translateX}px)`,
+          transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          cursor: swipeOpen ? 'default' : 'pointer',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          touchAction: 'pan-y',
+        }}
+      >
+        {/* Row 1: emoji + mood + date */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MoodEmoji face={face} selected={true} size={40} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5 }}>{log.mood}</span>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '14px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.28px', lineHeight: 1.3 }}>{log.moodSub}</span>
+            </div>
+          </div>
+          <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: 'rgba(241,241,241,0.6)', letterSpacing: '0.32px', lineHeight: 1.3, flexShrink: 0 }}>{log.date}</span>
         </div>
-      )}
+
+        {/* Row 2: reflection text */}
+        {reflectionText ? (
+          <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>{reflectionText}</p>
+        ) : null}
+
+        {/* Tags — all inline */}
+        {(hasSubstancesOrLocations || hasReasonsOrBody) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {log.substances.map(s => (
+              <span key={s} style={{ border: `1px solid ${SUBSTANCE_COLORS[s] || '#F1F1F1'}`, color: SUBSTANCE_COLORS[s] || '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{s}</span>
+            ))}
+            {log.locations.map(l => (
+              <span key={l} style={{ border: '1px solid #F1F1F1', color: '#F1F1F1', borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{l}</span>
+            ))}
+            {(log.reasons ?? []).map(r => (
+              <span key={r} style={{ border: `1px solid ${REASON_COLOR}`, color: REASON_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{r}</span>
+            ))}
+            {(log.bodyFeelings ?? []).map(b => (
+              <span key={b} style={{ border: `1px solid ${BODY_COLOR}`, color: BODY_COLOR, borderRadius: '100px', padding: '6px 12px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{b}</span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -123,7 +219,7 @@ function LogCard({ log }: { log: TripLog }) {
 const today = new Date();
 const dateStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
-export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpen }: JournalMainPageProps) {
+export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpen, onDeleteLog, onEditLog }: JournalMainPageProps) {
   const isEmpty = tripLogs.length === 0;
 
   return (
@@ -233,7 +329,14 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
           {/* Scrollable log list */}
           <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
             <div style={{ padding: '70px 8px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {tripLogs.map(log => <LogCard key={log.id} log={log} />)}
+              {tripLogs.map(log => (
+                <SwipeableLogCard
+                  key={log.id}
+                  log={log}
+                  onDelete={() => onDeleteLog(log.id)}
+                  onEdit={() => onEditLog(log)}
+                />
+              ))}
             </div>
           </div>
 

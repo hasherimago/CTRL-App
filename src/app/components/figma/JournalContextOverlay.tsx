@@ -8,7 +8,7 @@ interface JournalContextOverlayProps {
   onClose: () => void;
 }
 
-const SUBSTANCES = ['MDMA', 'GHB', 'Ecstasy', 'Cocaine', '2C-B', 'DMT', 'Ketamine', 'Caffeine'];
+const SUBSTANCES = ['MDMA', 'GHB', 'Ecstasy', 'Cocaine', '2C-B', 'DMT', 'Ketamine', 'Cannabis'];
 const LOCATIONS = ['Club', 'Home', 'Nature', 'Solo', 'Date', 'Sex', 'Festival', 'Office'];
 const REASONS = ['Curiosity', 'Fun', 'Connection', 'Healing', 'Escape', 'Creativity'];
 

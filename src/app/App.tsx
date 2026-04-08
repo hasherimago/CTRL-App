@@ -58,13 +58,17 @@ export default function App() {
     savedDrugs: { $: { where: { 'owner.id': user.id } } },
   } : null);
 
-  // One-time wipe of all persisted data on first load after this build.
+  // One-time wipe of legacy unowned data on first login after this build.
   useEffect(() => {
     if (!user) return;
     if (localStorage.getItem(RESET_KEY)) return;
     (async () => {
       try {
-        const { data: snap } = await db.queryOnce({ checklistItems: {}, tripLogs: {}, savedDrugs: {} });
+        const { data: snap } = await db.queryOnce({
+          checklistItems: { $: { where: { 'owner.id': user.id } } },
+          tripLogs: { $: { where: { 'owner.id': user.id } } },
+          savedDrugs: { $: { where: { 'owner.id': user.id } } },
+        });
         const txs = [
           ...(snap?.checklistItems ?? []).map((r: { id: string }) => db.tx.checklistItems[r.id].delete()),
           ...(snap?.tripLogs ?? []).map((r: { id: string }) => db.tx.tripLogs[r.id].delete()),

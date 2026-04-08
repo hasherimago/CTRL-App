@@ -131,6 +131,26 @@ function SubLabel({ children }: { children: string }) {
   );
 }
 
+function DetectionRow({ label, value }: { label: string; value: string }) {
+  if (!value) {
+    return (
+      <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+        {label}
+      </p>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
+        {label}
+      </p>
+      <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0, whiteSpace: 'nowrap' }}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -147,6 +167,11 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
     if (!raw) return null;
     const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+    // If no colons at all, it's a plain-text sentence — show as-is
+    if (!raw.includes(':')) {
+      return [{ group: null, rows: [{ label: raw.trim(), value: '' }] }];
+    }
+
     // Parse a body string (comma-separated items) into rows
     const parseBody = (body: string): { label: string; value: string }[] => {
       const rows: { label: string; value: string }[] = [];
@@ -159,7 +184,12 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
           continue;
         }
         const sp = t.indexOf(' ');
-        if (sp !== -1) rows.push({ label: cap(t.substring(0, sp)), value: t.substring(sp + 1) });
+        if (sp !== -1) {
+          rows.push({ label: cap(t.substring(0, sp)), value: t.substring(sp + 1) });
+        } else {
+          // Text-only entry with no value (e.g. "Kratom")
+          rows.push({ label: cap(t), value: '' });
+        }
       }
       return rows;
     };
@@ -326,7 +356,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
             {/* Name block */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <p style={{
-                fontFamily: "'TT Travels Next Trial Variable', 'Roboto', sans-serif",
+                fontFamily: "'Sora', 'Roboto', sans-serif",
                 fontWeight: 700,
                 fontSize: '32px',
                 color: '#F1F1F1',
@@ -346,11 +376,8 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                   letterSpacing: '0.32px',
                   lineHeight: 1.3,
                   margin: 0,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
                 }}>
-                  {drug.aliases.slice(0, 5).join(', ')}
+                  {drug.aliases.join(', ')}
                 </p>
               )}
             </div>
@@ -434,7 +461,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                     <div key={gi} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                       {grp.group && <SubLabel>{grp.group}</SubLabel>}
                       {grp.rows.map(row => (
-                        <InfoRow key={row.label} label={row.label} value={row.value} />
+                        <DetectionRow key={row.label} label={row.label} value={row.value} />
                       ))}
                     </div>
                   ))}

@@ -174,6 +174,11 @@ function EditProfilePage({ onBack, onClose, userEmail, savedName, onSaveName }: 
   const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
 
+  // Sync name when the $users query resolves (may arrive after mount)
+  useEffect(() => {
+    setName(savedName);
+  }, [savedName]);
+
   // Sync email whenever auth resolves (component is always mounted inside SubPageSlide)
   useEffect(() => {
     if (userEmail) setEmail(userEmail);
@@ -244,12 +249,10 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
   const [selected, setSelected] = useState<'monthly' | 'annual'>('monthly');
 
   const features = [
-    { icon: '🧪', text: 'Monthly harm-reduction testing kit delivery' },
-    { icon: '🔔', text: 'Priority substance alerts & batch warnings' },
-    { icon: '📊', text: 'Advanced drug interaction reports' },
-    { icon: '🛡️', text: 'Fentanyl & adulterant test strips included' },
-    { icon: '📖', text: 'Full library access — all substances & guides' },
-    { icon: '💬', text: '24/7 support chat with harm-reduction experts' },
+    { icon: '✔️', text: 'Monthly harm-reduction testing kit delivery' },
+    { icon: '✔️', text: 'Priority substance alerts & batch warnings' },
+    { icon: '✔️', text: 'Advanced drug interaction reports' },
+    { icon: '✔️', text: 'Fentanyl & adulterant test strips included' },
   ];
 
   return (
@@ -262,15 +265,15 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '70px 16px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Hero */}
-          <div style={{ backgroundImage: `url(${proBg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ backgroundImage: `url(${proBg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '16px', padding: '10px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '22px', color: '#FFFFFF' }}>CTRL</span>
-              <div style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid #fff', borderRadius: '99px', padding: '2px 8px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid #fff', borderRadius: '99px', padding: '0px 8px', display: 'flex', paddingTop: '4px', paddingBottom: '4px' }}>
                 <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '11px', color: '#FFFFFF' }}>PRO</span>
               </div>
             </div>
             <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, margin: 0 }}>
-              Get monthly testing kits delivered to your door. Stay one step ahead.
+              Get monthly testing kits delivered to your door.
             </p>
           </div>
 
@@ -280,13 +283,13 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
               <button
                 key={plan}
                 onClick={() => setSelected(plan)}
-                style={{ flex: 1, background: selected === plan ? '#8C5CFE' : '#171717', border: `1.5px solid ${selected === plan ? '#8C5CFE' : '#2D2D2D'}`, borderRadius: '14px', padding: '16px 12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', transition: 'all 0.2s ease' }}
+                style={{ flex: 1, background: selected === plan ? '#8C5CFE' : '#171717', border: `1.5px solid ${selected === plan ? '#8C5CFE' : '#2D2D2D'}`, borderRadius: '14px', padding: '10px 12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '4px', transition: 'all 0.2s ease' }}
               >
                 <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F1F1F1', textTransform: 'capitalize' }}>{plan}</span>
-                <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '22px', fontWeight: 700, color: '#F1F1F1' }}>{plan === 'monthly' ? '£19' : '£159'}</span>
+                <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '22px', fontWeight: 700, color: '#F1F1F1' }}>{plan === 'monthly' ? '€19' : '€159'}</span>
                 <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: selected === plan ? 'rgba(255,255,255,0.75)' : '#888' }}>{plan === 'monthly' ? 'per month' : 'per year — save 30%'}</span>
                 {plan === 'annual' && (
-                  <div style={{ background: '#AAFF00', borderRadius: '99px', padding: '2px 8px', marginTop: '4px' }}>
+                  <div style={{ background: '#AAFF00', borderRadius: '99px', padding: '2px 8px', marginTop: '4px', display: 'flex' }}>
                     <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '10px', color: '#0D0D0D' }}>BEST VALUE</span>
                   </div>
                 )}
@@ -306,7 +309,7 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
           </div>
 
           <button style={{ width: '100%', height: '52px', background: '#8C5CFE', border: 'none', borderRadius: '14px', cursor: 'pointer', fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px' }}>
-            Subscribe — {selected === 'monthly' ? '£19/mo' : '£159/yr'}
+            Subscribe — {selected === 'monthly' ? '€19/mo' : '€159/year'}
           </button>
           <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#555', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
             Cancel anytime. Auto-renews. By subscribing you agree to our Terms of Service.
@@ -499,23 +502,23 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
   const [showAuth, setShowAuth] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [justSignedIn, setJustSignedIn] = useState(false);
-  const [profileName, setProfileName] = useState('');
   const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { isLoading: authLoading, user } = db.useAuth();
 
-  // Load saved name for this user from localStorage
-  useEffect(() => {
-    if (user?.id) {
-      setProfileName(localStorage.getItem(`ctrl_name_${user.id}`) ?? '');
-    } else {
-      setProfileName('');
-    }
-  }, [user?.id]);
+  // Query $users to get the stored name field reactively
+  const { data: usersData } = db.useQuery(
+    user ? { $users: { $: { where: { id: user.id } } } } : null
+  );
+  const profile = usersData?.$users?.[0] as { name?: string; email?: string } | undefined;
+  const displayName = profile?.name?.trim()
+    ? profile.name.trim()
+    : user?.email?.split('@')[0] ?? '';
 
   const handleSaveName = (name: string) => {
-    setProfileName(name);
-    if (user?.id) localStorage.setItem(`ctrl_name_${user.id}`, name);
+    if (user?.id) {
+      db.transact((db.tx.$users[user.id] as any).update({ name }));
+    }
   };
 
   // Close the auth sheet as soon as we have a user (sign-in succeeded)
@@ -551,8 +554,6 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
     if (logoutConfirm) {
       if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
       setLogoutConfirm(false);
-      if (user?.id) localStorage.removeItem(`ctrl_name_${user.id}`);
-      setProfileName('');
       db.auth.signOut();
       onClose();
       onLogout?.();
@@ -611,7 +612,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
                 <AuthAvatar email={user.email} size={36} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3 }}>
-                    {profileName || user.email?.split('@')[0] || 'Account'}
+                    {displayName || 'Account'}
                   </span>
                   <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '13px', color: '#888', letterSpacing: '0.26px', lineHeight: 1.3 }}>
                     {user.email}
@@ -689,7 +690,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
 
       {/* ── SUBPAGES — slide over the profile using position:absolute ── */}
       <SubPageSlide visible={subPage === 'editProfile'}>
-        <EditProfilePage onBack={closeSub} onClose={closeAll} userEmail={user?.email} savedName={profileName} onSaveName={handleSaveName} />
+        <EditProfilePage onBack={closeSub} onClose={closeAll} userEmail={user?.email} savedName={displayName} onSaveName={handleSaveName} />
       </SubPageSlide>
 
       <SubPageSlide visible={subPage === 'subscription'}>

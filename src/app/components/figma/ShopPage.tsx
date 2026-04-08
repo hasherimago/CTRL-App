@@ -211,7 +211,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
             />
             <p
               className="relative text-white text-[32px] tracking-[0.64px]"
-              style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
+              style={{ fontFamily: 'Sora, sans-serif', fontWeight: 704 }}
             >
               Ctrl.lab
             </p>
@@ -230,15 +230,9 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
               className="absolute inset-0"
               style={{ background: 'linear-gradient(to bottom, rgba(102,102,102,0.5), rgba(0,0,0,0.5))' }}
             />
-            {/* Map pins */}
-            {[{ left: '130px', top: '87px' }, { left: '260px', top: '138px' }, { left: '46px', top: '37px' }].map((pos, i) => (
-              <svg key={i} className="absolute w-6 h-6" style={pos} viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FF2D55"/>
-              </svg>
-            ))}
             <p
               className="relative text-white text-[32px] tracking-[0.64px] whitespace-nowrap"
-              style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704 }}
+              style={{ fontFamily: 'Sora, sans-serif', fontWeight: 704 }}
             >
               Ctrl.check
             </p>
@@ -252,7 +246,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
               <div className="flex-shrink-0" style={{ paddingRight: '16px' }}>
                 <p
                   className="text-white text-[32px] tracking-[0.64px]"
-                  style={{ fontFamily: 'TT Travels Next Trial Variable, sans-serif', fontWeight: 704, lineHeight: '1.2' }}
+                  style={{ fontFamily: 'Sora, sans-serif', fontWeight: 704, lineHeight: '1.2', paddingLeft: '12px' }}
                 >
                   Ctrl.<br />merch
                 </p>

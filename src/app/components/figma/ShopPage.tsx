@@ -15,13 +15,16 @@ import { LAYOUT } from '../../constants/layout';
 const imgStar19 = 'https://www.figma.com/api/mcp/asset/8a52ad7d-1282-4db8-9163-54bfe9987ade';
 const imgStar35 = 'https://www.figma.com/api/mcp/asset/ff232a4e-7f06-47de-900f-40c9c0795d34';
 
+type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
+
 interface ShopPageProps {
   onBack: () => void;
   onSearchOpen?: () => void;
   onKitClick?: (kit: 'preParty' | 'afterParty' | 'twoInOne' | 'testing') => void;
+  onTabChange?: (tab: NavTab) => void;
 }
 
-export function ShopPage({ onBack, onSearchOpen, onKitClick }: ShopPageProps) {
+export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: ShopPageProps) {
   return (
     <div className="relative w-full h-screen bg-[#181818] overflow-hidden">
 
@@ -321,8 +324,10 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick }: ShopPageProps) {
 
       {/* ── FIXED BOTTOM NAV ── */}
       <BottomNav
+        activeTab="Home"
         onTabChange={(tab) => {
           if (tab === 'Home') onBack();
+          else onTabChange?.(tab);
         }}
       />
 

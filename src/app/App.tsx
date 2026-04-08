@@ -122,6 +122,7 @@ export default function App() {
         <ShopPage
           onBack={() => { setCurrentPage('home'); setActiveTab('Home'); }}
           onSearchOpen={openSearch}
+          onTabChange={handleTabChange}
           onKitClick={(kit) => {
             kitBackRef.current = 'shop';
             if (kit === 'preParty') setCurrentPage('shopKitPre');
@@ -503,6 +504,16 @@ export default function App() {
       <ProfilePage
         isOpen={profileOpen}
         onClose={() => setProfileOpen(false)}
+        onLogout={() => {
+          setProfileOpen(false);
+          setActiveTab('Home');
+          setCurrentPage('home');
+          setSelectedDrug(null);
+          setSearchOpen(false);
+          setJournalStep('main');
+          setDraftLog({});
+          setSessionKey(k => k + 1);
+        }}
       />
     </div>
   );

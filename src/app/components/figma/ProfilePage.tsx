@@ -12,6 +12,7 @@ type SubPage = 'editProfile' | 'subscription' | 'language' | 'helpSupport' | 'pr
 interface ProfilePageProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogout?: () => void;
 }
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
@@ -491,7 +492,7 @@ function PrivacyPolicyPage({ onBack, onClose }: { onBack: () => void; onClose: (
 
 // ─── Main ProfilePage ─────────────────────────────────────────────────────────
 
-export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
+export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [vibrateOn, setVibrateOn] = useState(true);
   const [subPage, setSubPage] = useState<SubPage>(null);
@@ -553,6 +554,8 @@ export function ProfilePage({ isOpen, onClose }: ProfilePageProps) {
       if (user?.id) localStorage.removeItem(`ctrl_name_${user.id}`);
       setProfileName('');
       db.auth.signOut();
+      onClose();
+      onLogout?.();
     } else {
       setLogoutConfirm(true);
       logoutTimerRef.current = setTimeout(() => setLogoutConfirm(false), 3000);

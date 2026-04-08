@@ -139,18 +139,58 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
 
 
-  // Build detection rows from properties.detection string
-  const detectionRows = (() => {
+  // Build detection groups from properties.detection string.
+  // Handles grouped format: "Single Use: blood 1-3 days, saliva 12-24 hrs. Regular use: blood 1-2 weeks"
+  // Falls back to flat format: "Blood: 12h, Saliva: 6-12h"
+  const detectionGroups = (() => {
     const raw = drug.properties.detection;
     if (!raw) return null;
-    // Try to parse "Blood: 12h, Saliva: 6-12h, Urine: 6-24h" style strings
-    const rows: { label: string; value: string }[] = [];
-    const parts = raw.split(/[,;]\s*/);
-    for (const part of parts) {
-      const m = part.match(/^([^:]+):\s*(.+)$/);
-      if (m) rows.push({ label: m[1].trim(), value: m[2].trim() });
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+    // Parse a body string (comma-separated items) into rows
+    const parseBody = (body: string): { label: string; value: string }[] => {
+      const rows: { label: string; value: string }[] = [];
+      for (const item of body.split(/,\s*/)) {
+        const t = item.trim();
+        if (!t) continue;
+        const colonMatch = t.match(/^([a-zA-Z][a-zA-Z\s]*):\s*(.+)$/);
+        if (colonMatch) {
+          rows.push({ label: cap(colonMatch[1].trim()), value: colonMatch[2].trim() });
+          continue;
+        }
+        const sp = t.indexOf(' ');
+        if (sp !== -1) rows.push({ label: cap(t.substring(0, sp)), value: t.substring(sp + 1) });
+      }
+      return rows;
+    };
+
+    // Try grouped format — split on ". " boundaries
+    const segments = raw.split(/\.\s+/);
+    if (segments.length >= 2) {
+      const groups: { group: string; rows: { label: string; value: string }[] }[] = [];
+      for (const seg of segments) {
+        const colonIdx = seg.indexOf(':');
+        if (colonIdx === -1) continue;
+        const groupName = seg.substring(0, colonIdx).trim();
+        const body = seg.substring(colonIdx + 1).trim();
+        const rows = parseBody(body);
+        if (rows.length > 0) groups.push({ group: groupName, rows });
+      }
+      if (groups.length > 0) return groups;
     }
-    return rows.length > 0 ? rows : null;
+
+    // Flat format fallback
+    const rows = parseBody(raw.replace(/\.\s*$/, ''));
+    // Also try "Blood: X, Saliva: Y" style
+    if (rows.length === 0) {
+      const fallback: { label: string; value: string }[] = [];
+      for (const part of raw.split(/[,;]\s*/)) {
+        const m = part.match(/^([^:]+):\s*(.+)$/);
+        if (m) fallback.push({ label: cap(m[1].trim()), value: m[2].trim() });
+      }
+      return fallback.length > 0 ? [{ group: null, rows: fallback }] : null;
+    }
+    return [{ group: null, rows }];
   })();
 
   // Format a raw timing number (minutes or hours) into a readable string.
@@ -386,12 +426,17 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
             </div>
 
             {/* Detection */}
-            {detectionRows && detectionRows.length > 0 && (
+            {detectionGroups && detectionGroups.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <SectionTitle>Detection</SectionTitle>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                  {detectionRows.map(row => (
-                    <InfoRow key={row.label} label={row.label} value={row.value} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                  {detectionGroups.map((grp, gi) => (
+                    <div key={gi} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                      {grp.group && <SubLabel>{grp.group}</SubLabel>}
+                      {grp.rows.map(row => (
+                        <InfoRow key={row.label} label={row.label} value={row.value} />
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -455,11 +500,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
                     }
                     return (
                       <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                          <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400, fontSize: '16px', color: '#F1F1F1', opacity: 0.4, letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>
-                            {label}
-                          </p>
-                        </div>
+                        <SubLabel>{label}</SubLabel>
                         {data.map(r => (
                           <div key={r.route} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                             <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F1F1F1', letterSpacing: '0.32px', lineHeight: 1.3, margin: 0 }}>

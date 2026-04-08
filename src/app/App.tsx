@@ -29,6 +29,7 @@ import { SuccessScreen } from './components/figma/SuccessScreen';
 import { BottomNav } from './components/ui/BottomNav';
 import { SearchOverlay } from './components/ui/SearchOverlay';
 import { CheckerPage } from './components/figma/CheckerPage';
+import { ScanPage } from './components/figma/ScanPage';
 import { ChecklistOverlay } from './components/figma/ChecklistOverlay';
 import type { ChecklistItem } from './components/figma/ChecklistOverlay';
 import type { TripLog, JournalStep } from './types/journal';
@@ -66,7 +67,7 @@ export default function App() {
 
   const [liveNews, setLiveNews] = useState<NewsItem[]>(FALLBACK_NEWS);
   const [activeTab, setActiveTab] = useState<NavTab>('Home');
-  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker' | 'scan'>('home');
   // ── CHANGED: number → TripSitDrug object ──
   const [selectedDrug, setSelectedDrug] = useState<TripSitDrug | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -79,7 +80,7 @@ export default function App() {
   const [sessionKey, setSessionKey] = useState(0);
   const [editingLog, setEditingLog] = useState<TripLog | null>(null);
 
-  const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker'>('home');
+  const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker' | 'scan'>('home');
   const kitBackRef = useRef<'home' | 'shop'>('shop');
   const openSearch = () => {
     previousPageRef.current = currentPage;
@@ -126,6 +127,7 @@ export default function App() {
     if (tab === 'Library') setCurrentPage('library');
     else if (tab === 'Home') setCurrentPage('home');
     else if (tab === 'Checker') setCurrentPage('checker');
+    else if (tab === 'Scan') setCurrentPage('scan');
     else if (tab === 'Journal') { setCurrentPage('journal'); setJournalStep('main'); }
     else setCurrentPage('home');
   };
@@ -192,6 +194,8 @@ export default function App() {
           onSearchOpen={openSearch}
           onTabChange={handleTabChange}
         />
+      ) : currentPage === 'scan' ? (
+        <ScanPage onTabChange={handleTabChange} />
       ) : currentPage === 'checker' ? (
         <CheckerPage onTabChange={handleTabChange} onSearchOpen={openSearch} onProfileOpen={() => setProfileOpen(true)} />
       ) : currentPage === 'library' ? (

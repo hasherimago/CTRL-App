@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { BottomNav } from '../ui/BottomNav';
 import type { TripSitDrug } from './LibraryPage';
 
@@ -156,26 +155,6 @@ function DetectionRow({ label, value }: { label: string; value: string }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSaved = false, onSaveToggle }: DrugDetailPageProps) {
-  const [toastVisible, setToastVisible] = useState(false);
-
-  const handleShare = async () => {
-    const shareText = drug.properties.summary
-      ? `${drug.pretty_name} — ${drug.properties.summary}`
-      : drug.pretty_name;
-    const shareUrl = window.location.href;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: drug.pretty_name, text: shareText, url: shareUrl });
-      } catch {
-        // user cancelled — do nothing
-      }
-    } else {
-      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      setToastVisible(true);
-      setTimeout(() => setToastVisible(false), 2200);
-    }
-  };
 
 
 
@@ -367,7 +346,14 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
           {isSaved ? <IconStarFilled /> : <IconStar />}
           </button>
               <button
-                onClick={handleShare}
+                onClick={() => {
+                  const url = `${window.location.origin}${window.location.pathname}?drug=${drug.key}`;
+                  if (navigator.share) {
+                    navigator.share({ title: drug.pretty_name, url });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                  }
+                }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 aria-label="Share"
               >
@@ -622,26 +608,6 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
       {/* ── BOTTOM NAV ── */}
       <BottomNav activeTab="Library" onTabChange={onTabChange} />
-
-      {/* ── CLIPBOARD TOAST (fallback when Web Share API unavailable) ── */}
-      <div style={{
-        position: 'fixed',
-        bottom: '110px',
-        left: '50%',
-        transform: `translateX(-50%) translateY(${toastVisible ? '0' : '12px'})`,
-        opacity: toastVisible ? 1 : 0,
-        transition: 'opacity 0.2s ease, transform 0.2s ease',
-        pointerEvents: 'none',
-        background: '#2D2D2D',
-        borderRadius: '10px',
-        padding: '10px 18px',
-        whiteSpace: 'nowrap',
-        zIndex: 200,
-      }}>
-        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '14px', color: '#F1F1F1', letterSpacing: '0.28px' }}>
-          Copied to clipboard
-        </span>
-      </div>
     </div>
   );
 }

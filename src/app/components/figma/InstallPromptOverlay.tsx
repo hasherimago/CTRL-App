@@ -82,7 +82,7 @@ export function InstallPromptOverlay({ isOpen, onClose }: InstallPromptOverlayPr
         {/* Step list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
           {[
-            'In Safari, tap the Share icon at the bottom of the screen',
+            'In your browser, tap the Share icon at the bottom of the screen',
             "Scroll down and tap 'Add to Home Screen', then tap Add",
           ].map((text, i) => (
             <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>

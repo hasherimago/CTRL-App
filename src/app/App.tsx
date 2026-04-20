@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { id } from '@instantdb/react';
 import { db } from '../db';
 import svgPaths from '../imports/svg-srcobnd1q5';
@@ -82,6 +82,20 @@ export default function App() {
   const [editingLog, setEditingLog] = useState<TripLog | null>(null);
   const [showInstall, setShowInstall] = useState(false);
   const hasPromptedInstall = useRef(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const drugKey = params.get('drug');
+    if (drugKey) {
+      const drug = DRUGS.find(d => d.key === drugKey);
+      if (drug) {
+        setSelectedDrug(drug);
+        setCurrentPage('library');
+        setActiveTab('Library');
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker' | 'scan'>('home');
   const kitBackRef = useRef<'home' | 'shop'>('shop');

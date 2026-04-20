@@ -280,7 +280,25 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
   const doseNote = drug.dose_note ?? null;
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}>
+    <div
+      style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}
+      onTouchStart={(e) => {
+        const touch = e.touches[0];
+        if (touch.clientX > 30) return;
+        (e.currentTarget as HTMLDivElement).dataset.swipeStartX = String(touch.clientX);
+        (e.currentTarget as HTMLDivElement).dataset.swipeStartY = String(touch.clientY);
+      }}
+      onTouchEnd={(e) => {
+        const startX = Number((e.currentTarget as HTMLDivElement).dataset.swipeStartX);
+        const startY = Number((e.currentTarget as HTMLDivElement).dataset.swipeStartY);
+        if (!startX) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - startX;
+        const dy = Math.abs(touch.clientY - startY);
+        if (dx > 60 && dy < 80) onBack();
+        (e.currentTarget as HTMLDivElement).dataset.swipeStartX = '';
+      }}
+    >
 
       {/* ── FIXED TOP MENU ── */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>

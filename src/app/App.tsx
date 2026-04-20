@@ -21,6 +21,7 @@ import type { TripSitDrug } from './components/figma/LibraryPage';
 import { DrugDetailPage } from './components/figma/DrugDetailPage';
 import { ArticlePage } from './components/figma/ArticlePage';
 import { ProfilePage } from './components/figma/ProfilePage';
+import { InstallPromptOverlay } from './components/figma/InstallPromptOverlay';
 import { JournalMainPage } from './components/figma/JournalMainPage';
 import { JournalContextOverlay } from './components/figma/JournalContextOverlay';
 import { JournalMoodOverlay } from './components/figma/JournalMoodOverlay';
@@ -79,6 +80,8 @@ export default function App() {
   const [draftLog, setDraftLog] = useState<Partial<TripLog>>({});
   const [sessionKey, setSessionKey] = useState(0);
   const [editingLog, setEditingLog] = useState<TripLog | null>(null);
+  const [showInstall, setShowInstall] = useState(false);
+  const hasPromptedInstall = useRef(false);
 
   const previousPageRef = useRef<'home' | 'shop' | 'shopKit' | 'shopKitPre' | 'shopKitAfter' | 'shopKitTwo' | 'library' | 'article' | 'fentanyl' | 'journal' | 'checker' | 'scan'>('home');
   const kitBackRef = useRef<'home' | 'shop'>('shop');
@@ -279,6 +282,10 @@ export default function App() {
                 db.transact(db.tx.tripLogs[id()].update({ ...log, createdAt: Date.now() }).link({ owner: user.id }));
               }
               setDraftLog({}); setJournalStep('done');
+              if (!hasPromptedInstall.current) {
+                hasPromptedInstall.current = true;
+                setTimeout(() => setShowInstall(true), 1800);
+              }
             }}
             onBack={() => setJournalStep('mood')}
             onClose={() => setJournalStep('main')}
@@ -639,6 +646,12 @@ export default function App() {
           setLocalTripLogs([]);
           setLocalSavedDrugs([]);
         }}
+      />
+
+      {/* ── INSTALL PROMPT OVERLAY ── */}
+      <InstallPromptOverlay
+        isOpen={showInstall}
+        onClose={() => setShowInstall(false)}
       />
     </div>
   );

@@ -320,7 +320,7 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
         left={<BackArrow onBack={onBack} />}
         right={<CloseButton onClose={onClose} />}
       />
-      <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '70px 16px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Hero */}
           <div style={{ backgroundImage: `url(${proBg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '16px', padding: '10px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -529,7 +529,7 @@ function PrivacyPolicyPage({ onBack, onClose }: { onBack: () => void; onClose: (
         left={<BackArrow onBack={onBack} />}
         right={<CloseButton onClose={onClose} />}
       />
-      <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '70px 16px 32px', display: 'flex', flexDirection: 'column', gap: '0px' }}>
           <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '13px', color: '#666', lineHeight: 1.5, margin: '0 0 24px 0' }}>
             Last updated: 1 March 2026

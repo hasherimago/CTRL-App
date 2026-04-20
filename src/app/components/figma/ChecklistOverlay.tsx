@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import svgPaths from '../../../imports/svg-0uazz9hzf3';
 
 export interface ChecklistItem {
@@ -24,24 +24,21 @@ export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onD
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      if (focusAdd) {
-        // Wait for the 320ms slide-up animation before activating the input,
-        // otherwise mobile browsers won't show the keyboard (element off-screen).
-        const t = setTimeout(() => setIsAdding(true), 340);
-        return () => clearTimeout(t);
-      }
-    } else {
+    if (isOpen && focusAdd) {
+      setIsAdding(true);
+    }
+    if (!isOpen) {
       setIsAdding(false);
       setDraftText('');
     }
   }, [isOpen, focusAdd]);
 
-  useEffect(() => {
-    if (isAdding) {
-      inputRef.current?.focus();
-    }
-  }, [isAdding]);
+  // Callback ref fires synchronously when the input mounts — keeps focus
+  // within iOS's ~300ms user-gesture window so the keyboard appears.
+  const inputCallbackRef = useCallback((node: HTMLInputElement | null) => {
+    (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = node;
+    if (node) node.focus();
+  }, []);
 
   const commitDraft = () => {
     const trimmed = draftText.trim();
@@ -179,7 +176,7 @@ export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onD
                 >
                   <div style={{ width: '24px', height: '24px', flexShrink: 0, borderRadius: '4px', border: '2px solid #555' }} />
                   <input
-                    ref={inputRef}
+                    ref={inputCallbackRef}
                     autoFocus
                     value={draftText}
                     onChange={e => setDraftText(e.target.value)}

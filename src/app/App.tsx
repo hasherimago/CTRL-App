@@ -81,7 +81,6 @@ export default function App() {
   const [sessionKey, setSessionKey] = useState(0);
   const [editingLog, setEditingLog] = useState<TripLog | null>(null);
   const [showInstall, setShowInstall] = useState(false);
-  const hasPromptedInstall = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -296,8 +295,8 @@ export default function App() {
                 db.transact(db.tx.tripLogs[id()].update({ ...log, createdAt: Date.now() }).link({ owner: user.id }));
               }
               setDraftLog({}); setJournalStep('done');
-              if (!hasPromptedInstall.current) {
-                hasPromptedInstall.current = true;
+              if (!localStorage.getItem('ctrl_install_prompted')) {
+                localStorage.setItem('ctrl_install_prompted', '1');
                 setTimeout(() => setShowInstall(true), 1800);
               }
             }}

@@ -14,27 +14,54 @@ const SUBSTANCES = ['MDMA', 'GHB', 'LSD', 'Cocaine', '2C-B', 'Alcohol', 'Ketamin
 const LOCATIONS = ['Club', 'Home', 'Nature', 'Solo', 'Date', 'Sex', 'Festival', 'Office'];
 const REASONS = ['Curiosity', 'Fun', 'Connection', 'Healing', 'Escape', 'Creativity'];
 
-function TagButton({ label, selected, onToggle }: { label: string; selected: boolean; onToggle: () => void }) {
+function TagButton({ label, selected, onToggle, onDelete }: { label: string; selected: boolean; onToggle: () => void; onDelete?: () => void }) {
   return (
-    <button
-      onClick={onToggle}
-      style={{
-        border: '1px solid #F1F1F1',
-        background: selected ? '#F1F1F1' : 'transparent',
-        color: selected ? '#0D0D0D' : '#F1F1F1',
-        borderRadius: '18px',
-        padding: '8px 12px',
-        fontFamily: 'Roboto, sans-serif',
-        fontSize: '16px',
-        lineHeight: 1.3,
-        letterSpacing: '0.32px',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-        transition: 'background 0.15s, color 0.15s',
-      }}
-    >
-      {label}
-    </button>
+    <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+      <button
+        onClick={onToggle}
+        style={{
+          border: '1px solid #F1F1F1',
+          background: selected ? '#F1F1F1' : 'transparent',
+          color: selected ? '#0D0D0D' : '#F1F1F1',
+          borderRadius: '18px',
+          padding: onDelete ? '8px 28px 8px 12px' : '8px 12px',
+          fontFamily: 'Roboto, sans-serif',
+          fontSize: '16px',
+          lineHeight: 1.3,
+          letterSpacing: '0.32px',
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+          transition: 'background 0.15s, color 0.15s',
+        }}
+      >
+        {label}
+      </button>
+      {onDelete && (
+        <button
+          onClick={e => { e.stopPropagation(); onDelete(); }}
+          style={{
+            position: 'absolute',
+            right: '8px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '2px',
+            color: selected ? '#0D0D0D' : 'rgba(241,241,241,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: 1,
+          }}
+          aria-label={`Remove ${label}`}
+        >
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+            <path d="M1 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -70,6 +97,8 @@ function TagSection({
   onToggle,
   showPlus = true,
   onPlusClick,
+  customTagIds,
+  onDeleteCustomTag,
 }: {
   title: string;
   tags: string[];
@@ -77,14 +106,25 @@ function TagSection({
   onToggle: (tag: string) => void;
   showPlus?: boolean;
   onPlusClick?: () => void;
+  customTagIds?: Map<string, string>;
+  onDeleteCustomTag?: (id: string, value: string) => void;
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>{title}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-        {tags.map(tag => (
-          <TagButton key={tag} label={tag} selected={selected.includes(tag)} onToggle={() => onToggle(tag)} />
-        ))}
+        {tags.map(tag => {
+          const customId = customTagIds?.get(tag);
+          return (
+            <TagButton
+              key={tag}
+              label={tag}
+              selected={selected.includes(tag)}
+              onToggle={() => onToggle(tag)}
+              onDelete={customId && onDeleteCustomTag ? () => onDeleteCustomTag(customId, tag) : undefined}
+            />
+          );
+        })}
         {showPlus && <PlusButton onClick={onPlusClick ?? (() => {})} />}
       </div>
     </div>
@@ -101,12 +141,28 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
   const { data: ctData } = db.useQuery(
     user
       ? { customTags: { $: { where: { 'owner.id': user.id } } } }
-      : { customTags: {} }
+      : null
   );
-  const allCustomTags = (ctData?.customTags ?? []) as { value: string; section: string }[];
-  const extraSubstances = allCustomTags.filter(t => t.section === 'substances').map(t => t.value);
-  const extraLocations  = allCustomTags.filter(t => t.section === 'locations').map(t => t.value);
-  const extraReasons    = allCustomTags.filter(t => t.section === 'reasons').map(t => t.value);
+  const allCustomTags = (ctData?.customTags ?? []) as { id: string; value: string; section: string }[];
+
+  // Guest-only local custom tags (not persisted, lost on close)
+  const [localCustomTags, setLocalCustomTags] = useState<{ value: string; section: string }[]>([]);
+
+  const sourceTags = user ? allCustomTags : localCustomTags.map(t => ({ ...t, id: '' }));
+  const extraSubstances = sourceTags.filter(t => t.section === 'substances');
+  const extraLocations  = sourceTags.filter(t => t.section === 'locations');
+  const extraReasons    = sourceTags.filter(t => t.section === 'reasons');
+
+  const substanceCustomIds = new Map(extraSubstances.filter(t => t.id).map(t => [t.value, t.id]));
+  const locationCustomIds  = new Map(extraLocations.filter(t => t.id).map(t => [t.value, t.id]));
+  const reasonCustomIds    = new Map(extraReasons.filter(t => t.id).map(t => [t.value, t.id]));
+
+  const handleDeleteCustomTag = (tagId: string, value: string, section: 'substances' | 'locations' | 'reasons') => {
+    db.transact(db.tx.customTags[tagId].delete());
+    if (section === 'substances') setSubstances(prev => prev.filter(s => s !== value));
+    else if (section === 'locations') setLocations(prev => prev.filter(l => l !== value));
+    else if (section === 'reasons') setReasons(prev => prev.filter(r => r !== value));
+  };
 
   // Drag-down-to-close for the custom tag panel
   const panelRef = useRef<HTMLDivElement>(null);
@@ -158,11 +214,11 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
     if (!value || !customTagOverlay.section) return;
 
     const section = customTagOverlay.section;
-    const tagId = id();
     if (user) {
+      const tagId = id();
       db.transact(db.tx.customTags[tagId].update({ value, section }).link({ owner: user.id }));
     } else {
-      db.transact(db.tx.customTags[tagId].update({ value, section }));
+      setLocalCustomTags(prev => [...prev, { value, section }]);
     }
 
     if (section === 'substances') setSubstances(prev => [...prev, value]);
@@ -209,24 +265,30 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
         <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
           <TagSection
             title="What substance(s) did you use?"
-            tags={[...SUBSTANCES, ...extraSubstances]}
+            tags={[...SUBSTANCES, ...extraSubstances.map(t => t.value)]}
             selected={substances}
             onToggle={toggle(setSubstances)}
             onPlusClick={() => { setCustomTagInput(''); setCustomTagOverlay({ open: true, section: 'substances' }); }}
+            customTagIds={substanceCustomIds}
+            onDeleteCustomTag={(tagId, value) => handleDeleteCustomTag(tagId, value, 'substances')}
           />
           <TagSection
             title="Where were you?"
-            tags={[...LOCATIONS, ...extraLocations]}
+            tags={[...LOCATIONS, ...extraLocations.map(t => t.value)]}
             selected={locations}
             onToggle={toggle(setLocations)}
             onPlusClick={() => { setCustomTagInput(''); setCustomTagOverlay({ open: true, section: 'locations' }); }}
+            customTagIds={locationCustomIds}
+            onDeleteCustomTag={(tagId, value) => handleDeleteCustomTag(tagId, value, 'locations')}
           />
           <TagSection
             title="Why did you decide to take it?"
-            tags={[...REASONS, ...extraReasons]}
+            tags={[...REASONS, ...extraReasons.map(t => t.value)]}
             selected={reasons}
             onToggle={toggle(setReasons)}
             onPlusClick={() => { setCustomTagInput(''); setCustomTagOverlay({ open: true, section: 'reasons' }); }}
+            customTagIds={reasonCustomIds}
+            onDeleteCustomTag={(tagId, value) => handleDeleteCustomTag(tagId, value, 'reasons')}
           />
         </div>
       </div>

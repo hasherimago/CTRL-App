@@ -30,6 +30,10 @@ const _schema = i.schema({
     savedDrugs: i.entity({
       drugKey: i.string(),
     }),
+    customTags: i.entity({
+      value: i.string(),
+      section: i.string(),
+    }),
   },
   links: {
     tripLogOwner: {
@@ -43,6 +47,10 @@ const _schema = i.schema({
     savedDrugOwner: {
       forward: { on: 'savedDrugs', has: 'one', label: 'owner' },
       reverse: { on: '$users', has: 'many', label: 'userSavedDrugs' },
+    },
+    customTagOwner: {
+      forward: { on: 'customTags', has: 'one', label: 'owner' },
+      reverse: { on: '$users', has: 'many', label: 'userCustomTags' },
     },
   },
 });

@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
+import { id } from '@instantdb/react';
 import svgPaths from '../../../imports/svg-0uazz9hzf3';
+import { db } from '../../../db';
 
 interface JournalContextOverlayProps {
   isOpen: boolean;
@@ -94,10 +96,51 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
   const [locations, setLocations] = useState<string[]>([]);
   const [reasons, setReasons] = useState<string[]>([]);
 
-  // Extra custom tags added by the user per section
-  const [extraSubstances, setExtraSubstances] = useState<string[]>([]);
-  const [extraLocations, setExtraLocations] = useState<string[]>([]);
-  const [extraReasons, setExtraReasons] = useState<string[]>([]);
+  // Custom tags persisted in DB
+  const { user } = db.useAuth();
+  const { data: ctData } = db.useQuery(
+    user
+      ? { customTags: { $: { where: { 'owner.id': user.id } } } }
+      : { customTags: {} }
+  );
+  const allCustomTags = (ctData?.customTags ?? []) as { value: string; section: string }[];
+  const extraSubstances = allCustomTags.filter(t => t.section === 'substances').map(t => t.value);
+  const extraLocations  = allCustomTags.filter(t => t.section === 'locations').map(t => t.value);
+  const extraReasons    = allCustomTags.filter(t => t.section === 'reasons').map(t => t.value);
+
+  // Drag-down-to-close for the custom tag panel
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelDragStartY = useRef(0);
+  const panelDragging = useRef(false);
+
+  const onPanelTouchStart = (e: React.TouchEvent) => {
+    panelDragStartY.current = e.touches[0].clientY;
+    panelDragging.current = true;
+    if (panelRef.current) panelRef.current.style.transition = 'none';
+  };
+
+  const onPanelTouchMove = (e: React.TouchEvent) => {
+    if (!panelDragging.current) return;
+    const dy = e.touches[0].clientY - panelDragStartY.current;
+    if (dy > 0 && panelRef.current) panelRef.current.style.transform = `translateY(${dy}px)`;
+  };
+
+  const onPanelTouchEnd = () => {
+    if (!panelDragging.current) return;
+    panelDragging.current = false;
+    const el = panelRef.current;
+    if (!el) return;
+    const rawY = el.style.transform.match(/translateY\((\d+(?:\.\d+)?)px\)/)?.[1];
+    const currentY = rawY ? parseFloat(rawY) : 0;
+    if (currentY > 80) {
+      el.style.transition = 'transform 0.25s ease';
+      el.style.transform = 'translateY(110%)';
+      setTimeout(() => setCustomTagOverlay({ open: false, section: null }), 250);
+    } else {
+      el.style.transition = 'transform 0.25s ease';
+      el.style.transform = 'translateY(0)';
+    }
+  };
 
   const [customTagOverlay, setCustomTagOverlay] = useState<{
     open: boolean;
@@ -114,16 +157,17 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
     const value = customTagInput.trim();
     if (!value || !customTagOverlay.section) return;
 
-    if (customTagOverlay.section === 'substances') {
-      setExtraSubstances(prev => [...prev, value]);
-      setSubstances(prev => [...prev, value]);
-    } else if (customTagOverlay.section === 'locations') {
-      setExtraLocations(prev => [...prev, value]);
-      setLocations(prev => [...prev, value]);
-    } else if (customTagOverlay.section === 'reasons') {
-      setExtraReasons(prev => [...prev, value]);
-      setReasons(prev => [...prev, value]);
+    const section = customTagOverlay.section;
+    const tagId = id();
+    if (user) {
+      db.transact(db.tx.customTags[tagId].update({ value, section }).link({ owner: user.id }));
+    } else {
+      db.transact(db.tx.customTags[tagId].update({ value, section }));
     }
+
+    if (section === 'substances') setSubstances(prev => [...prev, value]);
+    else if (section === 'locations') setLocations(prev => [...prev, value]);
+    else if (section === 'reasons') setReasons(prev => [...prev, value]);
 
     setCustomTagInput('');
     setCustomTagOverlay({ open: false, section: null });
@@ -235,19 +279,24 @@ export function JournalContextOverlay({ isOpen, onNext, onBack, onClose }: Journ
           />
 
           {/* Mini overlay panel */}
-          <div style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 91,
-            background: '#171717',
-            borderRadius: '20px 20px 0 0',
-            padding: '24px 16px 40px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-          }}>
+          <div
+            ref={panelRef}
+            onTouchStart={onPanelTouchStart}
+            onTouchMove={onPanelTouchMove}
+            onTouchEnd={onPanelTouchEnd}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 91,
+              background: '#171717',
+              borderRadius: '20px 20px 0 0',
+              padding: '24px 16px 40px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}>
             {/* Handle bar */}
             <div style={{
               width: '40px',

@@ -16,6 +16,7 @@ import { PrePartyKitPage } from './components/figma/PrePartyKitPage';
 import { AfterPartyKitPage } from './components/figma/AfterPartyKitPage';
 import { TwoInOneKitPage } from './components/figma/TwoInOneKitPage';
 // ── CHANGED: also import adaptDrugs + TripSitDrug type ──
+import { OnboardingScreen, hasSeenOnboarding } from './components/figma/OnboardingScreen';
 import { LibraryPage, adaptDrugs } from './components/figma/LibraryPage';
 import type { TripSitDrug } from './components/figma/LibraryPage';
 import { DrugDetailPage } from './components/figma/DrugDetailPage';
@@ -46,6 +47,7 @@ const DRUGS: TripSitDrug[] = adaptDrugs(drugsRaw as Record<string, unknown>);
 
 export default function App() {
   const { user } = db.useAuth();
+  const [onboardingDone, setOnboardingDone] = useState(hasSeenOnboarding);
 
   // Local state for guest mode (user === null) — zero InstantDB persistence
   const [localChecklistItems, setLocalChecklistItems] = useState<ChecklistItem[]>([]);
@@ -171,6 +173,9 @@ export default function App() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      {!onboardingDone && (
+        <OnboardingScreen onDone={() => setOnboardingDone(true)} />
+      )}
 
       {/* ── BASE PAGE LAYER ── */}
       {currentPage === 'shop' ? (

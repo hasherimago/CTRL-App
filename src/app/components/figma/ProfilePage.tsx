@@ -441,7 +441,7 @@ const FAQS: { q: string; a: string; link?: { label: string; url: string } }[] = 
   { q: 'How accurate is the interaction data?', a: 'Interaction data is sourced from TripSit, a harm reduction organisation that maintains one of the most referenced drug combination databases available. The data reflects current research but is not exhaustive — always cross-reference with additional sources for less common substances.' },
   { q: 'What does harm reduction mean?', a: 'Harm reduction is a set of practical strategies aimed at reducing the negative consequences of drug use. It meets people where they are without judgement — focusing on safety and informed choices rather than abstinence.' },
   { q: 'What do I do in an emergency?', a: 'Call emergency services immediately (112 in Europe, 911 in the US). Stay with the person and keep them on their side if unconscious. If opioids may be involved, administer naloxone if available. Don\'t leave them alone. You can also contact the TripSit helpline for real-time harm reduction support.', link: { label: 'tripsit.me/webchat', url: 'https://tripsit.me/webchat' } },
-  { q: 'How do I report an inaccuracy?', a: 'Email us at hasherimago@gmail.com. We review reports within 24 hours.' },
+  { q: 'How do I report an inaccuracy?', a: 'Email us at ctrl.app.feedback@gmail.com. We review reports within 24 hours.' },
 ];
 
 function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
@@ -454,7 +454,7 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
         left={<BackArrow onBack={onBack} />}
         right={<CloseButton onClose={onClose} />}
       />
-      <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '70px 8px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Contact cards */}
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -466,7 +466,7 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
                 </svg>
               </div>
               <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '14px', color: '#F1F1F1' }}>Email Us</span>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>hasherimago@gmail.com</span>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>ctrl.app.feedback@gmail.com</span>
             </div>
             <div style={{ flex: 1, background: '#171717', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ width: '36px', height: '36px', background: 'rgba(170,255,0,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -521,14 +521,14 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
 // ─── Sub Page 5 — Privacy Policy ─────────────────────────────────────────────
 
 const PRIVACY_SECTIONS = [
-  { title: '1. Information We Collect', body: 'We collect only the information you voluntarily provide, including your name and email when you create an account. App usage data (anonymised) may be collected to improve the service. We do not collect any information about what substances you check or log.' },
-  { title: '2. Journal & Usage Data', body: 'All journal entries are stored locally on your device by default and are never transmitted to our servers. If you enable cloud backup, entries are encrypted end-to-end before storage.' },
-  { title: '3. How We Use Your Data', body: 'Account data is used solely to manage your subscription and provide customer support. We never sell, rent, or share your personal data with third parties for marketing purposes.' },
-  { title: '4. Cookies & Analytics', body: 'We use privacy-respecting analytics (no third-party trackers) to understand aggregate usage patterns. You can opt out at any time in Settings → Privacy.' },
-  { title: '5. Data Security', body: 'All data in transit is encrypted using TLS 1.3. Passwords are hashed with bcrypt. We follow industry-standard security practices and conduct regular audits.' },
-  { title: '6. Your Rights', body: 'Under GDPR and applicable privacy laws, you have the right to access, correct, or delete your personal data at any time. To exercise these rights, contact us at privacy@ctrl-app.io.' },
-  { title: '7. Changes to This Policy', body: 'We may update this Privacy Policy from time to time. We will notify you of significant changes via in-app notification or email. Continued use of the app after changes constitutes acceptance.' },
-  { title: '8. Contact', body: 'For any privacy-related questions, contact our Data Protection Officer at privacy@ctrl-app.io or write to CTRL, 42 Shoreditch High Street, London E1 6JE, UK.' },
+  { title: '1. Information We Collect', body: 'We collect only the information you voluntarily provide when creating an account: your email address and optionally a display name. We do not collect any information about what substances you search, check, or log.' },
+  { title: '2. Journal & Usage Data', body: 'Journal entries created without an account are stored locally on your device only and never leave it. If you sign in, your journal entries are stored in our cloud database (InstantDB) so you can access them across sessions. You can delete your data at any time from your profile.' },
+  { title: '3. How We Use Your Data', body: 'Your email is used solely to manage your account and provide support if you contact us. We never sell, rent, or share your personal data with third parties.' },
+  { title: '4. Analytics & Tracking', body: 'We do not use any analytics tools or third-party trackers. We do not track your behaviour inside the app.' },
+  { title: '5. Data Security', body: 'All data in transit is encrypted using TLS. Authentication is handled by InstantDB. We do not store or handle your password directly.' },
+  { title: '6. Your Rights', body: 'Under GDPR and applicable privacy laws, you have the right to access, correct, or delete your personal data at any time. To exercise these rights, contact us at ctrl.app.feedback@gmail.com.' },
+  { title: '7. Changes to This Policy', body: 'We may update this Privacy Policy from time to time. Continued use of the app after changes constitutes acceptance. Significant changes will be communicated via in-app notice or email.' },
+  { title: '8. Contact', body: 'For any privacy-related questions, reach out at ctrl.app.feedback@gmail.com.' },
 ];
 
 function PrivacyPolicyPage({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
@@ -745,7 +745,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
             <Divider />
             <SettingsRow label="Privacy Policy" onClick={() => openSub('privacyPolicy')} right={<ChevronRight />} />
             <Divider />
-            <SettingsRow label="Rate App" right={<ChevronRight />} />
+            <SettingsRow label="Share Feedback" onClick={() => window.open('https://tally.so/r/zxQ9Q8', '_blank')} right={<ChevronRight />} />
           </div>
 
           {/* Logout card — only shown when signed in, double-tap to confirm */}

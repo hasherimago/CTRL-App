@@ -81,7 +81,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
             margin: 0,
             textAlign: 'center',
           }}>
-            CTRL is a harm reduction app for people who actually use substances — no lectures, no judgment. The drug library, combo checker, and journal are all yours to explore. The Shop and Scan are concepts for now. This is a prototype we're genuinely excited about. Dig in.
+            CTRL is a harm reduction app for people who actually use substances — no lectures, no judgment. The drug library, combo checker, and journal are all yours to explore. The Shop and Drug Scan are concepts for now. This is a prototype we're genuinely excited about. <p> Dig in.</p>
           </p>
         </div>
 

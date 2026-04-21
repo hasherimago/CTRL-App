@@ -11,10 +11,6 @@ import imgMerch3 from '../../../assets/merch3.png';
 import { BottomNav } from '../ui/BottomNav';
 import { LAYOUT } from '../../constants/layout';
 
-// Figma remote assets — price badge starbursts (valid ~7 days from generation)
-const imgStar19 = 'https://www.figma.com/api/mcp/asset/8a52ad7d-1282-4db8-9163-54bfe9987ade';
-const imgStar35 = 'https://www.figma.com/api/mcp/asset/ff232a4e-7f06-47de-900f-40c9c0795d34';
-
 type NavTab = 'Home' | 'Checker' | 'Scan' | 'Library' | 'Journal';
 
 interface ShopPageProps {
@@ -259,13 +255,24 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
                   alt="Black t-shirt"
                   className="w-full h-full object-cover pointer-events-none"
                 />
-                <div className="absolute" style={{ top: '10px', right: '-16px', width: '74px', height: '74px' }}>
-                  <img src={imgStar19} alt="" className="w-full h-full" />
+                <div
+                  className="absolute flex items-center justify-center"
+                  style={{
+                    top: '14px',
+                    right: '-10px',
+                    paddingLeft: '12px',
+                    paddingRight: '12px',
+                    height: '32px',
+                    background: '#1855F1',
+                    borderRadius: '8px',
+                    transform: 'rotate(-10deg)',
+                  }}
+                >
                   <span
-                    className="absolute inset-0 flex items-center justify-center text-[24px] font-bold text-black"
-                    style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '-1px' }}
+                    className="text-white text-[16px] font-bold"
+                    style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '0.5px' }}
                   >
-                    €19
+                    sale
                   </span>
                 </div>
               </div>
@@ -287,9 +294,14 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
                   className="w-full h-full object-cover pointer-events-none"
                 />
                 <div className="absolute" style={{ bottom: '10px', left: '-16px', width: '74px', height: '74px' }}>
-                  <img src={imgStar35} alt="" className="w-full h-full" />
+                  <svg viewBox="0 0 74 74" className="absolute inset-0 w-full h-full" aria-hidden="true">
+                    <polygon
+                      points="37,2 42,18 57,10 52,26 70,27 58,38 70,50 52,50 57,66 42,57 37,72 32,57 17,66 22,50 4,50 16,38 4,27 22,26 17,10 32,18"
+                      fill="#DBFF00"
+                    />
+                  </svg>
                   <span
-                    className="absolute inset-0 flex items-center justify-center text-[24px] font-bold text-black"
+                    className="absolute inset-0 flex items-center justify-center text-[20px] font-bold text-black"
                     style={{ fontFamily: 'Roboto, sans-serif', letterSpacing: '-1px' }}
                   >
                     €35

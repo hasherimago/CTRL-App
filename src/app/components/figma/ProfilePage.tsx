@@ -388,7 +388,7 @@ const LANGUAGES = [
   { code: 'it', label: 'Italian', native: 'Italiano' },
   { code: 'pt', label: 'Portuguese', native: 'Português' },
   { code: 'nl', label: 'Dutch', native: 'Nederlands' },
-  { code: 'pl', label: 'Polish', native: 'Polski' },
+  { code: 'pl', label: 'Ukrainian', native: 'Українська' },
 ];
 
 function LanguagePage({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
@@ -438,7 +438,7 @@ const FAQS = [
   { q: 'What does harm-reduction mean?', a: 'Harm reduction is a set of practical strategies aimed at reducing negative consequences associated with drug use. It meets people where they are without judgement.' },
   { q: 'How do I cancel my subscription?', a: 'Go to Profile → Kit Subscription → Manage Plan. You can cancel anytime before the next billing cycle with no additional charges.' },
   { q: 'Is my data private?', a: 'All journal entries are stored locally on your device by default. We never sell your data. See our Privacy Policy for full details.' },
-  { q: 'How do I report an inaccuracy?', a: 'Tap the share/flag icon on any drug page, or email us at safety@ctrl-app.io. We review reports within 24 hours.' },
+  { q: 'How do I report an inaccuracy?', a: 'Email us at hasherimago@gmail.com. We review reports within 24 hours.' },
 ];
 
 function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
@@ -463,7 +463,7 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
                 </svg>
               </div>
               <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '14px', color: '#F1F1F1' }}>Email Us</span>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>safety@ctrl-app.io</span>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>hasherimago@gmail.com</span>
             </div>
             <div style={{ flex: 1, background: '#171717', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ width: '36px', height: '36px', background: 'rgba(170,255,0,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -472,7 +472,7 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
                 </svg>
               </div>
               <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '14px', color: '#F1F1F1' }}>Live Chat</span>
-              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>Mon–Fri, 9am–6pm</span>
+              <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: '#888', lineHeight: 1.4 }}>Unavailable</span>
             </div>
           </div>
 

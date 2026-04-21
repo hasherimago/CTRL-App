@@ -432,12 +432,15 @@ function LanguagePage({ onBack, onClose }: { onBack: () => void; onClose: () => 
 
 // ─── Sub Page 4 — Help & Support ─────────────────────────────────────────────
 
-const FAQS = [
-  { q: 'How do I use the drug interaction checker?', a: 'Go to the Checker tab, select two or more substances, and tap "Check Interaction". Results are colour-coded — green means low risk, amber means caution, red means dangerous.' },
-  { q: 'Are testing kits accurate?', a: 'Our kits use reagent and fentanyl strip technology. They detect most common adulterants but no test is 100% reliable. Always test in multiple spots and treat any uncertain result as potentially dangerous.' },
-  { q: 'What does harm-reduction mean?', a: 'Harm reduction is a set of practical strategies aimed at reducing negative consequences associated with drug use. It meets people where they are without judgement.' },
-  { q: 'How do I cancel my subscription?', a: 'Go to Profile → Kit Subscription → Manage Plan. You can cancel anytime before the next billing cycle with no additional charges.' },
-  { q: 'Is my data private?', a: 'All journal entries are stored locally on your device by default. We never sell your data. See our Privacy Policy for full details.' },
+const FAQS: { q: string; a: string; link?: { label: string; url: string } }[] = [
+  { q: 'Is the app free?', a: 'Yes, CTRL is free to use. The drug library, combo checker, and journal are all available at no cost. Physical testing kits may be available in the Shop in the future.' },
+  { q: 'How do I use the drug interaction checker?', a: 'Open the Combo Checker tab from the bottom navigation. Tap two substances to select them — your selections appear as removable tags above the grid. The result panel updates instantly: green means low risk, yellow means caution, red means dangerous. Each result includes a plain-language explanation of the interaction. To remove a substance, tap the × on its tag. Note: no data shown doesn\'t mean safe — research each substance individually.' },
+  { q: 'Can I use the app without creating an account?', a: 'Yes. Everything works without an account. Create an account if you want your journal entries, checklist, and saved substances to be stored and accessible across sessions and devices.' },
+  { q: 'How do I save a substance to my library?', a: 'Open any substance in the Library and tap the star icon in the top right. Saved substances appear under the Saved filter on the Library page.' },
+  { q: 'What is a trip log and who can see it?', a: 'A trip log is a private record of an experience — what you took, where you were, how you felt, and what you learned. Logs are only visible to you. Create an account to keep them saved across sessions and devices.' },
+  { q: 'How accurate is the interaction data?', a: 'Interaction data is sourced from TripSit, a harm reduction organisation that maintains one of the most referenced drug combination databases available. The data reflects current research but is not exhaustive — always cross-reference with additional sources for less common substances.' },
+  { q: 'What does harm reduction mean?', a: 'Harm reduction is a set of practical strategies aimed at reducing the negative consequences of drug use. It meets people where they are without judgement — focusing on safety and informed choices rather than abstinence.' },
+  { q: 'What do I do in an emergency?', a: 'Call emergency services immediately (112 in Europe, 911 in the US). Stay with the person and keep them on their side if unconscious. If opioids may be involved, administer naloxone if available. Don\'t leave them alone. You can also contact the TripSit helpline for real-time harm reduction support.', link: { label: 'tripsit.me/webchat', url: 'https://tripsit.me/webchat' } },
   { q: 'How do I report an inaccuracy?', a: 'Email us at hasherimago@gmail.com. We review reports within 24 hours.' },
 ];
 
@@ -495,7 +498,14 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
                 </button>
                 {openIndex === i && (
                   <div style={{ padding: '0 16px 16px' }}>
-                    <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '14px', color: '#888', lineHeight: 1.6, margin: 0, letterSpacing: '0.28px' }}>{faq.a}</p>
+                    <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '14px', color: '#888', lineHeight: 1.6, margin: 0, letterSpacing: '0.28px' }}>
+                      {faq.a}{' '}
+                      {faq.link && (
+                        <a href={faq.link.url} target="_blank" rel="noopener noreferrer" style={{ color: '#8C5CFE', textDecoration: 'underline' }}>
+                          {faq.link.label}
+                        </a>
+                      )}
+                    </p>
                   </div>
                 )}
                 {i < FAQS.length - 1 && <Divider />}

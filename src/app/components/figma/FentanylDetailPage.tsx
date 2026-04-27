@@ -74,7 +74,7 @@ export function FentanylDetailPage({ onBack, onTabChange, onSearchOpen }: Fentan
       }}
     >
       {/* ── FIXED HEADER — 3-layer blur ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
         {/* Layer 1: blur with gradient mask */}
         <div
           style={{

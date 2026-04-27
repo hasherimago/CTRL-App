@@ -541,7 +541,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
     <div style={{ position: 'relative', width: '100%', height: '100%', background: '#0D0D0D', overflow: 'hidden' }}>
 
       {/* ── HEADER ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50 }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50, paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
         {/* blur layer */}
         <div style={{
           position: 'absolute', inset: 0,

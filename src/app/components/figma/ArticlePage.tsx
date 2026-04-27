@@ -126,7 +126,7 @@ export function ArticlePage({ news, drugs, onDrug, onBack, onSearchOpen, onTabCh
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
       {/* ── FIXED HEADER ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
         <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>

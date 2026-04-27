@@ -301,7 +301,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
     >
 
       {/* ── FIXED TOP MENU ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
         {/* Layer 1: blur with gradient mask — fades out downward */}
         <div style={{
           position: 'absolute', inset: 0,

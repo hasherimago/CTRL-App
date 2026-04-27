@@ -344,7 +344,7 @@ export default function App() {
         <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
           {/* ── FIXED HEADER ── */}
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50 }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50, paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
             <div style={{
               position: 'absolute', inset: 0,
               backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',

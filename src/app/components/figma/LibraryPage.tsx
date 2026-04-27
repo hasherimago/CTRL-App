@@ -226,7 +226,7 @@ export function LibraryPage({
     <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}>
 
       {/* ── FIXED HEADER ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
         <div style={{
           position: 'absolute', inset: 0,
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',

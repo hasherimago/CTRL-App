@@ -56,7 +56,7 @@ function CloseButton({ onClose }: { onClose: () => void }) {
 // NOTE: Uses position:absolute (not fixed) — ProfilePage has transform which breaks fixed positioning
 function PageHeader({ title, left, right }: { title: string; left: React.ReactNode; right: React.ReactNode }) {
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '56px', zIndex: 20 }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '56px', zIndex: 20, paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
       {/* blur layer */}
       <div style={{
         position: 'absolute', inset: 0,

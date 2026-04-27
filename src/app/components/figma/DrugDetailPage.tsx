@@ -301,7 +301,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
     >
 
       {/* ── FIXED TOP MENU ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: 'calc(56px + env(safe-area-inset-top))' }}>
         {/* Layer 1: blur with gradient mask — fades out downward */}
         <div style={{
           position: 'absolute', inset: 0,
@@ -315,7 +315,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
           background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)',
           pointerEvents: 'none',
         }} />
-        <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
+        <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
           <button
             onClick={onBack}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -342,7 +342,7 @@ export function DrugDetailPage({ drug, onBack, onTabChange, onSearchOpen, isSave
 
         {/* Main card */}
         <div style={{
-          margin: '56px 8px 0',
+          margin: 'calc(56px + env(safe-area-inset-top)) 8px 0',
           background: '#171717',
           borderRadius: '20px',
           padding: '16px',

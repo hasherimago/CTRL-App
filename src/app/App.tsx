@@ -344,7 +344,7 @@ export default function App() {
         <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
           {/* ── FIXED HEADER ── */}
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 50, paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'calc(56px + env(safe-area-inset-top))', zIndex: 50 }}>
             <div style={{
               position: 'absolute', inset: 0,
               backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
@@ -352,7 +352,7 @@ export default function App() {
               maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
             }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
+            <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
               <button
                 onClick={() => setProfileOpen(true)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}

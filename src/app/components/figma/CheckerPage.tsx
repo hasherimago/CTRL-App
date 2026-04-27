@@ -513,7 +513,7 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
     <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}>
 
       {/* ── FIXED HEADER ── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: '56px', paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, height: 'calc(56px + env(safe-area-inset-top))' }}>
         <div style={{
           position: 'absolute', inset: 0,
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
@@ -521,7 +521,7 @@ export function CheckerPage({ onTabChange, onSearchOpen, onProfileOpen }: Checke
           maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)',
         }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
+        <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
           <button onClick={onProfileOpen} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Open profile">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <path d={svgPaths.p279b18f0} fill="#F1F1F1" />

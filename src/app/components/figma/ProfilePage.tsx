@@ -239,7 +239,7 @@ function EditProfilePage({ onBack, onClose, userEmail, savedName, savedPhotoUrl,
         onChange={handlePhotoSelect}
       />
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '70px 16px 32px' }}>
+        <div style={{ padding: 'calc(70px + env(safe-area-inset-top)) 16px 32px' }}>
           {/* Avatar — tappable to change photo */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
             <button
@@ -321,7 +321,7 @@ function SubscriptionPage({ onBack, onClose }: { onBack: () => void; onClose: ()
         right={<CloseButton onClose={onClose} />}
       />
       <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '70px 16px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ padding: 'calc(70px + env(safe-area-inset-top)) 16px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Hero */}
           <div style={{ backgroundImage: `url(${proBg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '16px', padding: '10px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -402,7 +402,7 @@ function LanguagePage({ onBack, onClose }: { onBack: () => void; onClose: () => 
         right={<CloseButton onClose={onClose} />}
       />
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '70px 8px 32px' }}>
+        <div style={{ padding: 'calc(70px + env(safe-area-inset-top)) 8px 32px' }}>
           <div style={{ background: '#171717', borderRadius: '16px', overflow: 'hidden' }}>
             {LANGUAGES.map((lang, i) => (
               <div key={lang.code}>
@@ -455,7 +455,7 @@ function HelpSupportPage({ onBack, onClose }: { onBack: () => void; onClose: () 
         right={<CloseButton onClose={onClose} />}
       />
       <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '70px 8px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: 'calc(70px + env(safe-area-inset-top)) 8px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Contact cards */}
           <div style={{ display: 'flex', gap: '10px' }}>
             <div style={{ flex: 1, background: '#171717', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -540,7 +540,7 @@ function PrivacyPolicyPage({ onBack, onClose }: { onBack: () => void; onClose: (
         right={<CloseButton onClose={onClose} />}
       />
       <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: '70px 16px 32px', display: 'flex', flexDirection: 'column', gap: '0px' }}>
+        <div style={{ padding: 'calc(70px + env(safe-area-inset-top)) 16px 32px', display: 'flex', flexDirection: 'column', gap: '0px' }}>
           <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '13px', color: '#666', lineHeight: 1.5, margin: '0 0 24px 0' }}>
             Last updated: 1 March 2026
           </p>
@@ -671,7 +671,7 @@ export function ProfilePage({ isOpen, onClose, onLogout }: ProfilePageProps) {
 
       {/* ── SCROLLABLE CONTENT ── */}
       <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-        <div style={{ padding: `70px 8px ${LAYOUT.CONTENT_BOTTOM_PADDING}px`, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: `calc(70px + env(safe-area-inset-top)) 8px ${LAYOUT.CONTENT_BOTTOM_PADDING}px`, display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* User card — three states: loading / logged-in / logged-out */}
           {authLoading ? (

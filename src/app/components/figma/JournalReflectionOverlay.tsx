@@ -102,7 +102,7 @@ export function JournalReflectionOverlay({ isOpen, draftLog, onDone, onBack, onC
 
         {/* ── SCROLLABLE CONTENT ── */}
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-          <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ padding: 'calc(100px + env(safe-area-inset-top)) 16px 140px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: 'white', letterSpacing: '0.36px', lineHeight: 1.5, margin: 0 }}>What felt good?</p>

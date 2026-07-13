@@ -107,7 +107,7 @@ export function JournalMoodOverlay({ isOpen, onNext, onBack, onClose }: JournalM
 
         {/* ── SCROLLABLE CONTENT ── */}
         <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-          <div style={{ padding: '100px 16px 140px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
+          <div style={{ padding: 'calc(100px + env(safe-area-inset-top)) 16px 140px', display: 'flex', flexDirection: 'column', gap: '50px' }}>
 
             {/* Section 1 — Mood emoji */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '21px' }}>

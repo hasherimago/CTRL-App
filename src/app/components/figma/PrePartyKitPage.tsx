@@ -16,7 +16,7 @@ export function PrePartyKitPage({ onBack, onSearchOpen, onTabChange }: PrePartyK
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
       {/* ── FIXED HEADER ── */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-[56px]">
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 'calc(56px + env(safe-area-inset-top))' }}>
         <div
           className="absolute inset-0"
           style={{
@@ -33,7 +33,7 @@ export function PrePartyKitPage({ onBack, onSearchOpen, onTabChange }: PrePartyK
             pointerEvents: 'none',
           }}
         />
-        <div className="relative h-full flex items-center justify-between px-4 z-10">
+        <div className="relative flex items-center justify-between px-4 z-10" style={{ height: '56px', marginTop: 'env(safe-area-inset-top)' }}>
           <button onClick={onBack} className="w-8 h-8 flex items-center justify-center" aria-label="Go back">
             <svg width="22" height="21" viewBox="0 0 22 20.5677" fill="none">
               <path d={svgPaths.pb6bc280} fill="#F1F1F1" />

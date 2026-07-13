@@ -422,7 +422,7 @@ function CalendarPanel({ isOpen, weekOffset, onWeekChange, onClose, tripLogs }: 
   return (
     <div style={{
       position: 'fixed',
-      top: '56px',
+      top: 'calc(56px + env(safe-area-inset-top))',
       left: 0,
       right: 0,
       zIndex: 49,

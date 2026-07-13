@@ -25,7 +25,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
     <div className="relative w-full h-screen bg-[#181818] overflow-hidden">
 
       {/* ── FIXED HEADER ── */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-[56px]">
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 'calc(56px + env(safe-area-inset-top))' }}>
         <div
           className="absolute inset-0"
           style={{
@@ -42,7 +42,7 @@ export function ShopPage({ onBack, onSearchOpen, onKitClick, onTabChange }: Shop
             pointerEvents: 'none',
           }}
         />
-        <div className="relative h-full flex items-center justify-between px-4 z-10">
+        <div className="relative flex items-center justify-between px-4 z-10" style={{ height: '56px', marginTop: 'env(safe-area-inset-top)' }}>
           <button
             onClick={onBack}
             className="w-8 h-8 flex items-center justify-center"

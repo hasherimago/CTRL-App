@@ -16,7 +16,7 @@ export function ShopKitPage({ onBack, onSearchOpen, onTabChange }: ShopKitPagePr
     <div className="relative w-full h-screen bg-[#0D0D0D] overflow-hidden">
 
       {/* ── FIXED HEADER ── */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-[56px]">
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 'calc(56px + env(safe-area-inset-top))' }}>
         {/* Layer 1: blur + mask */}
         <div
           className="absolute inset-0"
@@ -38,7 +38,7 @@ export function ShopKitPage({ onBack, onSearchOpen, onTabChange }: ShopKitPagePr
         {/* Layer 3: content */}
         <div className="relative h-full flex flex-col z-10">
           {/* Nav row: back ← | Shop | search */}
-          <div className="h-[56px] flex items-center justify-between px-4">
+          <div className="flex items-center justify-between px-4" style={{ height: '56px', marginTop: 'env(safe-area-inset-top)' }}>
             {/* Back button */}
             <button
               onClick={onBack}

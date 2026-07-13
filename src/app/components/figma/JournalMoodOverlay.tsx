@@ -89,7 +89,7 @@ export function JournalMoodOverlay({ isOpen, onNext, onBack, onClose }: JournalM
         display: isOpen ? 'block' : 'none',
       }}>
         {/* ── HEADER ── */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '83px', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 'calc(83px + env(safe-area-inset-top))', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', paddingTop: 'env(safe-area-inset-top)' }}>
           <button onClick={onBack} style={{ width: '32px', height: '32px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-label="Back">
             <svg width="22" height="21" viewBox="0 0 22 20.5677" fill="none">
               <path d={svgPaths.pb6bc280} fill="#F1F1F1" />

@@ -80,9 +80,9 @@ export function ChecklistOverlay({ isOpen, focusAdd, items, onAdd, onToggle, onD
     >
       {/* ── HEADER ── */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: '83px',
+        position: 'absolute', top: 0, left: 0, right: 0, height: 'calc(83px + env(safe-area-inset-top))',
         zIndex: 20, display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', padding: '0 24px',
+        justifyContent: 'space-between', padding: '0 24px', paddingTop: 'env(safe-area-inset-top)',
       }}>
         <button
           onClick={onClose}

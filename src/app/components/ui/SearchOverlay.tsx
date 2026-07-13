@@ -84,6 +84,7 @@ export function SearchOverlay({ isOpen, onClose, onSelectDrug, drugs }: SearchOv
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '16px 8px 0',
+          paddingTop: 'max(16px, env(safe-area-inset-top))',
           gap: '12px',
           flexShrink: 0,
         }}

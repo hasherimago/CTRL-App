@@ -552,7 +552,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
         {/* gradient layer */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
         {/* content */}
-        <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
+        <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
           {/* Profile icon */}
           <button
             onClick={onProfileOpen}

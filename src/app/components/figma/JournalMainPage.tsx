@@ -538,7 +538,7 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
   const [calendarWeekOffset, setCalendarWeekOffset] = useState(0);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#0D0D0D', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#0D0D0D', overflow: 'hidden' }}>
 
       {/* ── HEADER ── */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'calc(56px + env(safe-area-inset-top))', zIndex: 50 }}>
@@ -660,8 +660,8 @@ export function JournalMainPage({ tripLogs, onLogTrip, onTabChange, onProfileOpe
       ) : (
         <>
           {/* Scrollable log list */}
-          <div style={{ position: 'absolute', top: 0, bottom: `${LAYOUT.NAV_HEIGHT}px`, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-            <div style={{ padding: '70px 8px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+            <div style={{ padding: `70px 8px ${LAYOUT.SCROLL_BOTTOM}px`, display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {tripLogs.map(log => (
                 <SwipeableLogCard
                   key={log.id}

@@ -56,7 +56,7 @@ function CloseButton({ onClose }: { onClose: () => void }) {
 // NOTE: Uses position:absolute (not fixed) — ProfilePage has transform which breaks fixed positioning
 function PageHeader({ title, left, right }: { title: string; left: React.ReactNode; right: React.ReactNode }) {
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '56px', zIndex: 20, paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 'calc(56px + env(safe-area-inset-top))', zIndex: 20 }}>
       {/* blur layer */}
       <div style={{
         position: 'absolute', inset: 0,
@@ -67,7 +67,7 @@ function PageHeader({ title, left, right }: { title: string; left: React.ReactNo
       {/* gradient layer */}
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #0D0D0D 30%, rgba(13,13,13,0) 100%)', pointerEvents: 'none' }} />
       {/* content */}
-      <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10 }}>
+      <div style={{ position: 'relative', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', zIndex: 10, marginTop: 'env(safe-area-inset-top)' }}>
         {left}
         <span style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700, fontSize: '18px', color: '#F1F1F1', letterSpacing: '0.36px', lineHeight: 1 }}>{title}</span>
         {right}
